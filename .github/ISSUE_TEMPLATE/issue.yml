@@ -1,0 +1,15 @@
+name: 이슈
+description: 작업, 버그, 확인 필요 등
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+    validations:
+      required: true
+  - type: textarea
+    id: todo
+    attributes:
+      label: Todo
+      value: |
+        - [ ] 
