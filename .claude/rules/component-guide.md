@@ -15,30 +15,20 @@
 
 ```tsx
 import { type ComponentPropsWithRef } from 'react'
-import { tv } from 'tailwind-variants'
 
-const buttonVariants = tv({
-  base: 'inline-flex items-center justify-center rounded-full font-medium',
-  variants: {
-    variant: {
-      primary: 'bg-[var(--color-primary)] text-white',
-      ghost: 'bg-transparent',
-    },
-    size: {
-      m: 'h-[88px] px-8 text-2xl',
-      l: 'h-[112px] px-12 text-3xl',
-    },
-  },
-  defaultVariants: { variant: 'primary', size: 'm' },
-})
+const VARIANT = {
+  blush: 'bg-blush',
+  mint: 'bg-mint',
+} as const
+
+type Variant = keyof typeof VARIANT
 
 interface ButtonProps extends ComponentPropsWithRef<'button'> {
-  variant?: 'primary' | 'ghost'
-  size?: 'm' | 'l'
+  variant?: Variant
 }
 
-export const Button = ({ variant, size, className, ref, type = 'button', ...props }: ButtonProps) => (
-  <button ref={ref} type={type} className={buttonVariants({ variant, size, className })} {...props} />
+export const Button = ({ variant = 'blush', className, ref, type = 'button', ...props }: ButtonProps) => (
+  <button ref={ref} type={type} className={`... ${VARIANT[variant]} ${className ?? ''}`} {...props} />
 )
 ```
 
@@ -47,7 +37,7 @@ export const Button = ({ variant, size, className, ref, type = 'button', ...prop
 - `className` prop 항상 노출 — 외부에서 스타일 오버라이드 가능하게
 - `ref` prop 항상 노출
 - 나머지 props는 `...props`로 전달
-- 스타일 변형은 `tailwind-variants`(`tv`)로 관리
+- 스타일 변형은 **객체 맵**으로 관리합니다 (`as const` + `keyof typeof`)
 - **크기는 Figma 좌표 그대로 px**로 씁니다. rem·%로 환산하지 않습니다(`architecture.md` 고정 캔버스)
 - 터치 타겟은 **≥ 88px** — 위 예시의 `size: m`이 최소값입니다
 
@@ -61,12 +51,17 @@ export const Button = ({ variant, size, className, ref, type = 'button', ...prop
 
 ### Variant pattern
 
-시각 상태는 `tailwind-variants`로 관리합니다. boolean prop을 남발하지 않습니다.
-잘못된 조합이 타입 단계에서 걸립니다.
+시각 상태는 **객체 맵**으로 관리합니다. boolean prop을 남발하지 않습니다.
+`keyof typeof` 로 타입을 뽑으면 잘못된 값이 타입 단계에서 걸립니다.
 
 ```tsx
-export type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>
+const VARIANT = { blush: 'bg-blush', mint: 'bg-mint' } as const
+export type ChoiceVariant = keyof typeof VARIANT
 ```
+
+**`tailwind-variants` 같은 라이브러리를 쓰지 않습니다.** 변형 축이 하나뿐이라 객체 맵으로 충분하고,
+의존성을 늘릴 이유가 없습니다. 축이 2개 이상으로 늘고 조합 규칙이 생기면 그때 도입을 검토합니다
+(의존성 추가는 확인을 받습니다 — `project-constraints.md`).
 
 ### Controlled component
 
@@ -109,7 +104,7 @@ const TARGETS: TargetOption[] = [
 
 ## 피해야 할 패턴
 
-- 시각 상태를 boolean props로 남발 → variant로 통합
+- 시각 상태를 boolean props로 남발 → variant 맵으로 통합
 - 컴포넌트 내부 상태 관리 → controlled component로 세션 스토어가 제어
 - 모든 조각을 props로 받기 → slot props로 특정 위치만 주입
 - JSX에 데이터 하드코딩 → 배열/객체로 렌더링

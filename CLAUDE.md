@@ -62,5 +62,6 @@
 공통 개발 규칙 및 지침은 `.claude/rules/` 및 `AGENTS.md`를 따릅니다.
 
 - **Tier 1 (항상)**: `working-rules.md`, `project-constraints.md`
+- **Skills**: `.claude/skills/` — `figma-to-component`, `asset-cleanup`, `code-review`, `commit-kr`, `create-pr`
 - **Tier 2 (필요 시)**: `architecture.md`, `component-guide.md`, `state-machine.md`, `motion.md`,
   `assets.md`, `ai-pipeline.md`, `operations.md`, `testing.md`, `commit-convention.md`

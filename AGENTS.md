@@ -52,6 +52,18 @@
 | 테스트 추가 또는 수정 | `.claude/rules/testing.md` |
 | PR/커밋 문구 작성, 브랜치 이름 | `.claude/rules/commit-convention.md` |
 
+### Skills
+
+| Skill | 용도 |
+| --- | --- |
+| `figma-to-component` | Figma 노드를 컴포넌트로 옮기기 |
+| `asset-cleanup` | Figma 에셋 중복 제거·병합 |
+| `code-review` | 변경 코드 리뷰 (읽기 전용) |
+| `commit-kr` | 한국어 커밋 메시지 제안 |
+| `create-pr` | PR 제목·본문 초안 |
+
+Skill 파일은 `.claude/skills/<skill-name>/SKILL.md` 에 있습니다.
+
 ### 참고 문서
 
 | 문서 | 내용 |
