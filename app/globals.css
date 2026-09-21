@@ -13,16 +13,39 @@
   --color-dough: #bfb1a8;   /* 색상   — 보조 텍스트, 비활성 */
   --color-sugar: #ebebed;   /* 메인1  — 밝은 면, 구분선 */
 
+  /* Figma 변수로 선언되지 않았지만 디자인에 실제로 쓰이는 색 */
+  --color-icing: #fff9fc;   /* 대화 박스 본문 배경 */
+  --color-crust: #644542;   /* 대화 박스 하단 바 (cocoa 보다 진함) */
+  --color-blush: #ffcbe7;   /* 선택지 버튼 핑크 */
+  --color-mint: #f1ffff;    /* 선택지 버튼 민트, 진행률 트랙 */
+  --color-plate: #f2f2f2;   /* 선택지 버튼 바깥 판 */
+
+  /* 선·그라디언트 — Figma 변수로 선언되지 않은 보조 색 */
+  --color-track-line: #d4c7c1; /* 진행률 트랙 테두리 */
+  --color-fill-line: #867b76;  /* 진행률 채움 테두리 */
+  --color-plate-line: #909090; /* 선택지 안쪽 면 테두리 */
+  --color-glaze: #fffcf3;      /* complete 그라디언트 중간 */
+  --color-petal: #ffd1e9;      /* complete 그라디언트 끝 */
+
   /* 타이포 — 뒤쪽은 로드 실패 시에만 쓰이는 최후 폴백 */
   --font-sans: 'PF Stardust', system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
   --font-display: 'Starshines', 'PF Stardust', system-ui, sans-serif;
   --text-body-size: 34.73px;
   --text-body-weight: 700;
   --text-body-leading: 34px;
-  --text-body-tracking: -2.5px;
+  --text-body-tracking: -0.025em; /* Figma 의 -2.5 는 px 가 아니라 % 다 */
 
-  /* 그림자 — Figma `창 그림자` */
+  /*
+   * 그림자 — Figma `창 그림자` (offset 3/9, radius 30, #00000026).
+   * box-shadow 와 filter: drop-shadow 는 blur 기준이 달라 값이 절반이다.
+   */
   --shadow-window: 3px 9px 30px 0 rgb(0 0 0 / 0.15);
+  --shadow-window-drop: 3px 9px 15px rgb(0 0 0 / 0.15);
+  --shadow-dialog: 7.235px 10.129px 10.925px rgb(185 172 172 / 0.8);
+  --shadow-cream: 0 5.79px 9.12px #e3ded2; /* 대화 박스 크림 아래 */
+  --shadow-plate: -0.682px 1.022px 19.957px 0 rgb(255 255 255 / 0.63);
+  --shadow-plate-inset: inset 3.749px -2.979px 21.297px 0 rgb(255 255 255 / 0.47);
+  --text-shadow-soft: 2.097px 2.097px 2.621px #d5abc2;
 
   /* 모션 토큰 — `.claude/rules/motion.md` 와 동기화 */
   --dur-instant: 120ms;
@@ -41,18 +64,29 @@
   body {
     height: 100%;
     overflow: hidden;
-    background: var(--color-cream);
+    /* 캔버스 바깥 여백. 캔버스 안쪽(cream)과 구분되도록 흰색으로 둔다. */
+    background: #fff;
     color: var(--color-cocoa);
     font-family: var(--font-sans);
+    /*
+     * macOS 는 기본이 서브픽셀 안티앨리어싱이라 Figma 보다 글자가 두껍게 보인다.
+     * 개발 중 미리보기를 디자인과 맞추기 위한 설정이며, webOS(Linux)에서는 무시된다.
+     */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 터치 전용: 커서 숨김 + 제스처 차단. `.claude/rules/operations.md` */
+  /* 터치 전용 제스처 차단. `.claude/rules/operations.md` */
   * {
-    cursor: none;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     user-select: none;
     touch-action: manipulation;
     overscroll-behavior: none;
+  }
+
+  /* 커서는 전시(프로덕션)에서만 숨긴다. 개발 중에는 보여야 작업이 된다. */
+  [data-env='production'] * {
+    cursor: none;
   }
 }

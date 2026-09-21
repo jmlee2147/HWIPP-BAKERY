@@ -16,9 +16,22 @@ const config: Config = {
         cocoa: 'var(--color-cocoa)', // 색상 2 — 본문 텍스트, 하단 바
         dough: 'var(--color-dough)', // 색상   — 보조 텍스트, 비활성
         sugar: 'var(--color-sugar)', // 메인1  — 밝은 면, 구분선
+        icing: 'var(--color-icing)', // 대화 박스 본문 배경
+        crust: 'var(--color-crust)', // 대화 박스 하단 바
+        blush: 'var(--color-blush)', // 선택지 버튼 핑크
+        mint: 'var(--color-mint)',   // 선택지 버튼 민트, 진행률 트랙
+        plate: 'var(--color-plate)', // 선택지 버튼 바깥 판
+        'track-line': 'var(--color-track-line)',
+        'fill-line': 'var(--color-fill-line)',
+        'plate-line': 'var(--color-plate-line)',
       },
       boxShadow: {
         window: 'var(--shadow-window)',
+      },
+      dropShadow: {
+        dialog: 'var(--shadow-dialog)',
+        cream: 'var(--shadow-cream)',
+        window: 'var(--shadow-window-drop)',
       },
       fontFamily: {
         sans: ['var(--font-sans)'],

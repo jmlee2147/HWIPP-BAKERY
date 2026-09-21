@@ -32,13 +32,17 @@ export const FixedCanvas = ({ children }: FixedCanvasProps) => {
   }, [])
 
   return (
-    <div className="grid h-full w-full place-items-center overflow-hidden bg-cream">
+    <div className="relative h-full w-full overflow-hidden bg-white">
+      {/*
+        캔버스(1920px)가 뷰포트보다 클 때 grid 중앙 정렬은 넘침 처리가 브라우저마다 다르다.
+        translate 로 중앙을 직접 잡으면 배율과 무관하게 항상 같은 위치다.
+      */}
       <div
+        className="absolute left-1/2 top-1/2 bg-cream"
         style={{
           width: CANVAS_WIDTH,
           height: CANVAS_HEIGHT,
-          transform: `scale(${scale ?? 1})`,
-          transformOrigin: 'center center',
+          transform: `translate(-50%, -50%) scale(${scale ?? 1})`,
           visibility: scale === null ? 'hidden' : 'visible',
         }}
       >
