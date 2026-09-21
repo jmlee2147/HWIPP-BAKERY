@@ -145,3 +145,9 @@ vite.config.ts.timestamp-*
 # OMC runtime state
 .omc/
 !.omc/skills/
+
+# 검증 빌드 산출물 (개발 서버와 분리)
+.next-build/
+
+# Next.js 자동 생성. dev/build 의 distDir 에 따라 내용이 바뀐다.
+next-env.d.ts
