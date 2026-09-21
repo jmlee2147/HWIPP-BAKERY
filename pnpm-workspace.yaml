@@ -1,0 +1,6 @@
+# pnpm은 의존성 postinstall을 기본 차단한다. 바이너리가 필요한 것만 허용.
+#   esbuild       — vitest
+#   unrs-resolver — eslint-config-next
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
