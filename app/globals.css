@@ -1,0 +1,58 @@
+@import './fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 디자인 토큰 — Figma `전시 디자인 공유` 에서 추출. 폰트는 `app/fonts.css`. */
+:root {
+  /* 색상 — 베이커리 재료 이름. 괄호는 대조용 Figma 변수명. */
+  --color-cream: #fff2f9;   /* 메인2  — 화면 바탕, 대화박스 */
+  --color-berry: #ff9ccf;   /* 색상 3 — 강조, 선택지, 진행률 채움 */
+  --color-cocoa: #5b4a43;   /* 색상 2 — 본문 텍스트, 하단 바 */
+  --color-dough: #bfb1a8;   /* 색상   — 보조 텍스트, 비활성 */
+  --color-sugar: #ebebed;   /* 메인1  — 밝은 면, 구분선 */
+
+  /* 타이포 — 뒤쪽은 로드 실패 시에만 쓰이는 최후 폴백 */
+  --font-sans: 'PF Stardust', system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  --font-display: 'Starshines', 'PF Stardust', system-ui, sans-serif;
+  --text-body-size: 34.73px;
+  --text-body-weight: 700;
+  --text-body-leading: 34px;
+  --text-body-tracking: -2.5px;
+
+  /* 그림자 — Figma `창 그림자` */
+  --shadow-window: 3px 9px 30px 0 rgb(0 0 0 / 0.15);
+
+  /* 모션 토큰 — `.claude/rules/motion.md` 와 동기화 */
+  --dur-instant: 120ms;
+  --dur-quick: 240ms;
+  --dur-base: 400ms;
+  --dur-slow: 700ms;
+  --dur-scene: 1200ms;
+
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--color-cream);
+    color: var(--color-cocoa);
+    font-family: var(--font-sans);
+  }
+
+  /* 터치 전용: 커서 숨김 + 제스처 차단. `.claude/rules/operations.md` */
+  * {
+    cursor: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+}
