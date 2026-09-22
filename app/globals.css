@@ -26,10 +26,15 @@
   --color-plate-line: #909090; /* 선택지 안쪽 면 테두리 */
   --color-glaze: #fffcf3;      /* complete 그라디언트 중간 */
   --color-petal: #ffd1e9;      /* complete 그라디언트 끝 */
+  --color-board: #e2e2e2;      /* 타이틀 액자 안쪽 면, 상단 바 구분선 */
+  --color-panel: #fcfcf9;      /* 타이틀 액자 위쪽 판 */
+  --color-dot: #dcdcdc;        /* 타이틀 도트 패턴 */
+  --color-roast: #5e3e23;      /* START! 글자 (cocoa 보다 붉고 진하다) */
 
   /* 타이포 — 뒤쪽은 로드 실패 시에만 쓰이는 최후 폴백 */
   --font-sans: 'PF Stardust', system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
   --font-display: 'Starshines', 'PF Stardust', system-ui, sans-serif;
+  --font-hint: 'PF Stardust ExtraBold', 'PF Stardust', system-ui, sans-serif;
   --text-body-size: 34.73px;
   --text-body-weight: 700;
   --text-body-leading: 34px;
@@ -46,6 +51,27 @@
   --shadow-plate: -0.682px 1.022px 19.957px 0 rgb(255 255 255 / 0.63);
   --shadow-plate-inset: inset 3.749px -2.979px 21.297px 0 rgb(255 255 255 / 0.47);
   --text-shadow-soft: 2.097px 2.097px 2.621px #d5abc2;
+  /* 오프닝 안내문 글로우. 회전 아트보드의 1px/1px 를 화면 방향으로 돌린 값이다. */
+  --text-shadow-hint: -1px 1px 7.7px #c12f7d;
+  /*
+   * 타이틀 로고 워드마크의 번짐. Figma 이펙트가 내보내기 코드에 나오지 않아
+   * 원본 렌더에서 감쇠 거리(약 12px)를 재어 옮겼다. 정확한 값은 디자인 확인이 필요하다.
+   */
+  --text-shadow-logo: 0 0 10px rgb(255 255 255 / 0.55);
+  /*
+   * 간판 로고 그림자. 회전 아트보드의 3px/3px 를 돌린 값이다.
+   * 판이 타원이라 box-shadow 가 아닌 drop-shadow 를 쓴다 — blur 기준이 달라 4px 가 2px 이 된다.
+   */
+  --shadow-sign-drop: -3px 3px 2px rgb(0 0 0 / 0.25);
+  /*
+   * 타이틀 로고 판. 회전 아트보드의 5.402/9.454 를 화면 방향으로 돌렸다.
+   * 판이 스캘럽 타원이라 box-shadow 를 쓰면 **사각형 그림자**가 생긴다 — drop-shadow 여야
+   * 알파 모양을 따라간다. blur 기준이 달라 10.805 가 절반이 된다.
+   */
+  --shadow-logo-plate: -9.454px 5.402px 5.4px rgb(0 0 0 / 0.15);
+  /* START! 버튼. 회전 아트보드 값이라 오프셋을 돌렸다 (-0.731/1.097, 4.021/-3.195). */
+  --shadow-start: -1.097px -0.731px 21.405px 0 rgb(255 255 255 / 0.63);
+  --shadow-start-inset: inset 3.195px 4.021px 22.843px 0 rgb(255 255 255 / 0.47);
 
   /* 모션 토큰 — `.claude/rules/motion.md` 와 동기화 */
   --dur-instant: 120ms;
@@ -88,5 +114,76 @@
   /* 커서는 전시(프로덕션)에서만 숨긴다. 개발 중에는 보여야 작업이 된다. */
   [data-env='production'] * {
     cursor: none;
+  }
+}
+
+/*
+ * 오프닝 연출. transform·opacity 만 쓴다 (`.claude/rules/motion.md`).
+ * `prefers-reduced-motion` 은 전시물이라 의도적으로 무시한다 — 연출이 콘텐츠다.
+ */
+@layer utilities {
+  /*
+   * 탭 어포던스. 터치에는 hover 가 없어 상시 움직여야 "누를 수 있음"이 보인다.
+   * 숨을 쉬듯 부드럽게 하지 않고 `steps` 로 딱 바뀌게 둔다 — 오프닝 전체가 끊기는 연출이다.
+   */
+  @keyframes opening-hint {
+    from {
+      opacity: 0.55;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-opening-hint {
+    animation: opening-hint 900ms steps(1, end) infinite alternate;
+  }
+
+  /*
+   * 대사 한 글자. 타자기라 페이드로 번지면 안 된다 —
+   * duration 을 0 으로 두어 delay 가 끝나는 순간 글자가 그대로 찍히게 한다.
+   */
+  @keyframes type-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-type-in {
+    animation: type-in 0s linear both;
+  }
+
+  /* 타이틀의 케이크 사진이 보드 위에서 떠다닌다. 여기만은 끊지 않고 이어서 움직인다. */
+  @keyframes cake-float {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-9px);
+    }
+  }
+
+  .animate-cake-float {
+    animation: cake-float 3200ms var(--ease-move) infinite alternate;
+  }
+
+  /*
+   * 로고 뒤 별판. 원래는 hover 연출이었지만 터치에는 hover 가 없어 상시 흐르게 한다.
+   * 창보다 큰 그림을 옮기는 것이라 transform 만으로 끝난다.
+   */
+  @keyframes star-drift {
+    from {
+      transform: translate(0, 0);
+    }
+    to {
+      transform: translate(-54px, -32px);
+    }
+  }
+
+  .animate-star-drift {
+    animation: star-drift 16s var(--ease-move) infinite alternate;
   }
 }

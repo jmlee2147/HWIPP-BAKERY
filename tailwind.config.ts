@@ -24,6 +24,10 @@ const config: Config = {
         'track-line': 'var(--color-track-line)',
         'fill-line': 'var(--color-fill-line)',
         'plate-line': 'var(--color-plate-line)',
+        board: 'var(--color-board)', // 타이틀 액자 안쪽 면
+        panel: 'var(--color-panel)', // 타이틀 액자 위쪽 판
+        dot: 'var(--color-dot)',     // 타이틀 도트 패턴
+        roast: 'var(--color-roast)', // START! 글자
       },
       boxShadow: {
         window: 'var(--shadow-window)',
@@ -32,10 +36,12 @@ const config: Config = {
         dialog: 'var(--shadow-dialog)',
         cream: 'var(--shadow-cream)',
         window: 'var(--shadow-window-drop)',
+        sign: 'var(--shadow-sign-drop)', // 오프닝 간판 로고
       },
       fontFamily: {
         sans: ['var(--font-sans)'],
         display: ['var(--font-display)'],
+        hint: ['var(--font-hint)'], // 오프닝 하단 안내문
       },
       // Figma 텍스트 스타일은 `본문` 하나뿐. 스케일이 확정되면 여기에 추가한다.
       fontSize: {
