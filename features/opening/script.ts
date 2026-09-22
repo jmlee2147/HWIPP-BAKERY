@@ -362,8 +362,8 @@ export const OPENING_CUTS = [
   {
     id: 'shop-door-open',
     canvasColor: '#fff9f1',
-    // 문이 열리며 매장으로 들어가는 전환이라 한 단계 흐려진다.
-    backgroundOpacity: 0.75,
+    // 문만 열린 컷이다. 배경을 흐리면 색감이 연해져 같은 가게로 보이지 않는다.
+    backgroundOpacity: 1,
     doorOpen: true,
     lines: ['어? 여기 새로 생긴 디저트 가게인가?', '맛있어 보인다. 한 번 들어가 볼까?'],
     hint: '화면을 터치해 들어가기',
