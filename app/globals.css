@@ -29,6 +29,7 @@
   --color-board: #e2e2e2;      /* 타이틀 액자 안쪽 면, 상단 바 구분선 */
   --color-panel: #fcfcf9;      /* 타이틀 액자 위쪽 판 */
   --color-dot: #dcdcdc;        /* 타이틀 도트 패턴 */
+  --color-snow: #fff;          /* 타이틀 도트 판 바탕 (panel 과 달리 순백) */
   --color-roast: #5e3e23;      /* START! 글자 (cocoa 보다 붉고 진하다) */
 
   /* 타이포 — 뒤쪽은 로드 실패 시에만 쓰이는 최후 폴백 */

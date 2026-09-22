@@ -44,7 +44,7 @@ const dotPanel = ({
   const layer = `radial-gradient(circle ${radius}px at center, var(--color-dot) 99%, transparent 100%)`
   return {
     ...box,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--color-snow)',
     backgroundImage: `${layer}, ${layer}`,
     backgroundSize: `${cell}px ${cell}px`,
     backgroundPosition: `${offsetX}px ${offsetY}px, ${offsetX + cell / 2}px ${offsetY + cell / 2}px`,
