@@ -43,43 +43,51 @@ interface DialogBoxProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> 
 }
 
 export const DialogBox = ({ children, className, ...props }: DialogBoxProps) => (
-  <div
-    className={`relative drop-shadow-dialog ${className ?? ''}`}
-    style={{ width: WIDTH, height: HEIGHT }}
-    {...props}
-  >
-    <div
-      className="absolute border-[1.447px] border-icing bg-crust"
-      style={{ top: '78.07%', left: '0.93%', right: '0.93%', bottom: 0 }}
-    />
-    <div
-      className="absolute border-[2.894px] border-icing bg-icing"
-      style={{ top: '14.4%', left: '1%', right: '0.86%', bottom: '19.52%' }}
-    />
-
-    {/* 본문 배경 점 장식. Figma 가 5덩어리로 내보낸 것을 하나로 합쳤다. */}
-    <Layer
-      src="/img/dialog/dots.svg"
-      box={{ top: '35.64%', right: '3.24%', bottom: '28.51%', left: '5.98%' }}
-    />
-
-    <Layer
-      src="/img/dialog/top-edge.svg"
-      box={{ top: '14.11%', right: '0', bottom: '71.5%', left: '0' }}
-    />
-
+  <div className={`relative ${className ?? ''}`} style={{ width: WIDTH, height: HEIGHT }} {...props}>
     {/*
-      크림 아래 그림자(Figma: 0 / 5.79 / blur 9.12 / #E3DED2).
-      노드 이펙트라 SVG 로 내보내지지 않아 CSS 로 건다. 루트의 drop-shadow 로는 나오지 않는다 —
-      필터는 바깥 실루엣에만 그림자를 그리는데 크림 아랫면은 박스 내부다.
-      11개에 각각 걸지 않고 묶어서 한 번만 건다. 필터 패스가 11번 돌 이유가 없다.
+      그림자는 **박스 실루엣에만** 건다. 본문 글자를 이 안에 두면 글자가 한 자씩 찍힐 때마다
+      필터 패스가 다시 돈다 — 대사 41자면 블러를 41번 다시 계산한다.
+      애니메이션 속성은 opacity 뿐이어도 정적 필터 안쪽이면 비용이 생긴다 (`.claude/rules/motion.md`).
     */}
-    <div className="absolute inset-0 drop-shadow-cream">
-      {CREAM.map((box) => (
-        <Layer key={box.left} src="/img/dialog/cream.svg" box={box} />
+    <div className="absolute inset-0 drop-shadow-dialog">
+      <div
+        className="absolute border-[1.447px] border-icing bg-crust"
+        style={{ top: '78.07%', left: '0.93%', right: '0.93%', bottom: 0 }}
+      />
+      <div
+        className="absolute border-[2.894px] border-icing bg-icing"
+        style={{ top: '14.4%', left: '1%', right: '0.86%', bottom: '19.52%' }}
+      />
+
+      {/* 본문 배경 점 장식. Figma 가 5덩어리로 내보낸 것을 하나로 합쳤다. */}
+      <Layer
+        src="/img/dialog/dots.svg"
+        box={{ top: '35.64%', right: '3.24%', bottom: '28.51%', left: '5.98%' }}
+      />
+
+      <Layer
+        src="/img/dialog/top-edge.svg"
+        box={{ top: '14.11%', right: '0', bottom: '71.5%', left: '0' }}
+      />
+
+      {/*
+        크림 아래 그림자(Figma: 0 / 5.79 / blur 9.12 / #E3DED2).
+        노드 이펙트라 SVG 로 내보내지지 않아 CSS 로 건다. 루트의 drop-shadow 로는 나오지 않는다 —
+        필터는 바깥 실루엣에만 그림자를 그리는데 크림 아랫면은 박스 내부다.
+        11개에 각각 걸지 않고 묶어서 한 번만 건다. 필터 패스가 11번 돌 이유가 없다.
+      */}
+      <div className="absolute inset-0 drop-shadow-cream">
+        {CREAM.map((box) => (
+          <Layer key={box.left} src="/img/dialog/cream.svg" box={box} />
+        ))}
+      </div>
+
+      {STARS.map((box) => (
+        <Layer key={box.left} src="/img/dialog/star.svg" box={box} />
       ))}
     </div>
 
+    {/* 글자는 필터 밖이다. 별(85.12%)과 자리가 겹치지 않아 겹 순서가 바뀌어도 그림이 같다. */}
     <div
       className="absolute flex flex-col justify-center text-center text-body text-cocoa"
       style={{
@@ -93,9 +101,5 @@ export const DialogBox = ({ children, className, ...props }: DialogBoxProps) => 
     >
       {children}
     </div>
-
-    {STARS.map((box) => (
-      <Layer key={box.left} src="/img/dialog/star.svg" box={box} />
-    ))}
   </div>
 )

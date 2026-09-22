@@ -57,7 +57,16 @@ export const TitleLogo = ({ starRef }: TitleLogoProps) => (
         className="absolute inset-0 overflow-hidden"
         style={{ transform: `rotate(${LOGO_STAR_TILT}deg)` }}
       >
-        <div ref={starRef} className="absolute inset-0">
+        {/*
+          이 겹만 `will-change` 를 붙인다. 습관적으로 붙이지 않는다는 규칙의 예외로,
+          rAF 가 프레임마다 transform 을 쓰는 **실제로 애니메이션되는 요소**다
+          (`.claude/rules/motion.md`).
+
+          없으면 승격되지 않아 이 겹이 형제인 로고 판·글자까지 끌고 다시 그린다 —
+          그 안에 블러 필터가 둘 있어 매 프레임 블러를 다시 계산하게 된다.
+          Paint flashing 으로 로고 영역 전체가 상시 점멸하는 것을 확인했다.
+        */}
+        <div ref={starRef} className="absolute inset-0" style={{ willChange: 'transform' }}>
           <img
             src="/img/opening/title/logo-stars.avif"
             alt=""
