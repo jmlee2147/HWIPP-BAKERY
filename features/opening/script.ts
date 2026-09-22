@@ -49,11 +49,15 @@ export const SIGN_LAYOUT = {
 /** 워드마크는 Starshines 로 직접 그린다. 이미지로 굽지 않는다. */
 export const WORDMARK_FONT_SIZE = 71.649
 
-/** 하단 안내문 타이포. Figma 텍스트 스타일로 등록되어 있지 않아 여기 둔다. */
+/**
+ * 하단 안내문 타이포. Figma 텍스트 스타일로 등록되어 있지 않아 여기 둔다.
+ * PF Stardust ExtraBold 800 · 40px · 줄높이 93px · 자간 -2.5% · #FFFFFF.
+ * 외곽선은 없다 — 글자 윤곽은 분홍 그림자(`--text-shadow-hint`)뿐이다.
+ */
 export const HINT_TYPE = {
   fontSize: 40,
   lineHeight: '93px',
-  letterSpacing: '-1px',
+  letterSpacing: '-0.025em', // Figma 의 -2.5 는 px 가 아니라 % 다
 } as const
 
 /**

@@ -54,6 +54,11 @@
   /* 오프닝 안내문 글로우. 회전 아트보드의 1px/1px 를 화면 방향으로 돌린 값이다. */
   --text-shadow-hint: -1px 1px 7.7px #c12f7d;
   /*
+   * 맥동할 때의 번짐. 스펙 그림자를 겹쳐 쌓은 것이라 색과 방향은 그대로다.
+   * 이 겹은 글자 뒤에 깔려 불투명도만 움직인다 (`features/opening/TouchHint.tsx`).
+   */
+  --text-shadow-hint-pulse: -1px 1px 7.7px #c12f7d, 0 0 15px #c12f7d;
+  /*
    * 타이틀 로고 워드마크. Figma `Group 2043687975` 의 Borders·Drop shadow 값.
    * blur 는 절반으로 줄인다 — drop-shadow 와 Figma 의 blur 기준이 다르다(13.51 → 6.76).
    */
@@ -127,19 +132,36 @@
 @layer utilities {
   /*
    * 탭 어포던스. 터치에는 hover 가 없어 상시 움직여야 "누를 수 있음"이 보인다.
-   * 숨을 쉬듯 부드럽게 하지 않고 `steps` 로 딱 바뀌게 둔다 — 오프닝 전체가 끊기는 연출이다.
+   *
+   * 글자를 띄우거나 키우지 않는다 — 하단 안내문이 오르내리면 화면이 어수선해진다.
+   * 제자리에서 번짐만 맥동시킨다. 가장 진할 때도 절반까지만 올린다 — 꽉 채우면
+   * 분홍이 탁해져 글자가 뭉개진다. 근거는 `features/opening/TouchHint.tsx`.
    */
-  @keyframes opening-hint {
+  @keyframes hint-glow {
     from {
-      opacity: 0.55;
+      opacity: 0.1;
+    }
+    to {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-hint-glow {
+    animation: hint-glow 1400ms var(--ease-move) infinite alternate;
+  }
+
+  /* 대사가 다 나온 뒤에 뜬다. 툭 나타나면 대사에서 눈을 뺏는다. */
+  @keyframes hint-in {
+    from {
+      opacity: 0;
     }
     to {
       opacity: 1;
     }
   }
 
-  .animate-opening-hint {
-    animation: opening-hint 900ms steps(1, end) infinite alternate;
+  .animate-hint-in {
+    animation: hint-in var(--dur-base) var(--ease-enter) both;
   }
 
   /*
@@ -212,6 +234,41 @@
     animation: logo-drop var(--dur-slow) var(--ease-pop) both;
   }
 
+  /*
+   * 컷 1 → 컷 2. 타이틀이 다가오며 걷히고 그 아래에서 가게 앞이 다가온다.
+   * 두 겹이 같은 방향으로 움직여야 화면이 교차되는 게 아니라 안으로 들어가는 것처럼 보인다.
+   * 걷히는 쪽이 위에 있으므로(`OpeningScene`) 들어오는 쪽은 페이드를 얕게 둔다.
+   */
+  @keyframes cut-leave {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.08);
+    }
+  }
+
+  .animate-cut-leave {
+    animation: cut-leave var(--dur-slow) var(--ease-exit) both;
+  }
+
+  @keyframes cut-enter {
+    from {
+      opacity: 0.85;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-cut-enter {
+    animation: cut-enter var(--dur-slow) var(--ease-enter) both;
+  }
+
   /* 장식이 하나씩 튄다. 오프닝 전체가 끊기는 연출이라 튀는 구간만 짧게 둔다. */
   @keyframes deco-twinkle {
     0%,
@@ -252,7 +309,7 @@
 
   /*
    * 탭 어포던스. 터치에는 hover 가 없어 "누를 수 있음"이 상시 움직임으로 보여야 한다.
-   * 안내문(`opening-hint`)과 달리 버튼은 끊지 않는다 — 깜빡이면 고장처럼 보인다.
+   * 안내문(`hint-glow`)은 번짐만 맥동하지만 버튼은 몸이 움직인다 — 눌리는 물건이라 그렇다.
    */
   @keyframes start-bounce {
     from {

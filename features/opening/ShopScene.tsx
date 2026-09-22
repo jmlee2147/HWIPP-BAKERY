@@ -6,10 +6,10 @@ import { typeDurationMs } from '@/components/motion/variants'
 import { DialogBox } from '@/components/ui/DialogBox'
 import { fromRotatedArtboard } from '@/lib/config/artboard'
 import { SignLogo } from './SignLogo'
+import { TouchHint } from './TouchHint'
 import {
   DOOR_OPEN_PATCH,
   DOOR_PATCH_BOX,
-  HINT_TYPE,
   OPENING_CUTS,
   OPENING_LAYOUT,
   SHOP_BACKGROUND,
@@ -18,7 +18,6 @@ import {
 
 const BACKGROUND = fromRotatedArtboard(OPENING_LAYOUT.background)
 const DIALOG = fromRotatedArtboard(OPENING_LAYOUT.dialog)
-const HINT = fromRotatedArtboard(OPENING_LAYOUT.hint)
 
 /**
  * 오프닝 컷 2~3 — 가게 앞. 화면을 탭하면 다음 컷으로 넘어간다.
@@ -84,14 +83,7 @@ export const ShopScene = () => {
       </div>
 
       {/* 안내문은 대사가 다 나온 뒤에 띄운다. 먼저 뜨면 대사를 덜 읽고 넘긴다. */}
-      {revealed && (
-        <div
-          className="absolute flex animate-opening-hint items-center justify-center whitespace-nowrap font-hint text-white"
-          style={{ ...HINT, ...HINT_TYPE, textShadow: 'var(--text-shadow-hint)' }}
-        >
-          {cut.hint}
-        </div>
-      )}
+      {revealed && <TouchHint>{cut.hint}</TouchHint>}
     </main>
   )
 }
