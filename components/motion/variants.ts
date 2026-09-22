@@ -42,6 +42,15 @@ export const CARD_FLOAT = {
 /** 카드 키는 모션 테이블이 정한다 — 리듬 없는 카드가 생기지 않게 타입으로 묶는다. */
 export type CardKey = keyof typeof CARD_FLOAT
 
+/**
+ * 전환이 끝났다는 신호(`animationend`)가 오지 않을 때의 안전망(ms).
+ *
+ * 정확한 시간이 아니라 **넉넉한 상한**이다 — 전환 길이(`--dur-slow` 700ms)보다 길기만 하면 된다.
+ * 이 장치가 없으면 두 컷이 모두 입력이 막힌 채로 남아 탭으로도 복구할 수 없다
+ * (`.claude/rules/operations.md` — 절차가 아니라 설계로 푼다).
+ */
+export const CUT_TRANSITION_FALLBACK_MS = 1500
+
 /** 컷 1 진입 — 카드가 차례로 튀어 들어온다. */
 export const CARD_POP_DELAY_MS = 160
 export const CARD_POP_STEP_MS = 90
