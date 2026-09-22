@@ -269,7 +269,11 @@
     animation: cut-enter var(--dur-slow) var(--ease-enter) both;
   }
 
-  /* 장식이 하나씩 튄다. 오프닝 전체가 끊기는 연출이라 튀는 구간만 짧게 둔다. */
+  /*
+   * 장식이 하나씩 튄다. 오프닝 전체가 끊기는 연출이라 튀는 구간만 짧게 둔다.
+   * 주기와 위상은 `components/motion/variants.ts` 가 넣어 준다 — 둘의 관계가 어긋나면
+   * 장식이 겹쳐 튀므로 한곳에서 계산한다.
+   */
   @keyframes deco-twinkle {
     0%,
     64% {
@@ -288,7 +292,7 @@
   }
 
   .animate-deco-twinkle {
-    animation: deco-twinkle 2600ms var(--ease-move) infinite;
+    animation: deco-twinkle var(--twinkle-dur) var(--ease-move) infinite;
   }
 
   /* START! — 마지막에 올라온다. */

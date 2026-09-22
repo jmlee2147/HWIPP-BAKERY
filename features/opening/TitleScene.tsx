@@ -4,7 +4,8 @@ import { useRef, type CSSProperties, type PointerEvent } from 'react'
 import { useStarFlow } from '@/components/motion/useStarFlow'
 import {
   CLIP_DROP_DELAY_MS,
-  DECO_TWINKLE_STEP_MS,
+  DECO_TWINKLE_MS,
+  decoTwinkleDelayMs,
   START_POP_DELAY_MS,
   STAR_STEER_MIN_PX,
 } from '@/components/motion/variants'
@@ -122,7 +123,12 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
           box={deco.box}
           flipX={deco.flipX}
           className="animate-deco-twinkle"
-          style={{ animationDelay: `${index * DECO_TWINKLE_STEP_MS}ms` }}
+          style={
+            {
+              '--twinkle-dur': `${DECO_TWINKLE_MS}ms`,
+              animationDelay: `${decoTwinkleDelayMs(index, TITLE_DECOS.length)}ms`,
+            } as CSSProperties
+          }
         />
       ))}
 

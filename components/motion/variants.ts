@@ -51,8 +51,17 @@ export const LOGO_DROP_DELAY_MS = 820
 export const CLIP_DROP_DELAY_MS = 980
 export const START_POP_DELAY_MS = 1320
 
-/** 하트·플러스·리본 장식이 차례로 반짝인다. */
-export const DECO_TWINKLE_STEP_MS = 420
+/**
+ * 하트·플러스·리본 장식이 차례로 반짝인다.
+ *
+ * 위상은 고정 간격이 아니라 **주기를 개수로 나눠** 잡는다 — 간격을 상수로 두면
+ * `간격 × 개수` 가 주기를 넘는 순간 위상이 되감겨 두 장식이 같이 튄다.
+ * 실제로 420ms × 8개로 두었을 때 80ms 차로 붙는 쌍이 둘 생겼다.
+ */
+export const DECO_TWINKLE_MS = 2600
+
+export const decoTwinkleDelayMs = (index: number, count: number) =>
+  (index * DECO_TWINKLE_MS) / count
 
 /**
  * 로고 뒤 별판이 흐르는 속도(px/s)와 방향.
