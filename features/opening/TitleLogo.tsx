@@ -45,12 +45,20 @@ export const TitleLogo = () => (
       style={{ ...PLATE, filter: 'drop-shadow(var(--shadow-logo-plate))' }}
     />
     <img src="/img/opening/sign-heart.svg" alt="" className="absolute block max-w-none" style={HEART} />
-    <div
-      className="absolute flex items-center justify-center whitespace-nowrap font-display text-white"
-      style={{ ...WORDMARK, fontSize: LOGO_WORDMARK_FONT_SIZE, textShadow: 'var(--text-shadow-logo)' }}
-    >
-      Hwipp!
+    {/* 번짐은 글자와 BAKERY 를 함께 감싸는 그룹에 걸린다 (Figma `Group 2043687975`). */}
+    <div className="absolute inset-0" style={{ filter: 'var(--glow-logo)' }}>
+      <div
+        className="absolute flex items-center justify-center whitespace-nowrap font-display text-white"
+        style={{
+          ...WORDMARK,
+          fontSize: LOGO_WORDMARK_FONT_SIZE,
+          WebkitTextStroke: 'var(--text-stroke-logo)',
+          paintOrder: 'stroke fill',
+        }}
+      >
+        Hwipp!
+      </div>
+      <img src="/img/opening/sign-bakery.svg" alt="" className="absolute block max-w-none" style={BAKERY} />
     </div>
-    <img src="/img/opening/sign-bakery.svg" alt="" className="absolute block max-w-none" style={BAKERY} />
   </>
 )

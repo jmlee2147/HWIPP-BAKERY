@@ -54,10 +54,11 @@
   /* 오프닝 안내문 글로우. 회전 아트보드의 1px/1px 를 화면 방향으로 돌린 값이다. */
   --text-shadow-hint: -1px 1px 7.7px #c12f7d;
   /*
-   * 타이틀 로고 워드마크의 번짐. Figma 이펙트가 내보내기 코드에 나오지 않아
-   * 원본 렌더에서 감쇠 거리(약 12px)를 재어 옮겼다. 정확한 값은 디자인 확인이 필요하다.
+   * 타이틀 로고 워드마크. Figma `Group 2043687975` 의 Borders·Drop shadow 값.
+   * blur 는 절반으로 줄인다 — drop-shadow 와 Figma 의 blur 기준이 다르다(13.51 → 6.76).
    */
-  --text-shadow-logo: 0 0 10px rgb(255 255 255 / 0.55);
+  --text-stroke-logo: 1.1px #ffd7f0;
+  --glow-logo: drop-shadow(0 0 6.76px #ffc4e9);
   /*
    * 간판 로고 그림자. 회전 아트보드의 3px/3px 를 돌린 값이다.
    * 판이 타원이라 box-shadow 가 아닌 drop-shadow 를 쓴다 — blur 기준이 달라 4px 가 2px 이 된다.
