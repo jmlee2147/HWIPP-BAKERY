@@ -53,10 +53,14 @@ Service Worker · Fullscreen API · Pointer Events · Web Animations API ·
 | View Transitions API | 111 |
 | `text-wrap: balance` | 114 |
 | Subgrid | 117 |
+| **`paint-order` (HTML 텍스트)** | **123** |
 
 - **Tailwind CSS v3을 사용합니다.** v4는 Chromium 108에서 **폴백 없이 깨집니다.**
 - 위 표의 기능을 쓰지 않습니다. CI가 잡도록 `browserslist`에 반영합니다.
 - 새 CSS/JS 기능을 쓸 때는 **Chrome 108 지원 여부를 먼저 확인**합니다.
+- **`paint-order`로 글자 외곽선을 뒤로 보내지 않습니다.** SVG 텍스트에서는 되지만 HTML 텍스트
+  지원은 Chromium 123부터입니다. 개발 맥에서는 맞게 보이고 실기에서만 달라지므로 놓치기 쉽습니다.
+  대신 **두께를 두 배로 준 겹을 뒤에 깔고 글자를 덮습니다** (`features/opening/TitleLogo.tsx`).
 
 ## 레이아웃
 

@@ -62,7 +62,12 @@
    * 타이틀 로고 워드마크. Figma `Group 2043687975` 의 Borders·Drop shadow 값.
    * blur 는 절반으로 줄인다 — drop-shadow 와 Figma 의 blur 기준이 다르다(13.51 → 6.76).
    */
-  --text-stroke-logo: 1.1px #ffd7f0;
+  /*
+   * Figma 의 바깥 외곽선 1.1px. `-webkit-text-stroke` 는 **중앙 정렬**이라 두께를 두 배로 주고
+   * 글자를 한 겹 더 덮어 안쪽 침범을 가린다 (`features/opening/TitleLogo.tsx`).
+   * `paint-order: stroke fill` 은 Chromium 123 부터라 타깃 108 에서 무효다.
+   */
+  --text-stroke-logo: 2.2px #ffd7f0;
   --glow-logo: drop-shadow(0 0 6.76px #ffc4e9);
   /*
    * 간판 로고 그림자. 회전 아트보드의 3px/3px 를 돌린 값이다.

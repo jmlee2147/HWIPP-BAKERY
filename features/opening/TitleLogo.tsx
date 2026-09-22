@@ -27,6 +27,9 @@ const inside = (box: typeof WORDMARK) => ({
   top: box.top - GLOW.top,
 })
 
+const WORDMARK_TYPE =
+  'absolute flex items-center justify-center whitespace-nowrap font-display text-white'
+
 /** 로고 네 겹은 같은 타이밍으로 함께 떨어진다. 하나라도 어긋나면 로고가 분해되어 보인다. */
 const DROP = { animationDelay: `${LOGO_DROP_DELAY_MS}ms` }
 
@@ -79,14 +82,25 @@ export const TitleLogo = ({ starRef }: TitleLogoProps) => (
     />
     {/* 번짐은 글자와 BAKERY 를 함께 감싸는 그룹에 걸린다 (Figma `Group 2043687975`). */}
     <div className="absolute animate-logo-drop" style={{ ...GLOW, ...DROP, filter: 'var(--glow-logo)' }}>
+      {/*
+        외곽선 겹. `paint-order: stroke fill` 로 획을 글자 뒤로 보내는 방법은
+        Chromium 123 부터라 타깃 108 에서 무효다 — 개발 맥에서만 맞게 보이고 실기는 달라진다.
+        그래서 두께를 두 배로 준 겹을 뒤에 깔고 글자를 그 위에 덮는다. 결과가 같고 108 에서 동작한다.
+      */}
       <div
-        className="absolute flex items-center justify-center whitespace-nowrap font-display text-white"
+        aria-hidden="true"
+        className={WORDMARK_TYPE}
         style={{
           ...inside(WORDMARK),
           fontSize: LOGO_WORDMARK_FONT_SIZE,
           WebkitTextStroke: 'var(--text-stroke-logo)',
-          paintOrder: 'stroke fill',
         }}
+      >
+        Hwipp!
+      </div>
+      <div
+        className={WORDMARK_TYPE}
+        style={{ ...inside(WORDMARK), fontSize: LOGO_WORDMARK_FONT_SIZE }}
       >
         Hwipp!
       </div>
