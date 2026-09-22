@@ -17,6 +17,25 @@ const seatOf = ({ box, nudge }: TitleCardPart): ScreenBox => {
   return { ...seat, left: seat.left + (nudge?.x ?? 0), top: seat.top + (nudge?.y ?? 0) }
 }
 
+/**
+ * 이징 토큰은 한 번만 읽어 재사용한다.
+ *
+ * 탭마다 읽으면 강제 동기 스타일 재계산이 **탭 반응의 첫 프레임**에 들어간다 —
+ * 타이틀 화면은 애니메이션이 상시 돌아 스타일이 늘 더티 상태라 위치가 가장 나쁘다.
+ * 모듈 최상단에서 즉시 읽지 않는 것은 서버 렌더에 `document` 가 없기 때문이다.
+ */
+const EASE_CACHE = new Map<string, string>()
+
+const ease = (token: string) => {
+  const cached = EASE_CACHE.get(token)
+  if (cached) return cached
+
+  const value =
+    getComputedStyle(document.documentElement).getPropertyValue(token).trim() || 'ease-out'
+  EASE_CACHE.set(token, value)
+  return value
+}
+
 /** 케이크와 라벨을 감싼 박스. 탭 판정과 `transform` 원점이 같은 값을 쓴다. */
 export const cardBounds = (card: TitleCardData): ScreenBox =>
   unionBox([
@@ -76,8 +95,6 @@ export const TitleCard = ({ card, index, tapSeq }: TitleCardProps) => {
     const node = tapRef.current
     if (tapSeq === 0 || !node) return
 
-    const ease = (token: string) =>
-      getComputedStyle(document.documentElement).getPropertyValue(token).trim() || 'ease-out'
     const tilt = Math.sign(float.tiltDeg) * CARD_TAP.tiltDeg
 
     for (const running of node.getAnimations()) running.cancel()
