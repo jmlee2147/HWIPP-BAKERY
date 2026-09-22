@@ -1,3 +1,4 @@
+import type { CardKey } from '@/components/motion/variants'
 import type { MetaBox, RotatedBox } from '@/lib/config/artboard'
 
 /**
@@ -113,6 +114,16 @@ export const LOGO_STAR_WINDOW = { left: 121.118, top: 812.324, width: 818.462, h
 /** 별 그림은 창보다 크다. 창 기준 상대 위치와 크기. */
 export const LOGO_STAR_IMAGE = { left: -286.147, top: -157.161, width: 1304.675, height: 869.783 }
 
+/**
+ * 별 무늬가 한 번 반복되는 거리. 끝없이 흐르게 하려면 이 값이 정확해야 한다 —
+ * 틀리면 되감는 순간 무늬가 튄다.
+ *
+ * 원본(966×644)에서 별 중심을 검출해 실측한 값이 가로 84.691px, 행 간격 55.065px 이고
+ * 행이 반 칸씩 엇갈리므로 세로 주기는 그 두 배다. 화면에는 1304.675px 폭으로 놓이므로
+ * 1.35060 배를 곱한다. 그림을 다시 받으면 다시 재야 한다.
+ */
+export const LOGO_STAR_GRID = { x: 114.384, y: 148.744 }
+
 /** 타이틀 로고의 워드마크. 간판(71.649px)보다 크다. */
 export const LOGO_WORDMARK_FONT_SIZE = 117.147
 
@@ -157,79 +168,142 @@ export const START_INNER = { left: 6.92, top: 3.577, width: 720.766, height: 75.
 
 /**
  * 케이크 카드. 디자이너 메모: "케이크가 둥둥 떠다니면".
- * 카드마다 시작을 어긋나게 해 한꺼번에 움직이지 않게 한다.
+ *
+ * 이름표·점수 라벨은 카드에 붙은 것이라 **한 덩어리**로 둔다 —
+ * 따로 두면 카드만 떠다니고 라벨은 제자리에 남아 어긋난다.
+ * 체리 한 알(`cherry-deco`)도 체리 케이크에 딸린 조각이라 같은 카드에 넣는다.
+ * 겹침 순서가 곧 배열 순서다.
+ *
+ * 카드마다 리듬이 다르다. 떠다니는 값은 `components/motion/variants.ts` 의 `CARD_FLOAT` 에 있다.
  *
  * `nudge` 는 내보내기 바운딩 보정이다. Figma 는 노드 박스가 아니라 **그림자까지 포함한
  * 렌더 바운딩**으로 내보내는데, 회전된 카드마다 그림자 방향이 달라 확장이 비대칭이다.
  * 그래서 중심을 맞추는 것만으로는 어긋난다 — 원본 렌더와 픽셀 정합으로 실측한 값이다.
  * **에셋을 다시 받으면 이 값도 다시 재야 한다.**
+ *
+ * 라벨 바탕은 cream 에 cocoa 테두리(0.675px)라 div 로 그리고 글자만 SVG 로 얹는다.
+ * 테두리는 내보낸 그림에 담기지 않아 놓치기 쉽다 — Figma 의 stroke 는 export 에서 빠진다.
+ * `cherrychoco` 만 불투명이고 나머지는 70% 다. 하나만 보고 전체를 판단하면 안 된다.
+ * `score` 만 텍스트 노드라 SVG 가 없어 비트맵을 쓴다.
  */
-export const TITLE_CAKES = [
-  { key: 'strawberry', box: { x: 1552.351, y: 41.997, width: 427.895, height: 408.41 }, delayMs: 0, nudge: { x: 0, y: 9 } },
-  { key: 'chocoberry', box: { x: 1551.777, y: 727.766, width: 415.242, height: 397.276 }, delayMs: 700, nudge: { x: -70, y: 9 } },
-  { key: 'cherry-deco', box: { x: 1526.869, y: 538.027, width: 199.888, height: 248.861 }, delayMs: 1500, nudge: { x: 0, y: -1 } },
-  { key: 'cherry', box: { x: 1424.461, y: 371, width: 372.92, height: 318.554 }, delayMs: 1100, nudge: { x: 6, y: 6 } },
-  { key: 'kiwimango', box: { x: 623.668, y: 639.511, width: 393.083, height: 376.864 }, delayMs: 1900, nudge: { x: 0, y: 0 } },
-  { key: 'heartchoco', box: { x: 592.086, y: 55.082, width: 357.697, height: 367.558 }, delayMs: 900, nudge: { x: 5, y: -38 } },
-  { key: 'angelroll', box: { x: 588.398, y: 399.371, width: 356.337, height: 336.557 }, delayMs: 1700, nudge: { x: -24, y: 11 } },
-] as const satisfies readonly { key: string; box: MetaBox; delayMs: number; nudge: { x: number; y: number } }[]
+export interface TitleCardPart {
+  readonly key: string
+  readonly box: MetaBox
+  readonly nudge?: { readonly x: number; readonly y: number }
+}
+
+export interface TitleCardLabel {
+  readonly key: string
+  readonly opacity: number
+  readonly plate: MetaBox
+  readonly text: MetaBox
+}
+
+export interface TitleCard {
+  readonly key: CardKey
+  readonly parts: readonly TitleCardPart[]
+  readonly labels: readonly TitleCardLabel[]
+}
+
+export const TITLE_CARDS: readonly TitleCard[] = [
+  {
+    key: 'strawberry',
+    parts: [
+      { key: 'strawberry', box: { x: 1552.351, y: 41.997, width: 427.895, height: 408.41 }, nudge: { x: 0, y: 9 } },
+    ],
+    labels: [
+      {
+        key: 'strawberry',
+        opacity: 0.7,
+        plate: { x: 1224.109, y: 184.191, width: 150.668, height: 40.589 },
+        text: { x: 1212.157, y: 195.289, width: 128.469, height: 16.689 },
+      },
+      {
+        key: 'score',
+        opacity: 0.7,
+        plate: { x: 1184.117, y: 259.16, width: 108.859, height: 40.589 },
+        text: { x: 1173.277, y: 270.043, width: 87, height: 19 },
+      },
+    ],
+  },
+  {
+    key: 'chocoberry',
+    parts: [
+      { key: 'chocoberry', box: { x: 1551.777, y: 727.766, width: 415.242, height: 397.276 }, nudge: { x: -70, y: 9 } },
+    ],
+    labels: [
+      {
+        key: 'chocoberry',
+        opacity: 0.7,
+        plate: { x: 1175.445, y: 742.121, width: 179.788, height: 40.589 },
+        text: { x: 1163.597, y: 761.378, width: 139.979, height: 16.894 },
+      },
+    ],
+  },
+  {
+    key: 'cherry',
+    parts: [
+      { key: 'cherry-deco', box: { x: 1526.869, y: 538.027, width: 199.888, height: 248.861 }, nudge: { x: 0, y: -1 } },
+      { key: 'cherry', box: { x: 1424.461, y: 371, width: 372.92, height: 318.554 }, nudge: { x: 6, y: 6 } },
+    ],
+    labels: [
+      {
+        key: 'cherrychoco',
+        opacity: 1,
+        plate: { x: 1494.146, y: 488.043, width: 189.214, height: 40.589 },
+        text: { x: 1483.462, y: 508.509, width: 148.289, height: 19.237 },
+      },
+    ],
+  },
+  {
+    key: 'kiwimango',
+    parts: [
+      { key: 'kiwimango', box: { x: 623.668, y: 639.511, width: 393.083, height: 376.864 } },
+    ],
+    labels: [
+      {
+        key: 'kiwimango',
+        opacity: 0.7,
+        plate: { x: 647.99, y: 751.248, width: 163.257, height: 40.589 },
+        text: { x: 634.153, y: 763.568, width: 137.804, height: 16.003 },
+      },
+    ],
+  },
+  {
+    key: 'heartchoco',
+    parts: [
+      { key: 'heartchoco', box: { x: 592.086, y: 55.082, width: 357.697, height: 367.558 }, nudge: { x: 5, y: -38 } },
+    ],
+    labels: [
+      {
+        key: 'heartchoco',
+        opacity: 0.7,
+        plate: { x: 609.402, y: 30, width: 167.308, height: 40.589 },
+        text: { x: 597.115, y: 43.286, width: 140.725, height: 16.574 },
+      },
+    ],
+  },
+  {
+    key: 'angelroll',
+    parts: [
+      { key: 'angelroll', box: { x: 588.398, y: 399.371, width: 356.337, height: 336.557 }, nudge: { x: -24, y: 11 } },
+    ],
+    labels: [
+      {
+        key: 'angelroll',
+        opacity: 0.7,
+        plate: { x: 279.564, y: 590.767, width: 150.668, height: 40.589 },
+        text: { x: 267.612, y: 604.52, width: 122.118, height: 16.33 },
+      },
+    ],
+  },
+]
 
 /**
  * 보드 위 줄무늬 장식. 이름은 `roll-vector` 지만 케이크가 아니라 **배경 그래픽**이라
  * 둥둥 띄우지 않는다 — 디자이너 메모의 "케이크가 둥둥"은 카드에만 해당한다.
  */
 export const TITLE_STRIPES = { x: 660.13, y: 165.432, width: 737.274, height: 393.103 } satisfies MetaBox
-
-/**
- * 케이크 라벨. 바탕은 cream 에 cocoa 테두리(0.675px)라 div 로 그리고 글자만 SVG 로 얹는다.
- * 테두리는 내보낸 그림에 담기지 않아 놓치기 쉽다 — Figma 의 stroke 는 export 에서 빠진다.
- * `cherrychoco` 만 불투명이고 나머지는 70% 다. 하나만 보고 전체를 판단하면 안 된다.
- * `score` 만 텍스트 노드라 SVG 가 없어 비트맵을 쓴다.
- */
-export const TITLE_LABELS = [
-  {
-    key: 'cherrychoco',
-    opacity: 1,
-    plate: { x: 1494.146, y: 488.043, width: 189.214, height: 40.589 },
-    text: { x: 1483.462, y: 508.509, width: 148.289, height: 19.237 },
-  },
-  {
-    key: 'strawberry',
-    opacity: 0.7,
-    plate: { x: 1224.109, y: 184.191, width: 150.668, height: 40.589 },
-    text: { x: 1212.157, y: 195.289, width: 128.469, height: 16.689 },
-  },
-  {
-    key: 'score',
-    opacity: 0.7,
-    plate: { x: 1184.117, y: 259.16, width: 108.859, height: 40.589 },
-    text: { x: 1173.277, y: 270.043, width: 87, height: 19 },
-  },
-  {
-    key: 'chocoberry',
-    opacity: 0.7,
-    plate: { x: 1175.445, y: 742.121, width: 179.788, height: 40.589 },
-    text: { x: 1163.597, y: 761.378, width: 139.979, height: 16.894 },
-  },
-  {
-    key: 'kiwimango',
-    opacity: 0.7,
-    plate: { x: 647.99, y: 751.248, width: 163.257, height: 40.589 },
-    text: { x: 634.153, y: 763.568, width: 137.804, height: 16.003 },
-  },
-  {
-    key: 'heartchoco',
-    opacity: 0.7,
-    plate: { x: 609.402, y: 30, width: 167.308, height: 40.589 },
-    text: { x: 597.115, y: 43.286, width: 140.725, height: 16.574 },
-  },
-  {
-    key: 'angelroll',
-    opacity: 0.7,
-    plate: { x: 279.564, y: 590.767, width: 150.668, height: 40.589 },
-    text: { x: 267.612, y: 604.52, width: 122.118, height: 16.33 },
-  },
-] as const satisfies readonly { key: string; opacity: number; plate: MetaBox; text: MetaBox }[]
 
 export interface TitleDeco {
   readonly id: string

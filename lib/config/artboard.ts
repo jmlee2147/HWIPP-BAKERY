@@ -51,3 +51,18 @@ export interface MetaBox {
 export function fromArtboardMeta({ x, y, width, height }: MetaBox): ScreenBox {
   return { left: y, top: CANVAS_HEIGHT - x, width, height }
 }
+
+/**
+ * 여러 박스를 감싸는 최소 박스.
+ *
+ * 카드처럼 여러 조각이 한 덩어리로 움직일 때 `transform` 의 기준 상자가 된다 —
+ * 조각마다 따로 변형하면 원점이 달라 그룹이 흩어진다.
+ */
+export function unionBox(boxes: readonly ScreenBox[]): ScreenBox {
+  const left = Math.min(...boxes.map((box) => box.left))
+  const top = Math.min(...boxes.map((box) => box.top))
+  const right = Math.max(...boxes.map((box) => box.left + box.width))
+  const bottom = Math.max(...boxes.map((box) => box.top + box.height))
+
+  return { left, top, width: right - left, height: bottom - top }
+}

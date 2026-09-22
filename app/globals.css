@@ -84,6 +84,8 @@
   --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-exit: cubic-bezier(0.55, 0, 1, 0.45);
   --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+  /* 끝에서 아주 조금 넘어갔다 돌아온다. 등장·탭 반응 전용 — 근거는 `docs/MOTION.md`. */
+  --ease-pop: cubic-bezier(0.32, 1.28, 0.6, 1);
 }
 
 @layer base {
@@ -157,34 +159,111 @@
     animation: type-in 0s linear both;
   }
 
-  /* 타이틀의 케이크 사진이 보드 위에서 떠다닌다. 여기만은 끊지 않고 이어서 움직인다. */
-  @keyframes cake-float {
+  /*
+   * 타이틀 카드. 케이크와 라벨을 한 덩어리로 띄운다. 여기만은 끊지 않고 이어서 움직인다.
+   * 값은 카드마다 달라 `components/motion/variants.ts` 의 `CARD_FLOAT` 가 변수로 넣어 준다 —
+   * 주기가 같으면 시작을 어긋나게 해도 결국 한 덩어리로 흔들려 보인다.
+   */
+  @keyframes card-float {
     from {
-      transform: translateY(0);
+      transform: translate(0, 0) rotate(0deg);
     }
     to {
-      transform: translateY(-9px);
+      transform: translate(var(--float-drift), var(--float-rise)) rotate(var(--float-tilt));
     }
   }
 
-  .animate-cake-float {
-    animation: cake-float 3200ms var(--ease-move) infinite alternate;
+  .animate-card-float {
+    animation: card-float var(--float-dur) var(--ease-move) var(--float-delay) infinite alternate;
+  }
+
+  /* 진입 — 카드가 한 장씩 튀어 들어온다. 상시 부유와 겹이 달라 서로 덮어쓰지 않는다. */
+  @keyframes card-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.88) rotate(-3.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  .animate-card-pop {
+    animation: card-pop var(--dur-slow) var(--ease-pop) both;
   }
 
   /*
-   * 로고 뒤 별판. 원래는 hover 연출이었지만 터치에는 hover 가 없어 상시 흐르게 한다.
-   * 창보다 큰 그림을 옮기는 것이라 transform 만으로 끝난다.
+   * 로고와 집게는 위에서 떨어진다. 네 겹이 같은 값으로 움직여야 로고가 분해되지 않으므로
+   * 원점에 의존하는 scale·rotate 를 쓰지 않는다 — 겹마다 박스가 달라 원점이 다르다.
    */
-  @keyframes star-drift {
+  @keyframes logo-drop {
     from {
-      transform: translate(0, 0);
+      opacity: 0;
+      transform: translateY(-30px);
     }
     to {
-      transform: translate(-54px, -32px);
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
-  .animate-star-drift {
-    animation: star-drift 16s var(--ease-move) infinite alternate;
+  .animate-logo-drop {
+    animation: logo-drop var(--dur-slow) var(--ease-pop) both;
+  }
+
+  /* 장식이 하나씩 튄다. 오프닝 전체가 끊기는 연출이라 튀는 구간만 짧게 둔다. */
+  @keyframes deco-twinkle {
+    0%,
+    64% {
+      transform: scale(1) rotate(0deg);
+    }
+    74% {
+      transform: scale(1.09) rotate(4deg);
+    }
+    84% {
+      transform: scale(0.98) rotate(-1.5deg);
+    }
+    94%,
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  .animate-deco-twinkle {
+    animation: deco-twinkle 2600ms var(--ease-move) infinite;
+  }
+
+  /* START! — 마지막에 올라온다. */
+  @keyframes start-pop {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-start-pop {
+    animation: start-pop var(--dur-slow) var(--ease-pop) both;
+  }
+
+  /*
+   * 탭 어포던스. 터치에는 hover 가 없어 "누를 수 있음"이 상시 움직임으로 보여야 한다.
+   * 안내문(`opening-hint`)과 달리 버튼은 끊지 않는다 — 깜빡이면 고장처럼 보인다.
+   */
+  @keyframes start-bounce {
+    from {
+      transform: translateY(0) scale(1);
+    }
+    to {
+      transform: translateY(-5px) scale(1.02);
+    }
+  }
+
+  .animate-start-bounce {
+    animation: start-bounce 900ms var(--ease-move) infinite alternate;
   }
 }

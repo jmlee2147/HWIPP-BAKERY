@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fromArtboardMeta, fromRotatedArtboard, rotateOffset } from './artboard'
+import { fromArtboardMeta, fromRotatedArtboard, rotateOffset, unionBox } from './artboard'
 
 /**
  * 기대값은 Figma 실측값과 스크린샷 대조로 검증한 것이다.
@@ -57,5 +57,22 @@ describe('fromArtboardMeta', () => {
 describe('rotateOffset', () => {
   it('오른쪽아래 그림자를 왼쪽아래로 돌린다', () => {
     expect(rotateOffset(3, 3)).toEqual({ x: -3, y: 3 })
+  })
+})
+
+describe('unionBox', () => {
+  it('떨어져 있는 조각을 모두 덮는 박스를 준다', () => {
+    const box = unionBox([
+      { left: 100, top: 200, width: 50, height: 50 },
+      { left: 80, top: 260, width: 120, height: 40 },
+    ])
+
+    expect(box).toEqual({ left: 80, top: 200, width: 120, height: 100 })
+  })
+
+  it('한 장만 주면 그 박스를 그대로 준다', () => {
+    const only = { left: 12, top: 34, width: 56, height: 78 }
+
+    expect(unionBox([only])).toEqual(only)
   })
 })
