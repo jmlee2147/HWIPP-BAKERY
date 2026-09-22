@@ -1,0 +1,53 @@
+import { CANVAS_HEIGHT } from './canvas'
+
+/** Figma 오프닝 아트보드의 회전 좌표계 박스. 실측값을 그대로 적는다. */
+export interface RotatedBox {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+export interface ScreenBox {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+/**
+ * 오프닝 아트보드는 세로 화면을 90도 눕혀 1920×1080 좌표계에 그려져 있다.
+ * 손으로 환산하지 않도록 변환을 여기 한곳에 둔다. 근거는 `docs/decisions/002-rotated-artboard.md`.
+ */
+export function fromRotatedArtboard({ left, top, width, height }: RotatedBox): ScreenBox {
+  return {
+    left: top,
+    top: CANVAS_HEIGHT - left - width,
+    width: height,
+    height: width,
+  }
+}
+
+/** 회전 좌표계에서 잰 오프셋 벡터(그림자 등)를 화면 방향으로 돌린다. */
+export function rotateOffset(x: number, y: number): { x: number; y: number } {
+  return { x: -y, y: x }
+}
+
+/** Figma `get_metadata` 가 주는 박스. width·height 는 이미 화면 기준이다. */
+export interface MetaBox {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/**
+ * `get_metadata` 좌표를 화면 좌표로 옮긴다.
+ *
+ * 메타데이터는 회전 후 크기를 주면서 위치만 회전 좌표계로 준다 —
+ * `x` 는 회전 좌표계의 left+width 에 해당한다. 요소가 수십 개인 화면에서는
+ * 노드마다 design context 를 뜨는 것보다 이쪽이 훨씬 싸다.
+ */
+export function fromArtboardMeta({ x, y, width, height }: MetaBox): ScreenBox {
+  return { left: y, top: CANVAS_HEIGHT - x, width, height }
+}
