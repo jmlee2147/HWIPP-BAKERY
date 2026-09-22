@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, type CSSProperties, type PointerEvent } from 'react'
+import { useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { useStarFlow } from '@/components/motion/useStarFlow'
 import {
   CLIP_DROP_DELAY_MS,
@@ -9,9 +9,10 @@ import {
   START_POP_DELAY_MS,
   STAR_STEER_MIN_PX,
 } from '@/components/motion/variants'
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/lib/config/canvas'
 import { fromArtboardMeta } from '@/lib/config/artboard'
 import { Pinned } from './Pinned'
-import { TitleCard } from './TitleCard'
+import { CARD_TAP_RADIUS, TitleCard, cardBounds } from './TitleCard'
 import { TitleLogo } from './TitleLogo'
 import {
   DOT_PANELS,
@@ -50,6 +51,27 @@ const dotPanel = ({
   }
 }
 
+/** 카드 중심. 탭 판정에만 쓰므로 렌더마다 다시 계산하지 않는다. */
+const CARD_CENTERS = TITLE_CARDS.map((card) => {
+  const box = cardBounds(card)
+  return { key: card.key, x: box.left + box.width / 2, y: box.top + box.height / 2 }
+})
+
+/** 캔버스 좌표에서 가장 가까운 카드. 반경 밖이면 아무 카드도 고르지 않는다. */
+const nearestCard = (x: number, y: number) => {
+  let nearest: string | null = null
+  let shortest = CARD_TAP_RADIUS
+
+  for (const center of CARD_CENTERS) {
+    const distance = Math.hypot(x - center.x, y - center.y)
+    if (distance < shortest) {
+      shortest = distance
+      nearest = center.key
+    }
+  }
+  return nearest
+}
+
 interface TitleSceneProps {
   onStart: () => void
 }
@@ -61,10 +83,24 @@ interface TitleSceneProps {
 export const TitleScene = ({ onStart }: TitleSceneProps) => {
   const stars = useStarFlow(LOGO_STAR_GRID)
   const lastPoint = useRef<{ x: number; y: number } | null>(null)
+  // 눌린 카드와 누른 횟수. 같은 카드를 연달아 눌러도 매번 다시 튀어야 해서 횟수를 센다.
+  const [tap, setTap] = useState({ key: '', seq: 0 })
 
-  /** 터치는 누른 자리에서 시작한다. 직전 세션의 좌표와 비교하면 엉뚱한 방향이 나온다. */
-  const markPoint = (event: PointerEvent<HTMLElement>) => {
+  /**
+   * 누른 자리를 기억하고, 그 자리에서 가장 가까운 카드를 튕긴다.
+   *
+   * 카드마다 영역을 두지 않는 이유는 `TitleCard` 의 `CARD_TAP_RADIUS` 주석에 있다 —
+   * 회전 배치라 사각형 히트박스가 서로 겹친다.
+   */
+  const pressScreen = (event: PointerEvent<HTMLElement>) => {
     lastPoint.current = { x: event.clientX, y: event.clientY }
+
+    const rect = event.currentTarget.getBoundingClientRect()
+    const hit = nearestCard(
+      ((event.clientX - rect.left) / rect.width) * CANVAS_WIDTH,
+      ((event.clientY - rect.top) / rect.height) * CANVAS_HEIGHT,
+    )
+    if (hit) setTap((previous) => ({ key: hit, seq: previous.seq + 1 }))
   }
 
   /**
@@ -90,7 +126,7 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
   return (
     <main
       className="absolute inset-0 overflow-hidden bg-cream"
-      onPointerDown={markPoint}
+      onPointerDown={pressScreen}
       onPointerMove={steerStars}
     >
       {/* 벽지는 Figma 가 화면에 걸치는 부분만 잘라 내보내므로 박스에 그대로 채운다. */}
@@ -112,7 +148,12 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
       <Pinned src="/img/opening/title/stripes.png" box={TITLE_STRIPES} />
 
       {TITLE_CARDS.map((card, index) => (
-        <TitleCard key={card.key} card={card} index={index} />
+        <TitleCard
+          key={card.key}
+          card={card}
+          index={index}
+          tapSeq={tap.key === card.key ? tap.seq : 0}
+        />
       ))}
 
       {/* 장식은 차례로 하나씩 반짝인다. 한꺼번에 튀면 화면이 시끄럽다. */}
