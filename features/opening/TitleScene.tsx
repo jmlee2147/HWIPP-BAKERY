@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useRef, type CSSProperties, type PointerEvent } from 'react'
 import { useStarFlow } from '@/components/motion/useStarFlow'
 import {
   CLIP_DROP_DELAY_MS,
@@ -12,7 +12,7 @@ import {
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/lib/config/canvas'
 import { fromArtboardMeta } from '@/lib/config/artboard'
 import { Pinned } from './Pinned'
-import { CARD_TAP_RADIUS, TitleCard, cardBounds } from './TitleCard'
+import { CARD_TAP_RADIUS, TitleCard, cardBounds, type TitleCardHandle } from './TitleCard'
 import { TitleLogo } from './TitleLogo'
 import {
   DOT_PANELS,
@@ -83,8 +83,7 @@ interface TitleSceneProps {
 export const TitleScene = ({ onStart }: TitleSceneProps) => {
   const stars = useStarFlow(LOGO_STAR_GRID)
   const lastPoint = useRef<{ x: number; y: number } | null>(null)
-  // 눌린 카드와 누른 횟수. 같은 카드를 연달아 눌러도 매번 다시 튀어야 해서 횟수를 센다.
-  const [tap, setTap] = useState({ key: '', seq: 0 })
+  const cards = useRef(new Map<string, TitleCardHandle>())
 
   /**
    * 누른 자리를 기억하고, 그 자리에서 가장 가까운 카드를 튕긴다.
@@ -100,7 +99,7 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
       ((event.clientX - rect.left) / rect.width) * CANVAS_WIDTH,
       ((event.clientY - rect.top) / rect.height) * CANVAS_HEIGHT,
     )
-    if (hit) setTap((previous) => ({ key: hit, seq: previous.seq + 1 }))
+    if (hit) cards.current.get(hit)?.pop()
   }
 
   /**
@@ -152,7 +151,13 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
           key={card.key}
           card={card}
           index={index}
-          tapSeq={tap.key === card.key ? tap.seq : 0}
+          ref={(handle) => {
+            const registry = cards.current
+            if (handle) registry.set(card.key, handle)
+            return () => {
+              registry.delete(card.key)
+            }
+          }}
         />
       ))}
 

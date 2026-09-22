@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useCallback, useImperativeHandle, useRef, type CSSProperties, type Ref } from 'react'
 import {
   CARD_FLOAT,
   CARD_POP_DELAY_MS,
@@ -62,12 +62,16 @@ const inside = (box: MetaBox, origin: ScreenBox): ScreenBox => {
   return { ...seat, left: seat.left - origin.left, top: seat.top - origin.top }
 }
 
+export interface TitleCardHandle {
+  /** 카드를 한 번 튕긴다. 어느 카드인지는 `TitleScene` 이 정하고 재생만 여기서 한다. */
+  pop: () => void
+}
+
 interface TitleCardProps {
   card: TitleCardData
   /** 진입 순서. 카드가 한꺼번에 들어오지 않게 한 장씩 늦춘다. */
   index: number
-  /** 이 카드가 눌린 횟수. 값이 바뀔 때마다 한 번 튄다. 판정은 `TitleScene` 이 한다. */
-  tapSeq: number
+  ref?: Ref<TitleCardHandle>
 }
 
 /**
@@ -77,7 +81,7 @@ interface TitleCardProps {
  * 원점이 달라 기울일 때 라벨이 케이크에서 떨어져 나간다.
  * 겹은 바깥부터 진입(한 번) · 상시 부유 · 탭 반응이다. 한 요소에 몰면 뒤 것이 앞 것을 덮어쓴다.
  */
-export const TitleCard = ({ card, index, tapSeq }: TitleCardProps) => {
+export const TitleCard = ({ card, index, ref }: TitleCardProps) => {
   const tapRef = useRef<HTMLDivElement>(null)
   const bounds = cardBounds(card)
   const float = CARD_FLOAT[card.key]
@@ -90,10 +94,13 @@ export const TitleCard = ({ card, index, tapSeq }: TitleCardProps) => {
    *
    * CSS 클래스가 아니라 스크립트로 재생한다 — 같은 카드를 연달아 누를 때
    * 클래스만 다시 붙이면 애니메이션이 처음부터 돌지 않는다.
+   *
+   * 상태를 거치지 않고 부모가 직접 부른다. 상태로 알리면 리렌더를 한 번 기다리게 되고,
+   * 터치는 그 지연에 민감하다 (`.claude/rules/motion.md`).
    */
-  useEffect(() => {
+  const pop = useCallback(() => {
     const node = tapRef.current
-    if (tapSeq === 0 || !node) return
+    if (!node) return
 
     const tilt = Math.sign(float.tiltDeg) * CARD_TAP.tiltDeg
 
@@ -110,7 +117,9 @@ export const TitleCard = ({ card, index, tapSeq }: TitleCardProps) => {
       ],
       { duration: CARD_TAP.durationMs },
     )
-  }, [tapSeq, float.tiltDeg])
+  }, [float.tiltDeg])
+
+  useImperativeHandle(ref, () => ({ pop }), [pop])
 
   return (
     <div
