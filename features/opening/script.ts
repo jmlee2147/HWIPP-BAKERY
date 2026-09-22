@@ -1,10 +1,9 @@
 import type { CardKey } from '@/components/motion/variants'
+import type { ChoiceVariant } from '@/components/ui/ChoiceButton'
 import type { MetaBox, RotatedBox } from '@/lib/config/artboard'
 
 /**
- * 오프닝 내러티브. Figma `전시 디자인 공유 / 오프닝` 섹션.
- *
- * 전체 8컷 중 이 파일은 2~3번을 담는다. 1번(타이틀)과 4~8번은 아직 없다.
+ * 오프닝 내러티브. Figma `전시 디자인 공유 / 오프닝` 섹션. 전체 8컷이 여기 있다.
  *
  * | # | Figma | 내용 |
  * | 1 | 1:78009  | HWIPP! BAKERY 타이틀 + START! |
@@ -373,3 +372,188 @@ export const OPENING_CUTS = [
     hint: '화면을 터치해 들어가기',
   },
 ] as const satisfies readonly OpeningCut[]
+
+/* ------------------------------------------------------------------ 컷 4~8 매장 안 */
+
+/**
+ * 매장 배경 두 장. 컷 4·8 은 진열장 앞, 컷 5~7 은 작업대 앞이다.
+ *
+ * 배경만 **출력 픽셀(1440×2560)** 로 뽑는다. 화면을 꽉 채우므로 2x 로 두면 한 장에
+ * 디코딩 33MB 를 쓴다 (`.claude/rules/assets.md`). 나머지 조각은 `ASSET_SCALE` 이
+ * 전제하는 2x 그대로다.
+ */
+export const INTERIOR_BACKGROUNDS = {
+  case: '/img/opening/interior/case.avif',
+  counter: '/img/opening/interior/counter.avif',
+} as const
+
+export type InteriorBackground = keyof typeof INTERIOR_BACKGROUNDS
+
+/** Figma 오프닝 프레임의 배경색. 배경 그림이 뜨기 전 한 프레임만 보인다. */
+export const INTERIOR_CANVAS_COLOR = '#ffeff3'
+
+/**
+ * 제빵사. 컷마다 표정과 크기가 달라 그림이 따로다. 컷 4 와 8 이 같은 그림을 쓴다.
+ * Figma 노드 이름은 셋 다 `IMG_1354 2` 라 이름으로 구분할 수 없다 — 크기로 갈린다.
+ */
+export const BAKER_POSES = {
+  ask: { src: '/img/opening/interior/baker-ask.avif', box: { x: 960, y: 249, width: 601, height: 663 } },
+  smile: { src: '/img/opening/interior/baker-smile.avif', box: { x: 896, y: 371, width: 668, height: 715 } },
+  grin: { src: '/img/opening/interior/baker-grin.avif', box: { x: 896, y: 379, width: 660, height: 706 } },
+} as const satisfies Record<string, { src: string; box: MetaBox }>
+
+export type BakerPose = keyof typeof BAKER_POSES
+
+/**
+ * 케이크에 붙은 별.
+ *
+ * 별 노드는 아트보드 90도 위에 **자기 회전이 한 번 더** 걸려 있다. 그래서 메타데이터 박스가
+ * 회전 후 바운딩이고 `fromArtboardMeta()` 를 그대로 태우면 자리가 밀린다 —
+ * 가장 큰 별이 가로로 40px 어긋났다.
+ *
+ * 그래서 **중심은 1080×1920 레퍼런스 렌더에서 픽셀로 직접 측정**했고,
+ * 크기는 내보낸 SVG 의 원래 크기, 기울기는 Figma 회전값에서 아트보드 90도를 뺀 값이다.
+ * 디자인이 바뀌면 이 셋을 같이 다시 잰다.
+ */
+export interface CakeStar {
+  readonly src: string
+  readonly center: { readonly x: number; readonly y: number }
+  readonly width: number
+  readonly height: number
+  readonly tiltDeg: number
+}
+
+const STAR = '/img/opening/interior/star.svg'
+const STAR_DECO = '/img/opening/interior/star-deco.svg'
+
+export interface CakeSlice {
+  readonly key: string
+  readonly box: MetaBox
+  /** 내보내기 바운딩 보정. 근거는 `TITLE_CARDS` 의 `nudge` 주석과 같다. */
+  readonly nudge?: { readonly x: number; readonly y: number }
+  readonly stars?: readonly CakeStar[]
+}
+
+/**
+ * 컷 6·7 바닥에 깔리는 케이크 조각. 겹침 순서가 곧 배열 순서다.
+ *
+ * **컷 6 좌표를 컷 7 에도 그대로 쓴다.** 두 컷은 대사와 표정만 다른 같은 장면인데
+ * Figma 에서는 롤케이크가 29px 내려가 있고 별 3개가 다른 케이크로 옮겨가 있다.
+ * 같은 장면에서 한 조각만 움직이면 고장으로 읽히므로 디자인 정리 전까지 컷 6 을 기준으로 둔다.
+ */
+export const CAKE_SLICES: readonly CakeSlice[] = [
+  {
+    key: 'strawberry',
+    box: { x: 617.1309902136294, y: 76.58229629057267, width: 336.8093447347419, height: 330.52012807763094 },
+    stars: [
+      { src: STAR, center: { x: 224.5, y: 1475 }, width: 30.6298, height: 29.1322, tiltDeg: 11.34 },
+      { src: STAR, center: { x: 259, y: 1481 }, width: 30.6298, height: 29.1322, tiltDeg: 11.34 },
+      { src: STAR_DECO, center: { x: 353, y: 1456 }, width: 58.1668, height: 55.3229, tiltDeg: 39.32 },
+    ],
+  },
+  { key: 'birthday', box: { x: 875.200927734375, y: -1, width: 430.93461190248854, height: 401.2507967942365 } },
+  { key: 'darkchoco', box: { x: 1539, y: 539.568359375, width: 391.2757797293798, height: 396.804154596899 } },
+  {
+    key: 'kiwimango',
+    box: { x: 1427.961669921875, y: 27.138671875, width: 370.2376490215065, height: 354.96156145378336 },
+    stars: [
+      { src: STAR, center: { x: 111.5, y: 624.5 }, width: 28.3837, height: 26.9945, tiltDeg: -8.96 },
+      { src: STAR, center: { x: 144, y: 619.5 }, width: 28.3837, height: 26.9945, tiltDeg: -8.96 },
+    ],
+  },
+  { key: 'roll', box: { x: 1216.62353515625, y: 638, width: 325.3681756802471, height: 314.07916729810677 } },
+  { key: 'milkchoco', box: { x: 1245, y: 337.44140625, width: 365.17303323068336, height: 349.3732863842415 } },
+]
+
+/**
+ * 선택지 버튼 두 칸. 컷 4 와 8 이 같은 자리를 쓴다.
+ * 크기는 `ChoiceButton` 이 갖고 있으므로 여기서는 자리만 준다.
+ */
+export const CHOICE_SLOTS = [
+  { left: 62, top: 1559.4146423339844 },
+  { left: 62, top: 1723.6270446777344 },
+] as const
+
+/** 컷 8 에서 갈리는 두 갈래. STEP.1 이 이 값으로 분기한다. */
+export type OpeningExit = 'for-someone' | 'design-myself'
+
+export type InteriorCutId = 'welcome' | 'intro' | 'showcase' | 'promise' | 'start'
+
+export interface InteriorChoice {
+  readonly label: string
+  readonly variant: ChoiceVariant
+  /** 이 선택지가 여는 컷. 오프닝을 끝내는 선택지는 대신 `exit` 를 갖는다. */
+  readonly next?: InteriorCutId
+  readonly exit?: OpeningExit
+}
+
+export interface InteriorCut {
+  readonly id: InteriorCutId
+  readonly background: InteriorBackground
+  readonly baker: BakerPose | null
+  readonly slices: boolean
+  readonly lines: readonly string[]
+  /** 탭으로 넘어가는 컷. 선택지가 있는 컷에는 없다. */
+  readonly next?: InteriorCutId
+  /** 대사가 다 나오면 탭 없이 넘어간다. */
+  readonly autoAdvance?: boolean
+  readonly hint?: string
+  readonly choices?: readonly InteriorChoice[]
+}
+
+/**
+ * 컷 5 와 6 은 **대사가 완전히 같고** 컷 6 에만 케이크와 제빵사가 더 있다.
+ * 그래서 둘 사이는 탭이 아니라 자동으로 넘긴다 — 같은 말을 보며 한 번 더 누르게 하면
+ * 화면이 멈춘 것처럼 읽힌다. 케이크가 등장하는 것이 이 전환의 내용이다.
+ */
+export const INTERIOR_CUTS = [
+  {
+    id: 'welcome',
+    background: 'case',
+    baker: 'ask',
+    slices: false,
+    lines: ['어서 오세요! “ HWIPP BAKERY ” 입니다 ♥', '예약하신 분이신가요?'],
+    choices: [
+      { label: '아니요. 예약 안 했어요.', variant: 'blush', next: 'start' },
+      { label: '여기는 뭐하는 곳이에요?', variant: 'mint', next: 'intro' },
+    ],
+  },
+  {
+    id: 'intro',
+    background: 'counter',
+    baker: null,
+    slices: false,
+    lines: ['아하! 저희는 세상에 단 하나뿐인', '특별한 맞춤 케이크를 구워드리는 곳이에요!'],
+    next: 'showcase',
+    autoAdvance: true,
+  },
+  {
+    id: 'showcase',
+    background: 'counter',
+    baker: 'smile',
+    slices: true,
+    lines: ['아하! 저희는 세상에 단 하나뿐인', '특별한 맞춤 케이크를 구워드리는 곳이에요!'],
+    next: 'promise',
+    hint: '화면을 터치해 계속하기',
+  },
+  {
+    id: 'promise',
+    background: 'counter',
+    baker: 'grin',
+    slices: true,
+    lines: ['두 사람의 이야기와 추억을 들려주시면,', '제가, 딱 맞는 디자인과 맛을 레시피로 만들어 드려요!'],
+    next: 'start',
+    hint: '화면을 터치해 계속하기',
+  },
+  {
+    id: 'start',
+    background: 'case',
+    baker: 'ask',
+    slices: false,
+    lines: ['자, 그럼 바로 시작해 볼까요?', '오늘 어떤 분을 위한 케이크를 구워드릴까요?'],
+    choices: [
+      { label: '좋아! 내가 선물하고 싶은 상대는 ...', variant: 'blush', exit: 'for-someone' },
+      { label: '내가 바로 직접 디자인 해볼래', variant: 'mint', exit: 'design-myself' },
+    ],
+  },
+] as const satisfies readonly InteriorCut[]

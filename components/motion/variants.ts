@@ -110,3 +110,15 @@ export const CARD_TAP = {
   /** 가장 부푼 시점. 앞쪽에 둘수록 반응이 빨라 보인다. 0.22 면 100ms 안에 최대가 된다. */
   peakOffset: 0.22,
 } as const
+
+/**
+ * 컷 6 케이크 조각이 한 장씩 들어온다. 컷 1 카드와 리듬을 맞췄지만 값은 따로 둔다 —
+ * 두 장면이 서로의 타이밍에 묶이면 한쪽을 못 고친다.
+ */
+export const SLICE_POP_STEP_MS = 90
+
+/** 컷 5 대사가 끝나고 케이크가 등장하기까지. 읽을 틈을 한 박자 준다. */
+export const SHOWCASE_DELAY_MS = 600
+
+/** 컷 4·8 선택지 두 칸이 차례로 올라온다. */
+export const CHOICE_IN_STEP_MS = 90

@@ -276,6 +276,26 @@
   }
 
   /*
+   * 컷 4·8 선택지. 대사가 다 나온 뒤에 올라온다.
+   * 안내문(`hint-in`)은 제자리에서 밝아지기만 하지만 버튼은 조금 올라온다 —
+   * 눌리는 물건이라 그렇다. 올라온 뒤로는 움직이지 않는다.
+   */
+  @keyframes choice-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-choice-in {
+    animation: choice-in var(--dur-base) var(--ease-enter) both;
+  }
+
+  /*
    * 장식이 하나씩 튄다. 오프닝 전체가 끊기는 연출이라 튀는 구간만 짧게 둔다.
    * 주기와 위상은 `components/motion/variants.ts` 가 넣어 준다 — 둘의 관계가 어긋나면
    * 장식이 겹쳐 튀므로 한곳에서 계산한다.
