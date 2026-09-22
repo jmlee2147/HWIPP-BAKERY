@@ -75,4 +75,9 @@ describe('unionBox', () => {
 
     expect(unionBox([only])).toEqual(only)
   })
+
+  // 조용히 넘기면 -Infinity 박스가 나와 그룹이 화면에서 사라진다
+  it('빈 배열은 던진다', () => {
+    expect(() => unionBox([])).toThrow()
+  })
 })
