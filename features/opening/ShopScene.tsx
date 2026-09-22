@@ -19,11 +19,16 @@ import {
 const BACKGROUND = fromRotatedArtboard(OPENING_LAYOUT.background)
 const DIALOG = fromRotatedArtboard(OPENING_LAYOUT.dialog)
 
+interface ShopSceneProps {
+  /** 마지막 컷에서 한 번 더 탭한 시점. 가게 안으로 들어간다. */
+  onEnter: () => void
+}
+
 /**
- * 오프닝 컷 2~3 — 가게 앞. 화면을 탭하면 다음 컷으로 넘어간다.
- * 컷 4 이후가 붙으면 마지막 컷의 탭이 STEP.1 로 이어진다.
+ * 오프닝 컷 2~3 — 가게 앞. 화면을 탭하면 다음 컷으로 넘어가고,
+ * 문이 열린 컷에서 한 번 더 탭하면 매장 안(컷 4)으로 들어간다.
  */
-export const ShopScene = () => {
+export const ShopScene = ({ onEnter }: ShopSceneProps) => {
   // 컷 진행은 씬 안의 연출 진행도지 STEP 상태가 아니다. 세션 스토어에 넣지 않는다.
   const [cut, setCut] = useState<OpeningCut>(OPENING_CUTS[0])
   const [revealed, setRevealed] = useState(false)
@@ -43,7 +48,10 @@ export const ShopScene = () => {
       setRevealed(true)
       return
     }
-    if (!nextCut) return
+    if (!nextCut) {
+      onEnter()
+      return
+    }
     setCut(nextCut)
     // 대사가 그대로면 다시 타이핑하지 않는다 — 같은 말을 두 번 치는 것처럼 보인다.
     setRevealed(nextCut.lines.join('\n') === cut.lines.join('\n'))
