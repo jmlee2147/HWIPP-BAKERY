@@ -24,7 +24,11 @@ export const Typewriter = ({ lines, revealed = false }: TypewriterProps) => {
         charsBefore += chars.length
 
         return (
-          <p key={line}>
+          // 줄바꿈은 데이터(`lines`)가 정한다. 자동 줄바꿈이 끼면 Figma 와 줄 수가 달라진다 —
+          // 컷 4 의 첫 줄은 대화 박스 본문 너비(591px)보다 길어 세 줄로 접혔다.
+          // 넘치는 줄은 `w-max` 로 자기 너비를 갖고 가운데에 놓인다. 부모의 `text-center`
+          // 만으로는 넘치는 순간 왼쪽에 붙어 40px 틀어진다.
+          <p key={line} className="w-max self-center whitespace-nowrap">
             {chars.map((char, index) => (
               <span
                 key={`${start + index}`}
