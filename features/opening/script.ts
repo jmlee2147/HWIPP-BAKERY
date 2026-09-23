@@ -429,13 +429,25 @@ const STAR_DECO = '/img/opening/interior/star-deco.svg'
 export interface CakeSlice {
   readonly key: string
   readonly box: MetaBox
-  /** 내보내기 바운딩 보정. 근거는 `TITLE_CARDS` 의 `nudge` 주석과 같다. */
+  /**
+   * 화면 렌더에 맞춘 보정(px).
+   *
+   * 케이크 노드도 별과 같은 문제를 갖는다 — 아트보드 90도 위에 자기 회전이 한 번 더
+   * 걸려 있어 메타데이터 좌표가 회전 후 바운딩의 모서리가 아니다. 가장 큰 것이 119px
+   * 어긋났다. 그래서 내보낸 그림을 1080×1920 레퍼런스 렌더에 겹쳐 맞춰 잰 값이다.
+   * 회전이 없는 제빵사는 보정이 0 이라 `BAKER_POSES` 에는 이 칸이 없다.
+   */
   readonly nudge?: { readonly x: number; readonly y: number }
   readonly stars?: readonly CakeStar[]
 }
 
 /**
  * 컷 6·7 바닥에 깔리는 케이크 조각. 겹침 순서가 곧 배열 순서다.
+ *
+ * **키는 컷 1 의 `TITLE_CARDS` 와 같은 여섯 개다.** 같은 케이크를 두 컷이 각자의 각도로
+ * 내보낸 것이라 파일은 둘이지만 이름은 하나여야 한다 — 어휘가 갈리면 같은 케이크를
+ * 두 이름으로 부르게 되고, 디자인이 바뀔 때 한쪽만 고치게 된다.
+ * `cake-chocoberry` 와 `slice-chocoberry` 는 각도까지 같아 사실상 같은 파일이다.
  *
  * **컷 6 좌표를 컷 7 에도 그대로 쓴다.** 두 컷은 대사와 표정만 다른 같은 장면인데
  * Figma 에서는 롤케이크가 29px 내려가 있고 별 3개가 다른 케이크로 옮겨가 있다.
@@ -444,25 +456,43 @@ export interface CakeSlice {
 export const CAKE_SLICES: readonly CakeSlice[] = [
   {
     key: 'strawberry',
+    nudge: { x: -52, y: 10 },
     box: { x: 617.1309902136294, y: 76.58229629057267, width: 336.8093447347419, height: 330.52012807763094 },
     stars: [
       { src: STAR, center: { x: 224.5, y: 1475 }, width: 30.6298, height: 29.1322, tiltDeg: 11.34 },
       { src: STAR, center: { x: 259, y: 1481 }, width: 30.6298, height: 29.1322, tiltDeg: 11.34 },
-      { src: STAR_DECO, center: { x: 353, y: 1456 }, width: 58.1668, height: 55.3229, tiltDeg: 39.32 },
+      { src: STAR_DECO, center: { x: 355, y: 1452 }, width: 58.1668, height: 55.3229, tiltDeg: 39.32 },
     ],
   },
-  { key: 'birthday', box: { x: 875.200927734375, y: -1, width: 430.93461190248854, height: 401.2507967942365 } },
-  { key: 'darkchoco', box: { x: 1539, y: 539.568359375, width: 391.2757797293798, height: 396.804154596899 } },
+  {
+    key: 'cherry',
+    nudge: { x: 10, y: -114 },
+    box: { x: 875.200927734375, y: -1, width: 430.93461190248854, height: 401.2507967942365 },
+  },
+  {
+    key: 'heartchoco',
+    nudge: { x: -119, y: 11 },
+    box: { x: 1539, y: 539.568359375, width: 391.2757797293798, height: 396.804154596899 },
+  },
   {
     key: 'kiwimango',
+    nudge: { x: 6, y: -37 },
     box: { x: 1427.961669921875, y: 27.138671875, width: 370.2376490215065, height: 354.96156145378336 },
     stars: [
       { src: STAR, center: { x: 111.5, y: 624.5 }, width: 28.3837, height: 26.9945, tiltDeg: -8.96 },
       { src: STAR, center: { x: 144, y: 619.5 }, width: 28.3837, height: 26.9945, tiltDeg: -8.96 },
     ],
   },
-  { key: 'roll', box: { x: 1216.62353515625, y: 638, width: 325.3681756802471, height: 314.07916729810677 } },
-  { key: 'milkchoco', box: { x: 1245, y: 337.44140625, width: 365.17303323068336, height: 349.3732863842415 } },
+  {
+    key: 'angelroll',
+    nudge: { x: 7, y: -70 },
+    box: { x: 1216.62353515625, y: 638, width: 325.3681756802471, height: 314.07916729810677 },
+  },
+  {
+    key: 'chocoberry',
+    nudge: { x: -58, y: 11 },
+    box: { x: 1245, y: 337.44140625, width: 365.17303323068336, height: 349.3732863842415 },
+  },
 ]
 
 /**
