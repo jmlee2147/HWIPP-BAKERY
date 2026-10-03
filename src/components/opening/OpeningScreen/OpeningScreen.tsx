@@ -94,7 +94,7 @@ export const OpeningScreen = ({
             </div>
           </div>
           <SpeechBubble className="absolute left-[59px] top-[62px]">
-            <TypedText text={STORE_TEXT} />
+            <TypedText text={STORE_TEXT} startDelayMs={500} />
           </SpeechBubble>
           <StoreSign className="absolute left-[356px] top-[462px]" />
           <p className="absolute left-0 top-[1718px] w-full text-center font-stardust text-[40px] font-bold leading-[93px] tracking-[-0.025em] text-white [text-shadow:1px_1px_7.7px_#c12f7d]">

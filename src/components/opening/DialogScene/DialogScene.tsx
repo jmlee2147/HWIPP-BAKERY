@@ -6,6 +6,9 @@ import { StickerGroup } from "@/components/common/StickerGroup/StickerGroup";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import type { DialogSceneData } from "@/data/opening";
 
+// 장면이 나타난 뒤 말을 시작하기까지의 뜸.
+const TYPING_DELAY_MS = 500;
+
 const FRAME_ANIMATION = ["animate-frame-first", "animate-frame-second"];
 
 interface DialogSceneProps {
@@ -41,6 +44,8 @@ export const DialogScene = ({
         <TypedText
           text={scene.text}
           instant={skipTyping}
+          startDelayMs={TYPING_DELAY_MS}
+          sound
           onDone={() => setTyped(true)}
         />
       </SpeechBubble>

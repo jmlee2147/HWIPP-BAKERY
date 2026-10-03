@@ -25,6 +25,30 @@ export function playEffect(name: keyof typeof EFFECTS) {
   play(audio);
 }
 
+const TALK = { src: "/assets/sounds/talk.wav", volume: 0.5 };
+let talkPool: HTMLAudioElement[] = [];
+let talkIndex = 0;
+
+// 말소리는 아주 짧은 간격으로 이어서 나므로, 미리 만들어 둔 몇 개를 돌려 가며 쓴다.
+export function playTalk() {
+  if (typeof Audio === "undefined") return;
+  if (talkPool.length === 0) {
+    talkPool = Array.from({ length: 4 }, () => {
+      const audio = new Audio(TALK.src);
+      audio.volume = TALK.volume;
+      return audio;
+    });
+  }
+  const audio = talkPool[talkIndex % talkPool.length];
+  talkIndex += 1;
+  try {
+    audio.currentTime = 0;
+  } catch {
+    // 아직 불러오지 못한 상태.
+  }
+  play(audio);
+}
+
 // 여러 번 불러도 배경음악은 하나만 재생된다.
 export function startBgm() {
   if (typeof Audio === "undefined") return;
