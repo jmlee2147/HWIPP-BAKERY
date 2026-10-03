@@ -5,7 +5,7 @@ description: 현재 작업 브랜치의 변경 내용을 분석해 프로젝트 
 
 # create-pr
 
-작업 브랜치를 푸시하고 `dev` 대상 PR을 생성합니다. 흐름은 `.claude/rules/git-workflow.md`를 따릅니다. 머지는 하지 않습니다.
+작업 브랜치를 푸시하고 `dev` 대상 PR을 생성합니다. 흐름은 `.claude/rules/git-workflow.md`를 따릅니다. 사용자가 변경을 직접 확인하고 PR을 올리라고 했을 때만 실행합니다. 머지는 하지 않습니다.
 본문 형식은 `.github/PULL_REQUEST_TEMPLATE.md`를 따릅니다.
 
 ## Workflow
