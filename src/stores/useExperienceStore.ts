@@ -5,6 +5,7 @@ interface ExperienceState {
   step: Step;
   goNext: () => void;
   goPrev: () => void;
+  goTo: (step: Step) => void;
   reset: () => void;
 }
 
@@ -12,5 +13,6 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   step: FIRST_STEP,
   goNext: () => set((state) => ({ step: nextStep(state.step) })),
   goPrev: () => set((state) => ({ step: prevStep(state.step) })),
+  goTo: (step) => set({ step }),
   reset: () => set({ step: FIRST_STEP }),
 }));
