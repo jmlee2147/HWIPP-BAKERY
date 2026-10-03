@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "PF Stardust";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/pf-stardust-regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "PF Stardust";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/pf-stardust-bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "KiwiSoda";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/kiwi-soda.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Ownglyph MeowWriting";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/ownglyph-meow-writing.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Ownglyph Jinpall";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/ownglyph-jinpall.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "UnDinaru";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/un-dinaru.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "StardustEssay";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/assets/fonts/stardust-essay.woff2") format("woff2");
+}
+
 html,
 body {
   height: 100%;

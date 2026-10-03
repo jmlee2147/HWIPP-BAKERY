@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { computeStageScale } from "./stage";
 
 describe("computeStageScale", () => {
-  it("시안과 같은 크기면 1배다", () => {
+  it("스테이지와 같은 크기면 1배다", () => {
     expect(computeStageScale(1080, 1920)).toBe(1);
   });
 
@@ -10,7 +10,7 @@ describe("computeStageScale", () => {
     expect(computeStageScale(1440, 2560)).toBeCloseTo(1440 / 1080);
   });
 
-  it("시안보다 길쭉한 휴대폰에서는 너비에 맞춘다", () => {
+  it("스테이지보다 길쭉한 휴대폰에서는 너비에 맞춘다", () => {
     expect(computeStageScale(390, 844)).toBeCloseTo(390 / 1080);
   });
 

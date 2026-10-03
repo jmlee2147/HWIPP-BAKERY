@@ -1,7 +1,7 @@
 export const STAGE_WIDTH = 1080;
 export const STAGE_HEIGHT = 1920;
 
-// 시안은 1080x1920 고정이다. 뷰포트가 어떤 크기든 비율을 유지한 채 안쪽에 맞춘다.
+// 화면은 1080x1920 고정이다. 뷰포트가 어떤 크기든 비율을 유지한 채 안쪽에 맞춘다.
 export function computeStageScale(
   viewportWidth: number,
   viewportHeight: number,

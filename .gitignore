@@ -158,5 +158,5 @@ next-env.d.ts
 .DS_Store
 
 # oh-my-claudecode 런타임 상태 (프로젝트 스킬만 커밋)
-.omc/*
-!.omc/skills/
+**/.omc/*
+!/.omc/skills/
