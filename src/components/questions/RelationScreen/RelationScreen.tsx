@@ -5,6 +5,7 @@ import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
+import { CarouselDots } from "@/components/questions/CarouselDots/CarouselDots";
 import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { RelationCard } from "@/components/questions/RelationCard/RelationCard";
 import { CARD_SLOTS, RELATIONS, slotOffset } from "@/data/relations";
@@ -102,31 +103,13 @@ export const RelationScreen = () => {
         className="absolute left-[910px] top-[1075px] z-10"
         onClick={() => show(active + 1)}
       />
-      <div className="absolute left-[428px] top-[1616px] h-[58.66px] w-[223.77px]">
-        <div
-          className={`absolute inset-0 rounded-full bg-taupe transition-opacity duration-500 motion-reduce:transition-none ${flipped ? "opacity-0" : "opacity-80"}`}
-        />
-        <div
-          className={`absolute inset-0 rounded-full bg-blush transition-opacity duration-500 motion-reduce:transition-none ${flipped ? "opacity-80" : "opacity-0"}`}
-        />
-        {/* 점 사이가 좁아 누르는 영역을 옆으로는 넓힐 수 없다. 위아래로만 넓히고, 같은 조작은 화살표와 옆 카드로도 할 수 있다. */}
-        <div className="relative flex size-full items-center justify-center">
-          {RELATIONS.map((relation, index) => (
-            <button
-              key={relation.id}
-              type="button"
-              aria-label={`${relation.label} 카드 보기`}
-              aria-current={index === active}
-              className="-my-[14.67px] flex h-[88px] w-[39.73px] items-center justify-center"
-              onClick={() => show(index)}
-            >
-              <span
-                className={`block size-[23.4px] rounded-full border-[0.59px] border-cocoa ${index === active ? "bg-cocoa" : "bg-mist"}`}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
+      <CarouselDots
+        labels={RELATIONS.map((relation) => relation.label)}
+        active={active}
+        onSelect={show}
+        tone={flipped ? "light" : "dark"}
+        className="absolute left-[428px] top-[1616px]"
+      />
       <ConfirmButton
         className="absolute left-[235px] top-[1774px]"
         onClick={() => {
