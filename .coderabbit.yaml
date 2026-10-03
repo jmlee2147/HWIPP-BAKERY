@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: ko-KR
+tone_instructions: "간결한 한국어로 씁니다. 이모지를 쓰지 않습니다. 취향 문제가 아닌 실제 버그와 규칙 위반을 우선합니다."
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  in_progress_fortune: false
+  auto_review:
+    enabled: true
+    drafts: false
+    # 작업 브랜치의 PR 대상이 dev라서 기본 브랜치(main) 외에 추가한다.
+    base_branches:
+      - dev
+  path_filters:
+    - "!pnpm-lock.yaml"
+    - "!public/assets/**"
+  path_instructions:
+    - path: "src/**/*.{ts,tsx,css}"
+      instructions: |
+        이 앱은 전시장 세로 터치 키오스크(LG StanbyME 2, webOS 24)에서 무인으로 구동되고 관람객 휴대폰에서도 열립니다.
+        브라우저 기준선은 Chromium 108입니다. 아래를 위반하면 지적합니다.
+
+        - Chromium 108에서 동작하지 않는 기능 사용: oklch(), color-mix(), CSS nesting, @starting-style,
+          문서 간 View Transitions, scroll-driven animations, linear() easing 등.
+        - Tailwind CSS는 v3.4입니다. v4 문법(@theme, @import "tailwindcss", @tailwindcss/postcss)을 쓰면 안 됩니다.
+        - 화면은 1080x1920 고정 좌표계이고 Stage 컴포넌트가 배율을 정합니다.
+          화면 안에서 vw, vh, 미디어 쿼리, 반응형 분기로 크기를 잡으면 안 됩니다. 시안의 px 값을 그대로 씁니다.
+        - hover에만 의존하는 인터랙션은 안 됩니다. 터치로 같은 동작이 가능해야 합니다.
+        - 애니메이션은 transform과 opacity만 바꿉니다. width, height, top, left, box-shadow, filter를
+          프레임마다 바꾸거나, 움직이는 요소에 큰 blur나 backdrop-filter를 쓰면 지적합니다.
+        - three.js 등 WebGL 라이브러리와 UI 라이브러리를 도입하지 않습니다.
+        - 현장 운영자가 고쳐줄 것을 전제한 설계는 안 됩니다. 네트워크 실패, 에셋 로드 실패, 관람객 이탈로
+          화면이 멈출 수 있는 경로에 자동 복구가 없으면 지적합니다.
+        - 조작 요소는 button으로 만듭니다. div에 클릭 핸들러를 달지 않습니다.
+    - path: "src/app/api/**"
+      instructions: |
+        LLM 호출은 이 route handler에서만 합니다.
+
+        - API 키는 서버 환경 변수로만 읽습니다. 클라이언트로 내려가는 응답이나 번들에 포함되면 안 됩니다.
+        - LLM 응답은 Zod 스키마로 검증하고, 정적 데이터에 없는 id는 버려야 합니다.
+        - 제한 시간과 오류 시 규칙 기반 대체 결과가 있어야 합니다. 분석 단계에서 화면이 멈추면 안 됩니다.
+        - 공개 주소이므로 요청 크기 제한과 호출 빈도 제한이 있어야 합니다.
+    - path: "**/*.test.{ts,tsx}"
+      instructions: |
+        모션의 중간 프레임이나 CSS class 자체를 검증하는 테스트, snapshot만 있는 테스트,
+        실제 LLM을 호출하는 테스트는 지적합니다. 사용자가 관찰할 수 있는 동작을 검증해야 합니다.
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - ".claude/rules/*.md"
+      - ".claude/decisions/records/*.md"
