@@ -22,6 +22,7 @@
 ## 컴포넌트 구조
 
 - `className` prop을 노출해 배치를 바깥에서 정할 수 있게 합니다.
+- `className`을 받는 루트 요소에 `relative`, `absolute` 같은 position 클래스를 고정하지 않습니다. Tailwind는 클래스 문자열 순서가 아니라 CSS 선언 순서로 우선순위가 정해져서, 바깥에서 넘긴 `absolute`가 무시됩니다. 안쪽 레이어의 기준이 필요하면 루트 안에 `relative size-full` 래퍼를 둡니다.
 - 나머지 props는 `...props`로 전달합니다.
 - 시각 상태가 여러 개면 boolean props를 늘리지 않고 하나의 variant 값으로 받습니다.
 - 상태는 부모나 store가 관리하고, 컴포넌트는 값과 콜백만 받습니다.

@@ -15,14 +15,16 @@ export const ArrowButton = ({
     <button
       type={type}
       aria-label={direction === "prev" ? "이전" : "다음"}
-      className={`relative size-[97.7px] drop-shadow-window disabled:opacity-40 ${className}`}
+      className={`size-[97.7px] drop-shadow-window transition-transform duration-100 active:scale-95 disabled:opacity-40 ${className}`}
       {...props}
     >
-      <img
-        alt=""
-        className={`absolute inset-0 block size-full max-w-none ${direction === "next" ? "rotate-180" : ""}`}
-        src="/assets/ui/button/arrow.svg"
-      />
+      <span className="relative block size-full">
+        <img
+          alt=""
+          className={`absolute inset-0 block size-full max-w-none ${direction === "next" ? "rotate-180" : ""}`}
+          src="/assets/ui/button/arrow.svg"
+        />
+      </span>
     </button>
   );
 };

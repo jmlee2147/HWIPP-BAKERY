@@ -80,48 +80,50 @@ export const ProgressBar = ({
     <div
       role="img"
       aria-label={isComplete ? "완료" : `${step}단계`}
-      className={`relative h-[154.06px] w-[930.25px] ${className}`}
+      className={`h-[154.06px] w-[930.25px] ${className}`}
       {...props}
     >
-      <div className="absolute left-0 top-[14.24px] h-[33.77px] w-full rounded-[50px] border-2 border-[#d4c7c1] bg-mint" />
-      <div
-        className={`absolute left-0 top-[14px] h-[34px] rounded-[50px] border-2 border-[#867b76] ${layout.fillClass}`}
-        style={{ width: layout.fillWidth }}
-      />
-      <div
-        className="absolute top-0 flex h-[62.71px] w-[62.71px] items-center justify-center"
-        style={{ left: knobLeft }}
-      >
-        <img
-          alt=""
-          className="absolute inset-0 size-full max-w-none"
-          src={
-            isComplete
-              ? "/assets/ui/progress/knob-complete.svg"
-              : "/assets/ui/progress/knob.svg"
-          }
+      <div className="relative size-full">
+        <div className="absolute left-0 top-[14.24px] h-[33.77px] w-full rounded-[50px] border-2 border-[#d4c7c1] bg-mint" />
+        <div
+          className={`absolute left-0 top-[14px] h-[34px] rounded-[50px] border-2 border-[#867b76] ${layout.fillClass}`}
+          style={{ width: layout.fillWidth }}
         />
-        <span
-          aria-hidden
-          className={`relative font-stardust text-[36.63px] leading-none ${isComplete ? "text-white" : "text-cocoa"}`}
+        <div
+          className="absolute top-0 flex h-[62.71px] w-[62.71px] items-center justify-center"
+          style={{ left: knobLeft }}
         >
-          ♥
-        </span>
-      </div>
-      <div
-        className="absolute top-[52.7px] h-[101.36px]"
-        style={{ left: labelLeft, width: layout.labelWidth }}
-      >
-        <img
-          alt=""
-          className="absolute inset-[-2.4%_-0.5%_-0.71%_-0.5%] block h-[103.11%] w-[101%] max-w-none"
-          src={layout.labelSrc}
-        />
-        <img
-          alt=""
-          className="absolute left-1/2 top-[48px] block max-w-none -translate-x-1/2"
-          src={layout.textSrc}
-        />
+          <img
+            alt=""
+            className="absolute inset-0 size-full max-w-none"
+            src={
+              isComplete
+                ? "/assets/ui/progress/knob-complete.svg"
+                : "/assets/ui/progress/knob.svg"
+            }
+          />
+          <span
+            aria-hidden
+            className={`relative font-stardust text-[36.63px] leading-none ${isComplete ? "text-white" : "text-cocoa"}`}
+          >
+            ♥
+          </span>
+        </div>
+        <div
+          className="absolute top-[52.7px] h-[101.36px]"
+          style={{ left: labelLeft, width: layout.labelWidth }}
+        >
+          <img
+            alt=""
+            className="absolute inset-[-2.4%_-0.5%_-0.71%_-0.5%] block h-[103.11%] w-[101%] max-w-none"
+            src={layout.labelSrc}
+          />
+          <img
+            alt=""
+            className="absolute left-1/2 top-[48px] block max-w-none -translate-x-1/2"
+            src={layout.textSrc}
+          />
+        </div>
       </div>
     </div>
   );
