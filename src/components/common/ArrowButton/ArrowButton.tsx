@@ -15,7 +15,7 @@ export const ArrowButton = ({
     <button
       type={type}
       aria-label={direction === "prev" ? "이전" : "다음"}
-      className={`relative size-[97.7px] drop-shadow-[3px_9px_15px_rgba(0,0,0,0.15)] disabled:opacity-40 ${className}`}
+      className={`relative size-[97.7px] drop-shadow-window disabled:opacity-40 ${className}`}
       {...props}
     >
       <img

@@ -35,4 +35,8 @@ public/assets/
 
 ## 폰트
 
-시안 폰트는 온글잎 애옹글, 온글잎 진팔이, PF 스타더스트, 은디나루, 별모래 에세이체, Kiwi Soda, Starshines입니다. 파일은 디자이너에게 받아 `public/assets/fonts`에 두고 `next/font/local`로 불러옵니다. 라이선스가 웹 임베딩을 허용하는지 확인하기 전에는 저장소에 넣지 않습니다.
+- 폰트 파일은 woff2로 변환해 `public/assets/fonts`에 두고, `src/app/globals.css`의 `@font-face`로 등록합니다.
+- `next/font`를 쓰지 않습니다. 폰트가 여러 종이고 용량이 커서, 화면에 실제로 쓰인 폰트만 내려받게 하기 위해서입니다.
+- Tailwind 토큰은 `tailwind.config.ts`의 `fontFamily`에 있습니다: `font-stardust`(PF 스타더스트, 굵게는 `font-bold`), `font-meow`(온글잎 애옹글), `font-jinpall`(온글잎 진팔이), `font-dinaru`(은 디나루), `font-essay`(별모래 에세이), `font-kiwi`(Kiwi Soda).
+- Kiwi Soda는 CC BY 4.0이라 출처 표기가 필요합니다. 표기는 저장소 루트의 `CREDITS.md`에 있습니다. 출처 표기가 필요한 에셋을 추가하면 이 파일에 함께 적습니다.
+- Starshines는 라이선스가 폰트 파일의 변환 재배포를 금지하므로 저장소에 넣지 않습니다. 진행 바 이름표처럼 글자가 고정된 곳에만 쓰고, 글자를 윤곽선 SVG로 만들어 넣습니다 (`public/assets/ui/progress/text-*.svg`).

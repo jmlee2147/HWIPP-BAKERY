@@ -3,8 +3,8 @@ import type { ComponentPropsWithRef } from "react";
 type ChoiceTone = "pink" | "mint";
 
 const TONE_CLASS: Record<ChoiceTone, string> = {
-  pink: "bg-[#ffcbe7]",
-  mint: "bg-[#f1ffff]",
+  pink: "bg-petal",
+  mint: "bg-mint",
 };
 
 // 별은 좌우에 두 개씩 놓인다.
@@ -51,7 +51,7 @@ export const ChoiceButton = ({
           />
         </span>
       ))}
-      <span className="relative block whitespace-nowrap text-center font-stardust-bold text-[34.73px] leading-[34px] tracking-[-0.87px] text-cocoa">
+      <span className="relative block whitespace-nowrap text-center font-stardust font-bold text-body text-cocoa">
         {children}
       </span>
     </button>

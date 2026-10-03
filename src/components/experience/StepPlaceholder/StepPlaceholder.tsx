@@ -40,7 +40,7 @@ export const StepPlaceholder = ({
   const progress = PROGRESS[step];
 
   return (
-    <section className="relative flex h-full flex-col items-center justify-center gap-[48px] bg-[#fbe9ee]">
+    <section className="relative flex h-full flex-col items-center justify-center gap-[48px] bg-blush">
       {progress !== null && (
         <ProgressBar
           step={progress}

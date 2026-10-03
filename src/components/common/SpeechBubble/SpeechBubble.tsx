@@ -33,11 +33,11 @@ export const SpeechBubble = ({
       className={`relative h-[319.14px] w-[962.45px] drop-shadow-[7.235px_10.129px_10.925px_rgba(185,172,172,0.8)] ${className}`}
       {...props}
     >
-      <div className="absolute inset-[78.07%_0.93%_0_0.93%] border-[1.447px] border-[#fff9fc] bg-[#644542]" />
-      <div className="absolute inset-[14.4%_0.86%_19.52%_1%] border-[2.894px] border-[#fff9fc] bg-[#fff9fc]" />
+      <div className="absolute inset-[78.07%_0.93%_0_0.93%] border-[1.447px] border-cream bg-chocolate" />
+      <div className="absolute inset-[14.4%_0.86%_19.52%_1%] border-[2.894px] border-cream bg-cream" />
       <div
         aria-hidden
-        className="absolute left-[57.5px] right-[31px] top-[113.74px] h-[114.4px] bg-[radial-gradient(circle,#fff2f9_10.98px,transparent_11.5px),radial-gradient(circle,#fff2f9_10.98px,transparent_11.5px)] [background-position:-38.85px_-35px,11.65px_43.5px] [background-repeat:repeat,repeat-x] [background-size:100.1px_92.19px,100.1px_22px]"
+        className="absolute left-[57.5px] right-[31px] top-[113.74px] h-[114.4px] bg-[radial-gradient(circle,theme(colors.blush)_10.98px,transparent_11.5px),radial-gradient(circle,theme(colors.blush)_10.98px,transparent_11.5px)] [background-position:-38.85px_-35px,11.65px_43.5px] [background-repeat:repeat,repeat-x] [background-size:100.1px_92.19px,100.1px_22px]"
       />
       <div className="absolute inset-[14.11%_0_71.5%_0]">
         <img
@@ -55,7 +55,7 @@ export const SpeechBubble = ({
           />
         </div>
       ))}
-      <div className="absolute inset-x-[80px] bottom-[70px] top-[91px] flex flex-col items-center justify-center whitespace-pre-line text-center font-stardust-bold text-[34.73px] leading-[49.2px] tracking-[-0.87px] text-cocoa [text-shadow:2.097px_2.097px_2.621px_#d5abc2]">
+      <div className="absolute inset-x-[80px] bottom-[70px] top-[91px] flex flex-col items-center justify-center whitespace-pre-line text-center font-stardust font-bold text-body leading-[49.2px] text-cocoa [text-shadow:2.097px_2.097px_2.621px_#d5abc2]">
         {children}
       </div>
       {STARS.map((star) => (
