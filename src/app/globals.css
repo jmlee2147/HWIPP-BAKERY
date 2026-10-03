@@ -69,3 +69,10 @@ body {
   -webkit-user-select: none;
   touch-action: manipulation;
 }
+
+/* 이미지는 전부 장식이거나 버튼 안에 있다. 드래그와 길게 눌렀을 때 뜨는 메뉴를 막는다. */
+img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}

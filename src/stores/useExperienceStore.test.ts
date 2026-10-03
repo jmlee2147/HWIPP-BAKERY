@@ -26,4 +26,9 @@ describe("useExperienceStore", () => {
     reset();
     expect(useExperienceStore.getState().step).toBe("opening");
   });
+
+  it("지정한 단계로 바로 이동한다", () => {
+    useExperienceStore.getState().goTo("editor");
+    expect(useExperienceStore.getState().step).toBe("editor");
+  });
 });

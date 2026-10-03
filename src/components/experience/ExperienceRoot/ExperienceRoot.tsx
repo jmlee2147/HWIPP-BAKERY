@@ -2,8 +2,10 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { StepPlaceholder } from "@/components/experience/StepPlaceholder/StepPlaceholder";
+import { OpeningScreen } from "@/components/opening/OpeningScreen/OpeningScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
 import { FIRST_STEP } from "@/lib/steps";
+import { coverEnter, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
 const IDLE_RESET_MS = 120_000;
@@ -14,21 +16,24 @@ export const ExperienceRoot = () => {
   useIdleReset(IDLE_RESET_MS, reset, step !== FIRST_STEP);
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence initial={false}>
       <motion.div
         key={step}
         className="absolute inset-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.25 }}
+        initial={coverEnter.initial}
+        animate={coverEnter.animate}
+        exit={holdUntilCovered}
       >
-        <StepPlaceholder
-          step={step}
-          onNext={goNext}
-          onPrev={goPrev}
-          onReset={reset}
-        />
+        {step === FIRST_STEP ? (
+          <OpeningScreen />
+        ) : (
+          <StepPlaceholder
+            step={step}
+            onNext={goNext}
+            onPrev={goPrev}
+            onReset={reset}
+          />
+        )}
       </motion.div>
     </AnimatePresence>
   );
