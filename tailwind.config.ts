@@ -40,6 +40,10 @@ const config: Config = {
           "0%, 100%": { transform: "rotate(-2.5deg)" },
           "50%": { transform: "rotate(2.5deg)" },
         },
+        "touch-ring": {
+          from: { opacity: "0.8", transform: "scale(0.25)" },
+          to: { opacity: "0", transform: "scale(1)" },
+        },
         "plate-drift": {
           to: { transform: "translate(-57.15px, -74.42px)" },
         },
@@ -57,6 +61,7 @@ const config: Config = {
         bob: "bob 3s ease-in-out infinite",
         wobble: "wobble 3s ease-in-out infinite",
         "plate-drift": "plate-drift 5s linear infinite",
+        "touch-ring": "touch-ring 0.5s ease-out both",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",
       },
