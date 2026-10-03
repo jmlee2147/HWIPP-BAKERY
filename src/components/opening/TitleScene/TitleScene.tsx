@@ -1,6 +1,6 @@
 import { LogoEmblem } from "@/components/common/LogoEmblem/LogoEmblem";
 import { LogoPlate } from "@/components/common/LogoPlate/LogoPlate";
-import { Sticker } from "@/components/common/Sticker/Sticker";
+import { StickerGroup } from "@/components/common/StickerGroup/StickerGroup";
 import { TITLE_STICKERS } from "@/data/stickers";
 
 const asset = (name: string) => `/assets/title/${name}`;
@@ -61,10 +61,17 @@ const WINGS = [
   "left-[383.47px] top-[1377.34px] [transform:rotate(-14.14deg)_scaleX(-1)]",
 ];
 
-const Stickers = ({ name }: { name: keyof typeof TITLE_STICKERS }) =>
-  TITLE_STICKERS[name].map((sticker) => (
-    <Sticker key={`${sticker.centerX}-${sticker.centerY}`} sticker={sticker} />
-  ));
+const ORDER = Object.keys(TITLE_STICKERS);
+
+// 케이크가 하나씩 생겨난 뒤 둥둥 떠다닌다.
+const Stickers = ({ name }: { name: keyof typeof TITLE_STICKERS }) => (
+  <StickerGroup
+    stickers={TITLE_STICKERS[name]}
+    motion="bob"
+    popOrder={ORDER.indexOf(name)}
+    phase={ORDER.indexOf(name)}
+  />
+);
 
 const HeartBadge = ({ className }: { className: string }) => (
   <div

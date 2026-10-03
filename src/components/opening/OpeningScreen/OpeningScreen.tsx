@@ -10,6 +10,7 @@ import { StoreSign } from "@/components/opening/StoreSign/StoreSign";
 import { TitleScene } from "@/components/opening/TitleScene/TitleScene";
 import { GREETING, INTRO_1, INTRO_2, QUESTION } from "@/data/opening";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
+import { playEffect, startBgm } from "@/lib/sound";
 import { coverEnter, FADE_SECONDS, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -62,7 +63,15 @@ export const OpeningScreen = ({
 
   const renderScene = () => {
     if (scene === "title") {
-      return <TitleScene onStart={() => setScene("store")} />;
+      return (
+        <TitleScene
+          onStart={() => {
+            playEffect("choice");
+            startBgm();
+            setScene("store");
+          }}
+        />
+      );
     }
 
     if (scene === "store") {
@@ -96,7 +105,11 @@ export const OpeningScreen = ({
             aria-label="가게에 들어가기"
             className="absolute inset-0"
             disabled={doorOpen}
-            onClick={() => setDoorOpen(true)}
+            onClick={() => {
+              playEffect("doorBell");
+              playEffect("doorOpen");
+              setDoorOpen(true);
+            }}
           />
         </section>
       );

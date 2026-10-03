@@ -2,7 +2,7 @@
 
 import { type ReactNode, useState } from "react";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
-import { Sticker } from "@/components/common/Sticker/Sticker";
+import { StickerGroup } from "@/components/common/StickerGroup/StickerGroup";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import type { DialogSceneData } from "@/data/opening";
 
@@ -44,10 +44,13 @@ export const DialogScene = ({
           onDone={() => setTyped(true)}
         />
       </SpeechBubble>
-      {scene.stickers.map((sticker) => (
-        <Sticker
-          key={`${sticker.centerX}-${sticker.centerY}`}
-          sticker={sticker}
+      {scene.stickers.map((group, index) => (
+        <StickerGroup
+          key={`${group[0].centerX}-${group[0].centerY}`}
+          stickers={group}
+          motion="wobble"
+          popOrder={scene.popIn ? index : undefined}
+          phase={index}
         />
       ))}
       {scene.baker.map((frame, index) => (

@@ -11,7 +11,9 @@ export interface DialogSceneData {
   // 같은 가게 사진을 장면마다 다른 크기와 위치로 쓴다.
   background: SceneBox;
   text: string;
-  stickers: Sticker[];
+  stickers: Sticker[][];
+  // true면 케이크가 하나씩 생겨난다.
+  popIn?: boolean;
   // 두 장이면 일정한 간격으로 번갈아 보여 준다.
   baker: ({ src: string } & SceneBox)[];
 }
@@ -54,6 +56,7 @@ export const INTRO_1: DialogSceneData = {
   background: FLOOR,
   text: "아하! 저희는 세상에 단 하나뿐인\n특별한 맞춤 케이크를 구워드리는 곳이에요!",
   stickers: INTRO_STICKERS,
+  popIn: true,
   baker: [
     { src: BAKER.wave, ...FLOOR_SPOT },
     { src: BAKER.curious, ...FLOOR_SPOT },
