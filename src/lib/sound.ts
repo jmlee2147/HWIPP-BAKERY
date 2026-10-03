@@ -4,6 +4,7 @@ const EFFECTS = {
   choice: { src: "/assets/sounds/choice.mp3", volume: 0.4 },
   cardSlide: { src: "/assets/sounds/card-slide.m4a", volume: 0.5 },
   cardFlip: { src: "/assets/sounds/card-flip.m4a", volume: 0.6 },
+  popUp: { src: "/assets/sounds/pop-up.m4a", volume: 0.5 },
 };
 
 type EffectName = keyof typeof EFFECTS;

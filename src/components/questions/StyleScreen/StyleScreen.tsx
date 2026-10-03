@@ -54,6 +54,11 @@ export const StyleScreen = () => {
     return () => window.clearTimeout(timer);
   }, [active]);
 
+  // 요약 창이 뜰 때마다 소리를 낸다. 자동으로 뜰 때와 눌러서 띄울 때 모두 해당한다.
+  useEffect(() => {
+    if (summaryOpen) playEffect("popUp");
+  }, [summaryOpen]);
+
   useEffect(() => {
     if (!summaryOpen || confirming) return;
     const timer = window.setTimeout(
