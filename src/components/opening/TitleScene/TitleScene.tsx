@@ -229,13 +229,14 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
         src="/assets/logo/hwipp-outline.svg"
       />
 
+      {/* 보이는 크기는 83px이고, 터치 영역만 위아래로 3px씩 넓혔다. */}
       <button
         type="button"
-        className="absolute left-[172px] top-[1774px] h-[83px] w-[734.6px] group transition-transform duration-100 active:translate-y-[4px] active:scale-[0.95]"
+        className="absolute left-[172px] top-[1771px] h-[89px] w-[734.6px] group transition-transform duration-100 active:translate-y-[4px] active:scale-[0.95]"
         onClick={onStart}
       >
-        <span className="absolute inset-0 rounded-[9.14px] bg-[#f2f2f2] opacity-[0.49] shadow-[-0.73px_1.1px_21.41px_0px_rgba(255,255,255,0.63)]" />
-        <span className="absolute inset-x-[6.92px] inset-y-[3.58px] rounded-[9.14px] border-[0.37px] border-[#909090] bg-petal opacity-[0.49] shadow-[inset_4.02px_-3.19px_22.84px_0px_rgba(255,255,255,0.47)] transition-opacity duration-100 group-active:opacity-90" />
+        <span className="absolute inset-x-0 inset-y-[3px] rounded-[9.14px] bg-[#f2f2f2] opacity-[0.49] shadow-[-0.73px_1.1px_21.41px_0px_rgba(255,255,255,0.63)]" />
+        <span className="absolute inset-x-[6.92px] inset-y-[6.58px] rounded-[9.14px] border-[0.37px] border-[#909090] bg-petal opacity-[0.49] shadow-[inset_4.02px_-3.19px_22.84px_0px_rgba(255,255,255,0.47)] transition-opacity duration-100 group-active:opacity-90" />
         <span className="absolute inset-0 flex items-center justify-center font-meow text-[25.56px] tracking-[0.18em] text-[#5e3e23] [-webkit-text-stroke:0.48px_#5e3e23]">
           START!
         </span>

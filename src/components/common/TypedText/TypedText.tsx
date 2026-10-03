@@ -43,7 +43,9 @@ export const TypedText = ({
   return (
     <span>
       <span className="sr-only">{text}</span>
-      <span aria-hidden>{characters.slice(0, shown).join("")}</span>
+      <span aria-hidden data-testid="typed-text">
+        {characters.slice(0, shown).join("")}
+      </span>
       <span aria-hidden className="invisible">
         {characters.slice(shown).join("")}
       </span>
