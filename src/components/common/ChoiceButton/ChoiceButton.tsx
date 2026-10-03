@@ -1,4 +1,7 @@
+"use client";
+
 import type { ComponentPropsWithRef } from "react";
+import { playEffect } from "@/lib/sound";
 
 type ChoiceTone = "pink" | "mint";
 
@@ -24,12 +27,17 @@ export const ChoiceButton = ({
   type = "button",
   className = "",
   children,
+  onClick,
   ...props
 }: ChoiceButtonProps) => {
   return (
     <button
       type={type}
       className={`h-[133.15px] w-[957px] transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 ${className}`}
+      onClick={(event) => {
+        playEffect("choice");
+        onClick?.(event);
+      }}
       {...props}
     >
       <span className="relative block size-full">

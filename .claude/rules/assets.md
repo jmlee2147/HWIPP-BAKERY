@@ -45,6 +45,13 @@ public/assets/
 - 사진류 배경은 WebP, 투명 배경 부품은 PNG 또는 WebP를 씁니다.
 - 다음 화면에서 쓸 이미지는 미리 불러와 전환 중 빈 화면이 보이지 않게 합니다.
 
+## 소리
+
+- 효과음과 배경음악은 `public/assets/sounds`에 두고 `src/lib/sound.ts`를 통해서만 재생합니다.
+- 반복 재생하는 배경음악은 m4a(AAC)로 변환해 넣습니다. 짧은 효과음은 받은 형식 그대로 둡니다.
+- 브라우저는 첫 터치 이후에만 소리를 낼 수 있습니다. 배경음악은 START 버튼을 누를 때 처음부터 시작하고, 타이틀 화면으로 돌아오면 멈춥니다.
+- 출처는 `CREDITS.md`에 적습니다.
+
 ## 폰트
 
 - 폰트 파일은 woff2로 변환해 `public/assets/fonts`에 두고, `src/app/globals.css`의 `@font-face`로 등록합니다.

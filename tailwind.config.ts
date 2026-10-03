@@ -27,6 +27,26 @@ const config: Config = {
         body: ["34.73px", { lineHeight: "34px", letterSpacing: "-0.87px" }],
       },
       keyframes: {
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0)" },
+          "70%": { opacity: "1", transform: "scale(1.12)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        bob: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        wobble: {
+          "0%, 100%": { transform: "rotate(-2.5deg)" },
+          "50%": { transform: "rotate(2.5deg)" },
+        },
+        "touch-ring": {
+          from: { opacity: "0.8", transform: "scale(0.25)" },
+          to: { opacity: "0", transform: "scale(1)" },
+        },
+        "plate-drift": {
+          to: { transform: "translate(-57.15px, -74.42px)" },
+        },
         "frame-first": {
           "0%, 49.99%": { opacity: "1" },
           "50%, 100%": { opacity: "0" },
@@ -37,6 +57,11 @@ const config: Config = {
         },
       },
       animation: {
+        "pop-in": "pop-in 0.45s ease-out both",
+        bob: "bob 3s ease-in-out infinite",
+        wobble: "wobble 3s ease-in-out infinite",
+        "plate-drift": "plate-drift 5s linear infinite",
+        "touch-ring": "touch-ring 0.5s ease-out both",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",
       },

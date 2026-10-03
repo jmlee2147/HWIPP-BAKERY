@@ -10,14 +10,21 @@ const STAR_SHAPE =
 
 interface StickerProps {
   sticker: StickerData;
+  // 묶음 안에 놓일 때 묶음의 왼쪽 위 좌표.
+  offsetX?: number;
+  offsetY?: number;
 }
 
 // 중심 좌표와 회전값으로 놓는 이미지 한 장. 그림자는 회전하지 않도록 바깥 요소에 건다.
-export const Sticker = ({ sticker }: StickerProps) => {
+export const Sticker = ({
+  sticker,
+  offsetX = 0,
+  offsetY = 0,
+}: StickerProps) => {
   const { centerX, centerY, width, height, rotate } = sticker;
   const box = {
-    left: centerX - width / 2,
-    top: centerY - height / 2,
+    left: centerX - width / 2 - offsetX,
+    top: centerY - height / 2 - offsetY,
     width,
     height,
   };

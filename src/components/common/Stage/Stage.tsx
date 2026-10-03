@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useLayoutEffect, useState } from "react";
+import { TouchEffect } from "@/components/common/TouchEffect/TouchEffect";
 import { computeStageScale, STAGE_HEIGHT, STAGE_WIDTH } from "@/lib/stage";
 
 interface StageProps {
@@ -30,6 +31,7 @@ export const Stage = ({ children }: StageProps) => {
         }}
       >
         {children}
+        <TouchEffect />
       </div>
     </div>
   );

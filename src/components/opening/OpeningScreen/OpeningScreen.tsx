@@ -10,6 +10,7 @@ import { StoreSign } from "@/components/opening/StoreSign/StoreSign";
 import { TitleScene } from "@/components/opening/TitleScene/TitleScene";
 import { GREETING, INTRO_1, INTRO_2, QUESTION } from "@/data/opening";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
+import { playEffect, preloadSounds, startBgm, stopBgm } from "@/lib/sound";
 import { coverEnter, FADE_SECONDS, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -52,6 +53,15 @@ export const OpeningScreen = ({
   );
 
   useEffect(() => {
+    preloadSounds();
+  }, []);
+
+  // 타이틀은 다음 관람객을 기다리는 화면이다. 어떤 경로로 돌아왔든 배경음악을 멈춘다.
+  useEffect(() => {
+    if (scene === "title") stopBgm();
+  }, [scene]);
+
+  useEffect(() => {
     if (!doorOpen) return;
     const timer = window.setTimeout(() => {
       setDoorOpen(false);
@@ -62,7 +72,15 @@ export const OpeningScreen = ({
 
   const renderScene = () => {
     if (scene === "title") {
-      return <TitleScene onStart={() => setScene("store")} />;
+      return (
+        <TitleScene
+          onStart={() => {
+            playEffect("choice");
+            startBgm();
+            setScene("store");
+          }}
+        />
+      );
     }
 
     if (scene === "store") {
@@ -85,7 +103,7 @@ export const OpeningScreen = ({
             </div>
           </div>
           <SpeechBubble className="absolute left-[59px] top-[62px]">
-            <TypedText text={STORE_TEXT} />
+            <TypedText text={STORE_TEXT} startDelayMs={500} />
           </SpeechBubble>
           <StoreSign className="absolute left-[356px] top-[462px]" />
           <p className="absolute left-0 top-[1718px] w-full text-center font-stardust text-[40px] font-bold leading-[93px] tracking-[-0.025em] text-white [text-shadow:1px_1px_7.7px_#c12f7d]">
@@ -96,7 +114,11 @@ export const OpeningScreen = ({
             aria-label="가게에 들어가기"
             className="absolute inset-0"
             disabled={doorOpen}
-            onClick={() => setDoorOpen(true)}
+            onClick={() => {
+              playEffect("doorBell");
+              playEffect("doorOpen");
+              setDoorOpen(true);
+            }}
           />
         </section>
       );

@@ -41,4 +41,14 @@ describe("TypedText", () => {
     expect(typed()).toBe("케이크");
     expect(onDone).toHaveBeenCalledTimes(1);
   });
+
+  it("시작 지연이 지난 뒤에 첫 글자를 드러낸다", () => {
+    render(<TypedText text="케이크" intervalMs={100} startDelayMs={500} />);
+
+    act(() => vi.advanceTimersByTime(499));
+    expect(typed()).toBe("");
+    act(() => vi.advanceTimersByTime(1));
+    act(() => vi.advanceTimersByTime(100));
+    expect(typed()).toBe("케");
+  });
 });
