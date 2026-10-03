@@ -49,6 +49,8 @@ export const FlavorScreen = () => {
   const listY = useMotionValue(FLAVORS[active].listY);
   // 끌어서 움직인 직후에는 손을 뗀 자리의 카드가 눌린 것으로 치지 않는다.
   const dragged = useRef(false);
+  // 목록 그림을 받지 못하면 카드 문구를 글자로 보여 줘서 고를 수 있게 한다.
+  const [imageFailed, setImageFailed] = useState(false);
 
   const settle = (index: number) => {
     if (reduceMotion) listY.set(FLAVORS[index].listY);
@@ -112,6 +114,7 @@ export const FlavorScreen = () => {
             className="absolute block h-[1886px] w-[776px] max-w-none"
             src={FLAVOR_LIST}
             style={{ left: -LIST_PAD_X, top: -LIST_PAD_Y }}
+            onError={() => setImageFailed(true)}
           />
           {FLAVORS.map((item, index) => (
             <img
@@ -134,7 +137,7 @@ export const FlavorScreen = () => {
               type="button"
               aria-label={item.label}
               aria-pressed={index === active}
-              className="absolute left-0 w-full"
+              className={`absolute left-0 w-full ${imageFailed ? `px-[48px] font-stardust text-[34px] font-bold leading-[48px] ${index === active ? "bg-cocoa text-petal" : "bg-blush text-cocoa"}` : ""}`}
               style={{
                 top: index * FLAVOR_CARD_PITCH,
                 height: FLAVOR_CARD_HEIGHT,
@@ -142,7 +145,9 @@ export const FlavorScreen = () => {
               onClick={() => {
                 if (!dragged.current) select(index);
               }}
-            />
+            >
+              {imageFailed ? item.label : null}
+            </button>
           ))}
         </motion.div>
         <div

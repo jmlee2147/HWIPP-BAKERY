@@ -41,6 +41,21 @@ describe("FlavorScreen", () => {
     expect(useExperienceStore.getState().step).toBe("analysis");
   });
 
+  it("목록 그림을 받지 못하면 카드 문구를 글자로 보여 준다", () => {
+    const { container } = render(<FlavorScreen />);
+    expect(
+      screen.queryByText(FLAVORS[1].label, { selector: "button" }),
+    ).toBeNull();
+
+    const list = container.querySelector('img[src="/assets/flavor/list.webp"]');
+    if (!list) throw new Error("목록 그림이 없다");
+    fireEvent.error(list);
+
+    for (const item of FLAVORS) {
+      expect(screen.getByText(item.label, { selector: "button" })).toBeTruthy();
+    }
+  });
+
   it("앞서 고른 조건이 있으면 그 카드를 강조한 채로 시작한다", () => {
     useExperienceStore.setState({ flavor: "anything" });
     render(<FlavorScreen />);

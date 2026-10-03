@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "motion/react";
 import { type ReactNode, useLayoutEffect, useState } from "react";
 import { TouchEffect } from "@/components/common/TouchEffect/TouchEffect";
 import { computeStageScale, STAGE_HEIGHT, STAGE_WIDTH } from "@/lib/stage";
@@ -30,7 +31,15 @@ export const Stage = ({ children }: StageProps) => {
           visibility: scale === 0 ? "hidden" : "visible",
         }}
       >
-        {children}
+        {/* 스테이지가 줄거나 커져 있어도 끄는 거리가 손가락과 맞도록, 화면 좌표를 스테이지 좌표로 바꿔 준다. */}
+        <MotionConfig
+          transformPagePoint={(point) => ({
+            x: point.x / (scale || 1),
+            y: point.y / (scale || 1),
+          })}
+        >
+          {children}
+        </MotionConfig>
         <TouchEffect />
       </div>
     </div>
