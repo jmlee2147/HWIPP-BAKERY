@@ -17,8 +17,10 @@ export interface RecipientStyle {
   description: string;
   // 설명 글이 줄바꿈되는 너비. 스타일마다 조금씩 다르다.
   descriptionWidth: number;
-  // 작은 창에 뜨는 요약. 한 줄에 다 들어가지 않는 문구는 두 줄로 나눠 적는다.
+  // 작은 창에 한 줄로 뜨는 요약.
   summary: string;
+  // 요약 글자 크기. 문구가 길수록 작게 써서 한 줄에 들어가게 한다.
+  summarySize: number;
   // 두 줄로 놓인다. 창보다 길면 오른쪽이 잘린다.
   quotes: [string[], string[]];
   traits: string[];
@@ -36,6 +38,7 @@ export const STYLES: RecipientStyle[] = [
       "트렌드에 누구보다 민감하며 새로운 경험을 즐기는 사람.\n카페, 팝업, 브랜드를 빠르게 소비하고 감도 있는 피드로\n자신의 취향을 기록한다.",
     descriptionWidth: 749,
     summary: "트렌드에 민감하고 사진 찍기를 좋아해요",
+    summarySize: 30,
     quotes: [
       ["야 이거 해봤어?", "릴스에서 엄청 뜨더라.", "이거 지금 제일 핫하잖아."],
       [
@@ -60,7 +63,8 @@ export const STYLES: RecipientStyle[] = [
     description:
       "유행을 무작정 따라가기보다 자신의 취향에 맞는 공간과 브랜드를 발견하는 데 즐거움을 느낀다. 작은 디테일과 분위기에서 영감을 얻고, 자신만의 감도로 일상을 기록한다.",
     descriptionWidth: 736,
-    summary: "세련된 분위기와 감성적인 미감을\n중요하게 여겨요",
+    summary: "세련된 분위기와 감성적인 미감을 중요하게 여겨요",
+    summarySize: 28,
     quotes: [
       [
         "난 결국 디테일을 보게 되더라.",
@@ -85,7 +89,8 @@ export const STYLES: RecipientStyle[] = [
     description:
       "캐릭터와 아기자기한 소품을 좋아하며, 일상 속에서도 자신의 취향을 드러낼 수 있는 물건을 찾아다닌다. 단순히 유명한 것을 따라가기보다 좋아하는 캐릭터와 디자인을 발견하고, 굿즈나 소품을 하나씩 모으는 과정에서 즐거움을 느낀다.",
     descriptionWidth: 724,
-    summary: "아기자기하고 귀여운 아이템에\n쉽게 마음을 빼앗겨요",
+    summary: "아기자기하고 귀여운 아이템에 쉽게 마음을 빼앗겨요",
+    summarySize: 27,
     quotes: [
       [
         "헐 이거 진짜 너무 귀엽다ㅠㅠ",
@@ -112,7 +117,8 @@ export const STYLES: RecipientStyle[] = [
     description:
       "불필요한 군더더기는 덜어내고 자신만의 확실한 기호와 본질에 집중한다. 무채색이 주는 정갈함과 군더더기 없는 디테일에서 마음의 평온을 얻는다. 복잡한 유행을 좇기보다 오랫동안 질리지 않을 깔끔하고 질 좋은 아이템 하나를 신중하게 고르는 편이다.",
     descriptionWidth: 717,
-    summary: "군더더기 없이 깔끔하고\n정갈한 스타일을 선호해요",
+    summary: "군더더기 없이 깔끔하고 정갈한 스타일을 선호해요",
+    summarySize: 29,
     quotes: [
       [
         "난 깔끔한 게 제일 예쁘더라.",
@@ -140,7 +146,8 @@ export const STYLES: RecipientStyle[] = [
     description:
       "남들이 다 좋아하는 평범하고 무난한 스타일에는 절대 흥미를 느끼지 못한다. 자신만의 독특한 세계관과 감성이 확실하며, 약간은 기이하거나 키치하고 삐뚤빼뚤한 디테일에서 진정한 매력을 발견한다. '특이하다'는 말이 이들에게는 가장 기분 좋은 찬사다.",
     descriptionWidth: 724,
-    summary: "뻔하지 않은 유니크함과\n딥한 마이너 취향을 탐닉해요",
+    summary: "뻔하지 않은 유니크함과 딥한 마이너 취향을 탐닉해요",
+    summarySize: 27,
     quotes: [
       [
         "남들 다 하는 건 좀 재미없잖아",

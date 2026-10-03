@@ -83,6 +83,7 @@ describe("StyleScreen", () => {
     expect(summaryOpen("Minimalist")).toBe("false");
 
     advance(700);
+    expect(screen.getByText(STYLES[3].summary)).toBeTruthy();
     expect(summaryOpen("Minimalist")).toBe("true");
 
     advance(3000);
