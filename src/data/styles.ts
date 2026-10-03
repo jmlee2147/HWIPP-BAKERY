@@ -17,7 +17,7 @@ export interface RecipientStyle {
   description: string;
   // 설명 글이 줄바꿈되는 너비. 스타일마다 조금씩 다르다.
   descriptionWidth: number;
-  // 이름을 눌렀을 때 작은 창에 뜨는 한 줄 요약.
+  // 작은 창에 뜨는 요약. 한 줄에 다 들어가지 않는 문구는 두 줄로 나눠 적는다.
   summary: string;
   // 두 줄로 놓인다. 창보다 길면 오른쪽이 잘린다.
   quotes: [string[], string[]];
@@ -60,7 +60,7 @@ export const STYLES: RecipientStyle[] = [
     description:
       "유행을 무작정 따라가기보다 자신의 취향에 맞는 공간과 브랜드를 발견하는 데 즐거움을 느낀다. 작은 디테일과 분위기에서 영감을 얻고, 자신만의 감도로 일상을 기록한다.",
     descriptionWidth: 736,
-    summary: "세련된 분위기와 감성적인 미감을 중요하게 여겨요",
+    summary: "세련된 분위기와 감성적인 미감을\n중요하게 여겨요",
     quotes: [
       [
         "난 결국 디테일을 보게 되더라.",
@@ -85,7 +85,7 @@ export const STYLES: RecipientStyle[] = [
     description:
       "캐릭터와 아기자기한 소품을 좋아하며, 일상 속에서도 자신의 취향을 드러낼 수 있는 물건을 찾아다닌다. 단순히 유명한 것을 따라가기보다 좋아하는 캐릭터와 디자인을 발견하고, 굿즈나 소품을 하나씩 모으는 과정에서 즐거움을 느낀다.",
     descriptionWidth: 724,
-    summary: "아기자기하고 귀여운 아이템에 쉽게 마음을 빼앗겨요",
+    summary: "아기자기하고 귀여운 아이템에\n쉽게 마음을 빼앗겨요",
     quotes: [
       [
         "헐 이거 진짜 너무 귀엽다ㅠㅠ",
@@ -112,7 +112,7 @@ export const STYLES: RecipientStyle[] = [
     description:
       "불필요한 군더더기는 덜어내고 자신만의 확실한 기호와 본질에 집중한다. 무채색이 주는 정갈함과 군더더기 없는 디테일에서 마음의 평온을 얻는다. 복잡한 유행을 좇기보다 오랫동안 질리지 않을 깔끔하고 질 좋은 아이템 하나를 신중하게 고르는 편이다.",
     descriptionWidth: 717,
-    summary: "군더더기 없이 깔끔하고 정갈한 스타일을 선호해요",
+    summary: "군더더기 없이 깔끔하고\n정갈한 스타일을 선호해요",
     quotes: [
       [
         "난 깔끔한 게 제일 예쁘더라.",
@@ -140,7 +140,7 @@ export const STYLES: RecipientStyle[] = [
     description:
       "남들이 다 좋아하는 평범하고 무난한 스타일에는 절대 흥미를 느끼지 못한다. 자신만의 독특한 세계관과 감성이 확실하며, 약간은 기이하거나 키치하고 삐뚤빼뚤한 디테일에서 진정한 매력을 발견한다. '특이하다'는 말이 이들에게는 가장 기분 좋은 찬사다.",
     descriptionWidth: 724,
-    summary: "뻔하지 않은 유니크함과 딥한 마이너 취향을 탐닉해요",
+    summary: "뻔하지 않은 유니크함과\n딥한 마이너 취향을 탐닉해요",
     quotes: [
       [
         "남들 다 하는 건 좀 재미없잖아",

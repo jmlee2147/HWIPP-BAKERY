@@ -226,7 +226,7 @@ export const StyleWindow = ({
                   />
                 ))}
                 <span className="absolute left-[18.77px] top-[51.01px] h-[1.22px] w-[567.26px] bg-[#e4e4e4]" />
-                <span className="absolute left-[18.77px] top-[71.01px] flex h-[114.27px] w-[567.26px] items-center justify-center whitespace-nowrap rounded-[8.16px] bg-mint font-stardust text-[30px] font-bold leading-[34px] tracking-[-0.75px] text-[#00d8d8]">
+                <span className="absolute left-[18.77px] top-[71.01px] flex h-[114.27px] w-[567.26px] items-center justify-center whitespace-pre rounded-[8.16px] bg-mint text-center font-stardust text-[30px] font-bold leading-[34px] tracking-[-0.75px] text-[#00d8d8]">
                   {recipient.summary}
                 </span>
               </motion.button>
