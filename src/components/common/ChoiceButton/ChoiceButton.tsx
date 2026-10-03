@@ -52,7 +52,7 @@ export const ChoiceButton = ({
             />
           </span>
         ))}
-        <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap font-stardust font-bold text-body text-cocoa">
+        <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap font-stardust text-body text-cocoa">
           {children}
         </span>
       </span>

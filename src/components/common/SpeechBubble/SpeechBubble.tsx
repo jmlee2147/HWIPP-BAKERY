@@ -56,7 +56,7 @@ export const SpeechBubble = ({
             />
           </div>
         ))}
-        <div className="absolute inset-x-[80px] bottom-[70px] top-[91px] flex flex-col items-center justify-center whitespace-pre-line text-center font-stardust font-bold text-body leading-[49.2px] text-cocoa [text-shadow:2.097px_2.097px_2.621px_#d5abc2]">
+        <div className="absolute inset-x-[80px] bottom-[70px] top-[91px] flex flex-col items-center justify-center whitespace-pre-line text-center font-stardust text-body leading-[49.2px] text-cocoa [text-shadow:2.097px_2.097px_2.621px_#d5abc2]">
           {children}
         </div>
         {STARS.map((star) => (
