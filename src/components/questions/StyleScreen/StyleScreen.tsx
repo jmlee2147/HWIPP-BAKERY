@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
@@ -14,6 +14,10 @@ const QUESTION =
   "그분의 평소 스타일이나 성격은 어떤 느낌인가요?\n디자인의 힌트가 될 거예요!";
 // 화면이 나타난 뒤 말을 시작하기까지의 뜸.
 const TYPING_DELAY_MS = 500;
+// 한 줄 요약 창은 스타일 창이 뜰 때 한 번 보였다가 사라진다.
+const SUMMARY_SHOW_MS = 2500;
+// 선택하기를 누르면 요약 창을 한 번 더 보여 준 뒤 다음 단계로 넘어간다.
+const CONFIRM_SHOW_MS = 1400;
 
 // 폴더는 같은 간격으로 놓인다. 창은 고른 폴더 쪽에서 튀어나온다.
 const FOLDER_LEFT = 82;
@@ -34,15 +38,33 @@ export const StyleScreen = () => {
       0,
     );
   });
-  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(true);
+  const [confirming, setConfirming] = useState(false);
   const style = STYLES[active];
+
+  // 스타일을 바꾸면 active가 바뀌어 시간을 처음부터 다시 잰다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: active는 타이머를 다시 시작시키는 용도다
+  useEffect(() => {
+    if (!summaryOpen || confirming) return;
+    const timer = window.setTimeout(
+      () => setSummaryOpen(false),
+      SUMMARY_SHOW_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [summaryOpen, confirming, active]);
+
+  useEffect(() => {
+    if (!confirming) return;
+    const timer = window.setTimeout(goNext, CONFIRM_SHOW_MS);
+    return () => window.clearTimeout(timer);
+  }, [confirming, goNext]);
 
   const show = (id: StyleId) => {
     const next = STYLES.findIndex((item) => item.id === id);
-    if (next === active) return;
+    if (next === active || confirming) return;
     playEffect("cardFlip");
     setActive(next);
-    setSummaryOpen(false);
+    setSummaryOpen(true);
   };
 
   const folderCenter = FOLDER_LEFT + active * FOLDER_GAP + FOLDER_WIDTH / 2;
@@ -99,8 +121,10 @@ export const StyleScreen = () => {
         tone="brown"
         className="absolute left-[235px] top-[1774px]"
         onClick={() => {
+          if (confirming) return;
           setStyle(style.id);
-          goNext();
+          setSummaryOpen(true);
+          setConfirming(true);
         }}
       >
         선택하기

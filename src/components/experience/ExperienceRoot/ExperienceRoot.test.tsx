@@ -72,7 +72,7 @@ describe("ExperienceRoot", () => {
     await click("Minimalist 폴더");
     await click("선택하기");
 
-    await screen.findByRole("heading", { name: STEP_LABELS.party });
+    await screen.findByRole("heading", { name: STEP_LABELS.party }, WAIT);
     expect(useExperienceStore.getState().style).toBe("minimalist");
   });
 

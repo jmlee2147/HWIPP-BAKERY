@@ -1,5 +1,11 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { STYLES } from "@/data/styles";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { StyleScreen } from "./StyleScreen";
@@ -12,10 +18,12 @@ describe("StyleScreen", () => {
   beforeEach(() => {
     useExperienceStore.getState().reset();
     useExperienceStore.setState({ step: "style" });
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
   });
 
   it("첫 폴더가 열린 채로 시작하고, 다른 폴더를 누르면 그 스타일 창으로 바뀐다", () => {
@@ -39,30 +47,53 @@ describe("StyleScreen", () => {
     expect(pressed("Subculture Digger 즐겨찾기")).toBe("true");
   });
 
-  it("스타일 이름을 누르면 한 줄 요약 창이 뜨고, 요약을 누르거나 스타일을 바꾸면 닫힌다", () => {
+  it("한 줄 요약 창은 스타일 창이 뜰 때 한 번 보였다가 사라진다", () => {
     render(<StyleScreen />);
+    expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
     expect(screen.queryByText(STYLES[0].summary)).toBeNull();
+
+    click("Minimalist 폴더");
+    expect(screen.getByText(STYLES[3].summary)).toBeTruthy();
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(screen.queryByText(STYLES[3].summary)).toBeNull();
+  });
+
+  it("스타일 이름을 누르면 요약 창이 다시 뜨고, 요약을 누르면 닫힌다", () => {
+    render(<StyleScreen />);
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
 
     click("Trendsetter");
     expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
 
     click(STYLES[0].summary);
     expect(screen.queryByText(STYLES[0].summary)).toBeNull();
-
-    click("Trendsetter");
-    click("Minimalist 폴더");
-    expect(screen.queryByText(STYLES[0].summary)).toBeNull();
-    expect(screen.queryByText(STYLES[3].summary)).toBeNull();
   });
 
-  it("선택하기를 눌러야 고른 스타일이 저장되고 다음 단계로 간다", () => {
+  it("선택하기를 누르면 스타일을 저장하고, 요약 창을 한 번 더 보여 준 뒤 다음 단계로 간다", () => {
     render(<StyleScreen />);
-
     click("Aesthetic Curator 폴더");
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
     expect(useExperienceStore.getState().style).toBeNull();
 
     click("선택하기");
     expect(useExperienceStore.getState().style).toBe("aesthetic-curator");
+    expect(screen.getByText(STYLES[1].summary)).toBeTruthy();
+    expect(useExperienceStore.getState().step).toBe("style");
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
     expect(useExperienceStore.getState().step).toBe("party");
   });
 

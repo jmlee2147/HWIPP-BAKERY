@@ -1,10 +1,15 @@
-import type { ComponentPropsWithRef } from "react";
+"use client";
+
+import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import { type RecipientStyle, STYLES, type StyleId } from "@/data/styles";
 
 const WINDOW_DOT = "absolute rounded-full";
 const MENU_LINE = "absolute rounded-full bg-black";
 const NAV_TRIANGLE =
   "absolute top-[94.5px] block h-[15.65px] w-[17.74px] max-w-none";
+
+// 강조되는 말이 다음 말로 넘어가는 간격.
+const QUOTE_TURN_MS = 2500;
 
 const NAME_SIZE = {
   large: "text-[79.6px] tracking-[-1.99px]",
@@ -27,6 +32,18 @@ export const StyleWindow = ({
   className = "",
   ...props
 }: StyleWindowProps) => {
+  const quoteCount = recipient.quotes[0].length + recipient.quotes[1].length;
+  const [activeQuote, setActiveQuote] = useState(0);
+
+  // 자주 하는 말이 하나씩 차례로 강조된다. 화면이 가만히 멈춰 있지 않게 하기 위해서다.
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setActiveQuote((current) => (current + 1) % quoteCount),
+      QUOTE_TURN_MS,
+    );
+    return () => window.clearInterval(timer);
+  }, [quoteCount]);
+
   return (
     <div className={`h-[1015px] w-[962px] ${className}`} {...props}>
       <div className="relative size-full overflow-hidden rounded-[10.61px] bg-white font-pretendard shadow-[3.182px_9.547px_31.824px_0px_rgba(0,0,0,0.15)]">
@@ -87,10 +104,19 @@ export const StyleWindow = ({
           <button
             type="button"
             aria-expanded={summaryOpen}
-            className={`-my-[20px] h-[87.49px] shrink-0 whitespace-nowrap font-semibold leading-[47.49px] text-black active:bg-candy active:text-white ${NAME_SIZE[recipient.nameSize]}`}
+            className={`-my-[20px] flex h-[87.49px] shrink-0 items-center whitespace-nowrap font-semibold leading-[47.49px] text-black ${NAME_SIZE[recipient.nameSize]}`}
             onClick={onToggleSummary}
           >
-            {recipient.name}
+            <span className="relative block">
+              {recipient.name}
+              {/* 3초에 한 번씩 이름이 분홍으로 강조된다. 화면이 가만히 멈춰 있지 않게 하기 위해서다. */}
+              <span
+                aria-hidden
+                className="absolute inset-0 animate-name-highlight overflow-hidden bg-candy text-white motion-reduce:hidden"
+              >
+                {recipient.name}
+              </span>
+            </span>
           </button>
         </div>
         <p className="absolute left-[447.71px] top-[236px] whitespace-pre text-[30px] font-medium leading-[39px] tracking-[-0.75px] text-black">
@@ -114,10 +140,10 @@ export const StyleWindow = ({
             className="absolute left-[25px] flex gap-[11px]"
             style={{ top: rowIndex === 0 ? 708.6 : 788.47 }}
           >
-            {row.map((quote) => (
+            {row.map((quote, index) => (
               <p
                 key={quote}
-                className="flex h-[65px] shrink-0 items-center whitespace-nowrap rounded-[10px] bg-[#f2f2f2] px-[33.5px] text-[23.53px] font-medium leading-[32.21px] tracking-[-0.59px] text-black/70"
+                className={`flex h-[65px] shrink-0 items-center whitespace-nowrap rounded-[10px] bg-[#f2f2f2] px-[33.5px] text-[23.53px] font-medium leading-[32.21px] tracking-[-0.59px] ${rowIndex * recipient.quotes[0].length + index === activeQuote ? "text-candy" : "text-black/70"}`}
               >
                 {`"${quote}"`}
               </p>
