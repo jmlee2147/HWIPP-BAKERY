@@ -1,5 +1,5 @@
 ---
-name: 기능
+name: 기능 추가
 about: 화면 구현, 모션, 기능 추가
 title: "[feat] "
 labels: enhancement
