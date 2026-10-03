@@ -25,10 +25,13 @@ export const RelationScreen = () => {
   });
   const [flipped, setFlipped] = useState(false);
 
-  // 다른 카드로 넘어가면 앞면부터 다시 보여 준다.
+  // 다른 카드로 넘어가면 앞면부터 다시 보여 준다. 이미 가운데에 있는 카드를 고르면 아무 일도 없다.
   const show = (index: number) => {
     const count = RELATIONS.length;
-    setActive(((index % count) + count) % count);
+    const next = ((index % count) + count) % count;
+    if (next === active) return;
+    playEffect("cardSlide");
+    setActive(next);
     setFlipped(false);
   };
 
@@ -75,19 +78,13 @@ export const RelationScreen = () => {
         direction="prev"
         aria-label="이전 카드"
         className="absolute left-[52px] top-[1075px] z-10"
-        onClick={() => {
-          playEffect("cardSlide");
-          show(active - 1);
-        }}
+        onClick={() => show(active - 1)}
       />
       <ArrowButton
         direction="next"
         aria-label="다음 카드"
         className="absolute left-[910px] top-[1075px] z-10"
-        onClick={() => {
-          playEffect("cardSlide");
-          show(active + 1);
-        }}
+        onClick={() => show(active + 1)}
       />
       <div className="absolute left-[428px] top-[1616px] h-[58.66px] w-[223.77px]">
         <div
