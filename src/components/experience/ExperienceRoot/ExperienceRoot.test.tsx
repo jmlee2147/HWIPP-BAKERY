@@ -72,15 +72,26 @@ describe("ExperienceRoot", () => {
     await click("Minimalist 폴더");
     await click("선택하기");
 
-    await screen.findByRole("heading", { name: STEP_LABELS.party }, WAIT);
+    await screen.findByRole("button", { name: "생일/기념일 카드 보기" }, WAIT);
     expect(useExperienceStore.getState().style).toBe("minimalist");
   });
 
-  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("파티 화면에서 선택하기를 누르면 고른 테마를 저장하고 다음 단계로 간다", async () => {
     useExperienceStore.setState({ step: "party" });
     render(<ExperienceRoot />);
 
-    for (const step of STEPS.slice(3, -1)) {
+    await click("다음 카드");
+    await click("선택하기");
+
+    await screen.findByRole("heading", { name: STEP_LABELS.flavor }, WAIT);
+    expect(useExperienceStore.getState().party).toBe("event");
+  });
+
+  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+    useExperienceStore.setState({ step: "flavor" });
+    render(<ExperienceRoot />);
+
+    for (const step of STEPS.slice(4, -1)) {
       await screen.findByRole("heading", { name: STEP_LABELS[step] });
       await click("다음");
     }

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { StepPlaceholder } from "@/components/experience/StepPlaceholder/StepPlaceholder";
 import { OpeningScreen } from "@/components/opening/OpeningScreen/OpeningScreen";
+import { PartyScreen } from "@/components/questions/PartyScreen/PartyScreen";
 import { RelationScreen } from "@/components/questions/RelationScreen/RelationScreen";
 import { StyleScreen } from "@/components/questions/StyleScreen/StyleScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
@@ -32,6 +33,8 @@ export const ExperienceRoot = () => {
           <RelationScreen />
         ) : step === "style" ? (
           <StyleScreen />
+        ) : step === "party" ? (
+          <PartyScreen />
         ) : (
           <StepPlaceholder
             step={step}
