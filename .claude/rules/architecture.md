@@ -27,7 +27,7 @@ Next.js App Router 기반입니다. 체험 전체는 한 페이지(`/`) 안에�
 
 ## 도메인 폴더
 
-- `{domain}`은 체험 구간 기준입니다: `opening`, `questions`, `analysis`, `result`, `editor`, `share`, `cake`.
+- `{domain}`은 체험 구간 기준입니다: `experience`(단계 전환 틀), `opening`, `questions`, `analysis`, `result`, `editor`, `share`, `cake`.
 - 도메인 폴더는 해당 기능 구현을 시작할 때 생성합니다. 빈 폴더를 미리 만들지 않습니다.
 
 ## Import 규칙

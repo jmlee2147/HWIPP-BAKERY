@@ -6,7 +6,7 @@ html,
 body {
   height: 100%;
   overflow: hidden;
-  background: #000;
+  background: #fff;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;

@@ -19,7 +19,7 @@ export const Stage = ({ children }: StageProps) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black">
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-white">
       <div
         className="relative shrink-0 overflow-hidden bg-white"
         style={{
