@@ -41,10 +41,14 @@ export const RelationScreen = () => {
         <img
           key={relation.id}
           alt=""
-          className={`absolute inset-0 size-full max-w-none transition-opacity duration-500 ${flipped && index === active ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 size-full max-w-none transition-opacity duration-500 motion-reduce:transition-none ${flipped && index === active ? "opacity-100" : "opacity-0"}`}
           src={relation.background}
         />
       ))}
+      {/* 뒷면 설명은 그림 안에 있다. 카드를 뒤집는 순간 화면을 읽어 주는 도구가 읽도록 글로도 알린다. */}
+      <output className="sr-only">
+        {flipped ? RELATIONS[active].description : ""}
+      </output>
       <SpeechBubble className="absolute left-[55px] top-[149px]">
         {QUESTION}
       </SpeechBubble>
@@ -56,7 +60,7 @@ export const RelationScreen = () => {
         return (
           <div
             key={relation.id}
-            className="absolute left-[190.5px] top-[617px] transition-transform duration-500"
+            className="absolute left-[190.5px] top-[617px] transition-transform duration-500 motion-reduce:transition-none"
             style={{
               transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})`,
               zIndex: slot.zIndex,
@@ -90,10 +94,10 @@ export const RelationScreen = () => {
       />
       <div className="absolute left-[428px] top-[1616px] h-[58.66px] w-[223.77px]">
         <div
-          className={`absolute inset-0 rounded-full bg-taupe transition-opacity duration-500 ${flipped ? "opacity-0" : "opacity-80"}`}
+          className={`absolute inset-0 rounded-full bg-taupe transition-opacity duration-500 motion-reduce:transition-none ${flipped ? "opacity-0" : "opacity-80"}`}
         />
         <div
-          className={`absolute inset-0 rounded-full bg-blush transition-opacity duration-500 ${flipped ? "opacity-80" : "opacity-0"}`}
+          className={`absolute inset-0 rounded-full bg-blush transition-opacity duration-500 motion-reduce:transition-none ${flipped ? "opacity-80" : "opacity-0"}`}
         />
         {/* 점 사이가 좁아 누르는 영역을 옆으로는 넓힐 수 없다. 위아래로만 넓히고, 같은 조작은 화살표와 옆 카드로도 할 수 있다. */}
         <div className="relative flex size-full items-center justify-center">

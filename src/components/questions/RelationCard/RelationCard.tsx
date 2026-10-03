@@ -21,12 +21,11 @@ export const RelationCard = ({
     <button
       type={type}
       aria-label={`${relation.label} 카드`}
-      aria-description={face === "back" ? relation.description : undefined}
       className={`h-[956px] w-[699px] [perspective:2400px] ${className}`}
       {...props}
     >
       <span
-        className={`relative block size-full transition-transform duration-500 [transform-style:preserve-3d] ${face === "back" ? "[transform:rotateY(180deg)]" : ""}`}
+        className={`relative block size-full transition-transform duration-500 [transform-style:preserve-3d] motion-reduce:transition-none ${face === "back" ? "[transform:rotateY(180deg)]" : ""}`}
       >
         <img alt="" className={FACE} src={relation.front} />
         <img

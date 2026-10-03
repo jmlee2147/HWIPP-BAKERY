@@ -90,7 +90,7 @@ export const ProgressBar = ({
           style={{ width: layout.fillWidth }}
         >
           {/* 채움 위를 오가는 빛. 그라데이션이 일렁이는 것처럼 보인다. */}
-          <div className="absolute inset-y-0 left-0 w-[60%] animate-shimmer bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.75)_50%,rgba(255,255,255,0)_100%)]" />
+          <div className="absolute inset-y-0 left-0 w-[60%] animate-shimmer motion-reduce:hidden bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.75)_50%,rgba(255,255,255,0)_100%)]" />
         </div>
         <div
           className="absolute top-0 flex h-[62.71px] w-[62.71px] items-center justify-center"

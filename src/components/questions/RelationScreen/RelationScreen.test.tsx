@@ -48,11 +48,12 @@ describe("RelationScreen", () => {
 
     fireEvent.click(card("연인"));
     expect(card("연인").getAttribute("aria-pressed")).toBe("true");
-    expect(card("연인").getAttribute("aria-description")).toBe("사랑하는 연인");
+    expect(screen.getByRole("status").textContent).toBe("사랑하는 연인");
     expect(useExperienceStore.getState().step).toBe("relation");
 
     click("다음 카드");
     expect(card("가족").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByRole("status").textContent).toBe("");
   });
 
   it("앞서 고른 관계가 있으면 그 카드를 가운데에 둔 채 시작한다", () => {
