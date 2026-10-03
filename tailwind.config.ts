@@ -11,6 +11,7 @@ const config: Config = {
         jinpall: ['"Ownglyph Jinpall"', "sans-serif"],
         dinaru: ["UnDinaru", "serif"],
         essay: ["StardustEssay", "sans-serif"],
+        pretendard: ["Pretendard", "sans-serif"],
       },
       colors: {
         cocoa: "#5b4a43",
@@ -47,6 +48,10 @@ const config: Config = {
         "plate-drift": {
           to: { transform: "translate(-57.15px, -74.42px)" },
         },
+        "window-pop": {
+          from: { opacity: "0", transform: "scale(0.2)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
         shimmer: {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(167%)" },
@@ -66,6 +71,7 @@ const config: Config = {
         wobble: "wobble 3s ease-in-out infinite",
         "plate-drift": "plate-drift 5s linear infinite",
         "touch-ring": "touch-ring 0.5s ease-out both",
+        "window-pop": "window-pop 0.35s ease-out both",
         shimmer: "shimmer 2.4s ease-in-out infinite alternate",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",

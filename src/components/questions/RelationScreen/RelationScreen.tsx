@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
@@ -8,6 +8,8 @@ import { TypedText } from "@/components/common/TypedText/TypedText";
 import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { RelationCard } from "@/components/questions/RelationCard/RelationCard";
 import { CARD_SLOTS, RELATIONS, slotOffset } from "@/data/relations";
+import { STYLE_FONTS, STYLE_IMAGES } from "@/data/styles";
+import { preloadFonts, preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -27,6 +29,11 @@ export const RelationScreen = () => {
     );
   });
   const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    preloadImages(STYLE_IMAGES);
+    preloadFonts(STYLE_FONTS);
+  }, []);
 
   // 다른 카드로 넘어가면 앞면부터 다시 보여 준다. 이미 가운데에 있는 카드를 고르면 아무 일도 없다.
   const show = (index: number) => {
