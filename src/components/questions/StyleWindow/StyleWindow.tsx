@@ -17,20 +17,21 @@ const NAV_TRIANGLE =
 // 강조되는 말이 다음 말로 넘어가는 간격.
 const QUOTE_TURN_MS = 2500;
 
-// 요약 창은 톡 튀어나왔다가, 사라질 때는 작아지며 흐려진다.
+// 요약 창은 살짝 커지며 나타나고, 사라질 때는 작아지며 흐려진다.
+// 크기를 크게 바꾸면 안의 글자를 프레임마다 다시 그려 끊겨 보이므로 변화 폭을 작게 둔다.
 const SUMMARY_MOTION: Record<
   "initial" | "animate" | "exit",
   TargetAndTransition
 > = {
-  initial: { opacity: 0, scale: 0 },
+  initial: { opacity: 0, scale: 0.92 },
   animate: {
     opacity: 1,
-    scale: [0, 1.12, 1],
-    transition: { duration: 0.45, times: [0, 0.7, 1], ease: "easeOut" },
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
   },
   exit: {
     opacity: 0,
-    scale: 0.8,
+    scale: 0.92,
     transition: { duration: 0.25, ease: "easeIn" },
   },
 };
@@ -133,12 +134,17 @@ export const StyleWindow = ({
           >
             <span className="relative block">
               {recipient.name}
-              {/* 3초에 한 번씩 이름이 분홍으로 강조된다. 화면이 가만히 멈춰 있지 않게 하기 위해서다. */}
+              {/* 이름 위로 분홍 바탕이 형광펜처럼 왼쪽에서 천천히 그어졌다가 서서히 사라지기를 되풀이한다. */}
+              {/* 바탕은 왼쪽에서 밀려 들어오고, 그 안의 흰 글자는 반대로 움직여 제자리에 머문다. */}
               <span
                 aria-hidden
-                className="absolute inset-0 animate-name-highlight overflow-hidden bg-candy text-white motion-reduce:hidden"
+                className="absolute -inset-x-[8px] top-1/2 block h-[1.18em] -translate-y-1/2 animate-name-highlight-fade overflow-hidden motion-reduce:hidden"
               >
-                {recipient.name}
+                <span className="block size-full animate-name-highlight-sweep overflow-hidden bg-candy">
+                  <span className="flex size-full animate-name-highlight-hold items-center px-[8px] text-white">
+                    {recipient.name}
+                  </span>
+                </span>
               </span>
             </span>
           </button>
@@ -197,7 +203,7 @@ export const StyleWindow = ({
             {summaryOpen && (
               <motion.button
                 type="button"
-                className="absolute left-[278px] top-[303px] h-[204.87px] w-[604.8px] rounded-[8.16px] bg-white shadow-[2.449px_7.346px_24.486px_0px_rgba(0,0,0,0.15)]"
+                className="absolute left-[278px] top-[303px] h-[204.87px] w-[604.8px] rounded-[8.16px] bg-white will-change-transform shadow-[2.449px_7.346px_24.486px_0px_rgba(0,0,0,0.15)]"
                 initial={SUMMARY_MOTION.initial}
                 animate={SUMMARY_MOTION.animate}
                 exit={SUMMARY_MOTION.exit}
