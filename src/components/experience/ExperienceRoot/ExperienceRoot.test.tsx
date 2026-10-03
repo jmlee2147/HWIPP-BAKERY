@@ -83,15 +83,30 @@ describe("ExperienceRoot", () => {
     await click("다음 카드");
     await click("선택하기");
 
-    await screen.findByRole("heading", { name: STEP_LABELS.flavor }, WAIT);
+    await screen.findByRole(
+      "button",
+      { name: "너무 단 건 극혐! 덜 달아야 해" },
+      WAIT,
+    );
     expect(useExperienceStore.getState().party).toBe("event");
   });
 
-  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("맛 화면에서 선택하기를 누르면 고른 조건을 저장하고 다음 단계로 간다", async () => {
     useExperienceStore.setState({ step: "flavor" });
     render(<ExperienceRoot />);
 
-    for (const step of STEPS.slice(4, -1)) {
+    await click("너무 단 건 극혐! 덜 달아야 해");
+    await click("선택하기");
+
+    await screen.findByRole("heading", { name: STEP_LABELS.analysis }, WAIT);
+    expect(useExperienceStore.getState().flavor).toBe("sweet");
+  });
+
+  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+    useExperienceStore.setState({ step: "analysis" });
+    render(<ExperienceRoot />);
+
+    for (const step of STEPS.slice(5, -1)) {
       await screen.findByRole("heading", { name: STEP_LABELS[step] });
       await click("다음");
     }
