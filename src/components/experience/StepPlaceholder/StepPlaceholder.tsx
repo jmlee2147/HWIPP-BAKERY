@@ -1,3 +1,10 @@
+import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
+import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import {
+  ProgressBar,
+  type ProgressStep,
+} from "@/components/common/ProgressBar/ProgressBar";
+import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { STEP_LABELS, STEPS, type Step } from "@/lib/steps";
 
 interface StepPlaceholderProps {
@@ -7,10 +14,20 @@ interface StepPlaceholderProps {
   onReset: () => void;
 }
 
-const buttonClass =
-  "h-[120px] rounded-[24px] bg-[#4a2c2a] px-[56px] text-[40px] font-bold text-white disabled:opacity-30";
+// 임시 화면에서 공용 컴포넌트를 확인하기 위한 대응이다. 실제 대응은 각 화면을 구현할 때 정한다.
+const PROGRESS: Record<Step, ProgressStep | null> = {
+  opening: null,
+  relation: 1,
+  style: 2,
+  party: 3,
+  flavor: 4,
+  analysis: 5,
+  result: "complete",
+  editor: "complete",
+  share: "complete",
+};
 
-// 각 단계 화면이 시안대로 구현되기 전까지 흐름을 이어 주는 임시 화면.
+// 각 단계 화면이 구현되기 전까지 흐름을 이어 주는 임시 화면.
 export const StepPlaceholder = ({
   step,
   onNext,
@@ -20,31 +37,28 @@ export const StepPlaceholder = ({
   const index = STEPS.indexOf(step);
   const isFirst = index === 0;
   const isLast = index === STEPS.length - 1;
+  const progress = PROGRESS[step];
 
   return (
-    <section className="flex h-full flex-col items-center justify-center gap-[64px] bg-[#fbe9ee] text-[#4a2c2a]">
-      <p className="text-[40px]">
-        {index + 1} / {STEPS.length}
-      </p>
-      <h1 className="text-[96px] font-bold">{STEP_LABELS[step]}</h1>
-      <div className="flex gap-[32px]">
-        <button
-          type="button"
-          className={buttonClass}
-          onClick={onPrev}
-          disabled={isFirst}
-        >
-          이전
-        </button>
-        {isLast ? (
-          <button type="button" className={buttonClass} onClick={onReset}>
-            처음으로
-          </button>
-        ) : (
-          <button type="button" className={buttonClass} onClick={onNext}>
-            다음
-          </button>
-        )}
+    <section className="relative flex h-full flex-col items-center justify-center gap-[48px] bg-[#fbe9ee]">
+      {progress !== null && (
+        <ProgressBar
+          step={progress}
+          className="absolute left-[75px] top-[96px]"
+        />
+      )}
+      <SpeechBubble>
+        <p>
+          {index + 1} / {STEPS.length}
+        </p>
+        <h1>{STEP_LABELS[step]}</h1>
+      </SpeechBubble>
+      <ChoiceButton tone={isLast ? "pink" : "mint"} onClick={onReset}>
+        처음으로
+      </ChoiceButton>
+      <div className="flex gap-[24px]">
+        <ArrowButton direction="prev" onClick={onPrev} disabled={isFirst} />
+        <ArrowButton direction="next" onClick={onNext} disabled={isLast} />
       </div>
     </section>
   );

@@ -30,6 +30,9 @@
             "ignore": ["tailwind", "apply", "layer", "config"]
           }
         }
+      },
+      "performance": {
+        "noImgElement": "off"
       }
     },
     "domains": {
