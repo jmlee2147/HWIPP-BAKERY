@@ -50,8 +50,13 @@ describe("StyleScreen", () => {
     expect(pressed("Subculture Digger 즐겨찾기")).toBe("true");
   });
 
-  it("한 줄 요약 창은 스타일 창이 뜰 때 한 번 보였다가 사라진다", () => {
+  it("한 줄 요약 창은 스타일 창이 뜨고 잠시 뒤에 한 번 보였다가 사라진다", () => {
     render(<StyleScreen />);
+    expect(summaryOpen("Trendsetter")).toBe("false");
+
+    act(() => {
+      vi.advanceTimersByTime(700);
+    });
     expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
     expect(summaryOpen("Trendsetter")).toBe("true");
 
@@ -61,6 +66,9 @@ describe("StyleScreen", () => {
     expect(summaryOpen("Trendsetter")).toBe("false");
 
     click("Minimalist 폴더");
+    act(() => {
+      vi.advanceTimersByTime(700);
+    });
     expect(screen.getByText(STYLES[3].summary)).toBeTruthy();
     expect(summaryOpen("Minimalist")).toBe("true");
 
@@ -72,9 +80,14 @@ describe("StyleScreen", () => {
 
   it("스타일 이름을 누르면 요약 창이 다시 뜨고, 요약을 누르면 닫힌다", () => {
     render(<StyleScreen />);
+    // 요약 창이 뜬 뒤에야 닫히는 시간이 재지기 시작하므로 두 번에 나눠 흘려보낸다.
+    act(() => {
+      vi.advanceTimersByTime(700);
+    });
     act(() => {
       vi.advanceTimersByTime(3000);
     });
+    expect(summaryOpen("Trendsetter")).toBe("false");
 
     click("Trendsetter");
     expect(summaryOpen("Trendsetter")).toBe("true");
@@ -86,6 +99,10 @@ describe("StyleScreen", () => {
   it("선택하기를 누르면 스타일을 저장하고, 요약 창을 한 번 더 보여 준 뒤 다음 단계로 간다", () => {
     render(<StyleScreen />);
     click("Aesthetic Curator 폴더");
+    // 요약 창이 뜬 뒤에야 닫히는 시간이 재지기 시작하므로 두 번에 나눠 흘려보낸다.
+    act(() => {
+      vi.advanceTimersByTime(700);
+    });
     act(() => {
       vi.advanceTimersByTime(3000);
     });

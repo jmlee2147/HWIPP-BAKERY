@@ -16,6 +16,8 @@ const QUESTION =
 const TYPING_DELAY_MS = 500;
 // 한 줄 요약 창은 스타일 창이 뜰 때 한 번 보였다가 사라진다.
 const SUMMARY_SHOW_MS = 2500;
+// 스타일 창이 다 뜬 다음에 요약 창이 나오도록 조금 기다린다.
+const SUMMARY_DELAY_MS = 600;
 // 선택하기를 누르면 요약 창을 한 번 더 보여 준 뒤 다음 단계로 넘어간다.
 const CONFIRM_SHOW_MS = 1400;
 
@@ -38,12 +40,20 @@ export const StyleScreen = () => {
       0,
     );
   });
-  const [summaryOpen, setSummaryOpen] = useState(true);
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const style = STYLES[active];
 
-  // 스타일을 바꾸면 active가 바뀌어 시간을 처음부터 다시 잰다.
+  // 화면에 들어오거나 스타일을 바꾸면 active가 바뀌어, 잠시 뒤 요약 창이 한 번 뜬다.
   // biome-ignore lint/correctness/useExhaustiveDependencies: active는 타이머를 다시 시작시키는 용도다
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setSummaryOpen(true),
+      SUMMARY_DELAY_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [active]);
+
   useEffect(() => {
     if (!summaryOpen || confirming) return;
     const timer = window.setTimeout(
@@ -51,7 +61,7 @@ export const StyleScreen = () => {
       SUMMARY_SHOW_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [summaryOpen, confirming, active]);
+  }, [summaryOpen, confirming]);
 
   useEffect(() => {
     if (!confirming) return;
@@ -64,7 +74,7 @@ export const StyleScreen = () => {
     if (next === active || confirming) return;
     playEffect("cardFlip");
     setActive(next);
-    setSummaryOpen(true);
+    setSummaryOpen(false);
   };
 
   const folderCenter = FOLDER_LEFT + active * FOLDER_GAP + FOLDER_WIDTH / 2;
