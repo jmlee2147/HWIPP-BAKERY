@@ -20,7 +20,7 @@
 
 ## 순서
 
-1. **이슈 등록**: `.github/ISSUE_TEMPLATE`의 형식을 따릅니다. 제목은 `[feat] ...`, `[fix] ...`, `[docs] ...`, `[chore] ...`처럼 type을 앞에 둡니다. 완료 조건을 체크리스트로 적습니다.
+1. **이슈 등록**: `.github/ISSUE_TEMPLATE`의 형식을 따릅니다. 제목은 `[feat] ...`, `[fix] ...`, `[docs] ...`, `[chore] ...`처럼 type을 앞에 둡니다. 완료 조건을 체크리스트로 적습니다. 라벨은 커밋 type과 같은 이름(`feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`) 중 제목의 type과 같은 것을 하나 붙입니다.
 2. **브랜치 생성**: 최신 `dev`에서 `<type>/<이슈번호>-<짧은-설명>` 이름으로 만듭니다. 예: `feat/3-experience-skeleton`
 3. **작업과 커밋**: 작업 브랜치에서 `.claude/rules/commit-convention.md`에 맞춰 커밋합니다.
 4. **검증**: `.claude/rules/verification.md` 기준으로 검증합니다. 실패한 채로 PR을 올리지 않습니다.
