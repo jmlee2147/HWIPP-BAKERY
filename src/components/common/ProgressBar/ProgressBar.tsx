@@ -86,9 +86,12 @@ export const ProgressBar = ({
       <div className="relative size-full">
         <div className="absolute left-0 top-[14.24px] h-[33.77px] w-full rounded-[50px] border-2 border-[#d4c7c1] bg-mint" />
         <div
-          className={`absolute left-0 top-[14px] h-[34px] rounded-[50px] border-2 border-[#867b76] ${layout.fillClass}`}
+          className={`absolute left-0 top-[14px] h-[34px] overflow-hidden rounded-[50px] border-2 border-[#867b76] ${layout.fillClass}`}
           style={{ width: layout.fillWidth }}
-        />
+        >
+          {/* 채움 위를 오가는 빛. 그라데이션이 일렁이는 것처럼 보인다. */}
+          <div className="absolute inset-y-0 left-0 w-[60%] animate-shimmer bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.75)_50%,rgba(255,255,255,0)_100%)]" />
+        </div>
         <div
           className="absolute top-0 flex h-[62.71px] w-[62.71px] items-center justify-center"
           style={{ left: knobLeft }}
