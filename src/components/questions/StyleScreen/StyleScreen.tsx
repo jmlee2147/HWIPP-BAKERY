@@ -41,18 +41,21 @@ export const StyleScreen = () => {
     );
   });
   const [summaryOpen, setSummaryOpen] = useState(false);
+  // 말풍선의 말이 끝나기 전에는 요약 창을 띄우지 않는다.
+  const [typed, setTyped] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const style = STYLES[active];
 
-  // 화면에 들어오거나 스타일을 바꾸면 active가 바뀌어, 잠시 뒤 요약 창이 한 번 뜬다.
+  // 말이 끝난 뒤, 그리고 스타일을 바꿀 때마다(active가 바뀐다) 잠시 뒤 요약 창이 한 번 뜬다.
   // biome-ignore lint/correctness/useExhaustiveDependencies: active는 타이머를 다시 시작시키는 용도다
   useEffect(() => {
+    if (!typed) return;
     const timer = window.setTimeout(
       () => setSummaryOpen(true),
       SUMMARY_DELAY_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [active]);
+  }, [active, typed]);
 
   // 요약 창이 뜰 때마다 소리를 낸다. 자동으로 뜰 때와 눌러서 띄울 때 모두 해당한다.
   useEffect(() => {
@@ -87,7 +90,12 @@ export const StyleScreen = () => {
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#fffaf9]">
       <SpeechBubble className="absolute left-[55px] top-[149px]">
-        <TypedText text={QUESTION} startDelayMs={TYPING_DELAY_MS} sound />
+        <TypedText
+          text={QUESTION}
+          startDelayMs={TYPING_DELAY_MS}
+          sound
+          onDone={() => setTyped(true)}
+        />
       </SpeechBubble>
       <ProgressBar step={2} className="absolute left-[75px] top-[58px]" />
       {STYLES.map((item, index) => (

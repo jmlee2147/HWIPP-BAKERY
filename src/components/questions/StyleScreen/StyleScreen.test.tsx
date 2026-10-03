@@ -16,6 +16,17 @@ const pressed = (name: string) => button(name).getAttribute("aria-pressed");
 // 요약 창은 닫힌 뒤에도 사라지는 모션 동안 화면에 남는다. 열림 여부는 이름 버튼의 상태로 확인한다.
 const summaryOpen = (name: string) =>
   button(name).getAttribute("aria-expanded");
+// 상태가 바뀐 뒤에야 다음 타이머가 걸리므로, 시간을 한 번에 흘리지 않고 단계마다 나눠 흘린다.
+const advance = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+// 말풍선의 뜸, 타이핑, 요약 창이 뜨기까지의 뜸을 차례로 지나간다.
+const finishDialog = () => {
+  advance(600);
+  advance(4000);
+  advance(700);
+};
 
 describe("StyleScreen", () => {
   beforeEach(() => {
@@ -50,43 +61,39 @@ describe("StyleScreen", () => {
     expect(pressed("Subculture Digger 즐겨찾기")).toBe("true");
   });
 
-  it("한 줄 요약 창은 스타일 창이 뜨고 잠시 뒤에 한 번 보였다가 사라진다", () => {
+  it("한 줄 요약 창은 말풍선의 말이 끝난 뒤에 한 번 보였다가 사라진다", () => {
     render(<StyleScreen />);
+    advance(600);
     expect(summaryOpen("Trendsetter")).toBe("false");
 
-    act(() => {
-      vi.advanceTimersByTime(700);
-    });
+    finishDialog();
     expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
     expect(summaryOpen("Trendsetter")).toBe("true");
 
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
+    advance(3000);
     expect(summaryOpen("Trendsetter")).toBe("false");
+  });
+
+  it("폴더를 누르면 잠시 뒤 그 스타일의 요약 창이 한 번 보였다가 사라진다", () => {
+    render(<StyleScreen />);
+    finishDialog();
+    advance(3000);
 
     click("Minimalist 폴더");
-    act(() => {
-      vi.advanceTimersByTime(700);
-    });
+    expect(summaryOpen("Minimalist")).toBe("false");
+
+    advance(700);
     expect(screen.getByText(STYLES[3].summary)).toBeTruthy();
     expect(summaryOpen("Minimalist")).toBe("true");
 
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
+    advance(3000);
     expect(summaryOpen("Minimalist")).toBe("false");
   });
 
   it("스타일 이름을 누르면 요약 창이 다시 뜨고, 요약을 누르면 닫힌다", () => {
     render(<StyleScreen />);
-    // 요약 창이 뜬 뒤에야 닫히는 시간이 재지기 시작하므로 두 번에 나눠 흘려보낸다.
-    act(() => {
-      vi.advanceTimersByTime(700);
-    });
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
+    finishDialog();
+    advance(3000);
     expect(summaryOpen("Trendsetter")).toBe("false");
 
     click("Trendsetter");
@@ -98,14 +105,10 @@ describe("StyleScreen", () => {
 
   it("선택하기를 누르면 스타일을 저장하고, 요약 창을 한 번 더 보여 준 뒤 다음 단계로 간다", () => {
     render(<StyleScreen />);
+    finishDialog();
     click("Aesthetic Curator 폴더");
-    // 요약 창이 뜬 뒤에야 닫히는 시간이 재지기 시작하므로 두 번에 나눠 흘려보낸다.
-    act(() => {
-      vi.advanceTimersByTime(700);
-    });
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
+    advance(700);
+    advance(3000);
     expect(useExperienceStore.getState().style).toBeNull();
 
     click("선택하기");
@@ -113,9 +116,7 @@ describe("StyleScreen", () => {
     expect(summaryOpen("Aesthetic Curator")).toBe("true");
     expect(useExperienceStore.getState().step).toBe("style");
 
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
+    advance(2000);
     expect(useExperienceStore.getState().step).toBe("party");
   });
 
