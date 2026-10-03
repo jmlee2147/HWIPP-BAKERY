@@ -67,8 +67,10 @@ export const RelationScreen = () => {
               face={isActive && flipped ? "back" : "front"}
               aria-pressed={isActive ? flipped : undefined}
               onClick={() => {
-                if (isActive) setFlipped((value) => !value);
-                else show(index);
+                if (isActive) {
+                  playEffect("cardFlip");
+                  setFlipped((value) => !value);
+                } else show(index);
               }}
             />
           </div>
