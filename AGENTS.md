@@ -24,7 +24,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 작업은 작고 검증 가능한 단위로 나눕니다.
 - `pnpm`만 사용하고 `npm`/`yarn`은 사용하지 않습니다.
 - 기존 사용자 변경을 보존하고 관련 없는 작업을 되돌리지 않습니다.
-- 사용자가 요청하기 전에는 커밋하지 않습니다.
+- 작업은 이슈 → 작업 브랜치 → PR → `dev` 머지 순서로 진행하고, 이슈 하나에 PR 하나를 둡니다.
+- `main`과 `dev`에 직접 커밋하지 않습니다. `dev` 머지는 사용자가 지시했을 때만 합니다.
 - 주석, 문서, 커밋 메시지에 이모지를 쓰지 않습니다.
 - 검증 결과와 검증하지 못한 항목을 최종 보고에 명시합니다.
 
@@ -53,7 +54,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | 이미지, 폰트, 케이크 부품 작업 | `.claude/rules/assets.md` |
 | 케이크 분석, LLM 호출, route handler | `.claude/rules/llm.md` |
 | 테스트 추가 또는 수정 | `.claude/rules/testing.md` |
-| PR/커밋 문구 작성 | `.claude/rules/workflow.md`, `.claude/rules/commit-convention.md` |
+| 이슈 등록, 브랜치, 커밋, PR, 머지 | `.claude/rules/git-workflow.md`, `.claude/rules/commit-convention.md` |
 | 구조, 라이브러리, 규칙 변경 결정 | `.claude/rules/decisions.md` |
 | 외부 요인 이슈 기록 | `.claude/rules/known-issues.md` |
 
@@ -65,7 +66,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | `code-review` | 변경 코드 리뷰 |
 | `gen-test` | Vitest + Testing Library 테스트 생성 |
 | `commit-kr` | 한국어 커밋 메시지 제안 |
-| `create-pr` | PR 제목과 본문 초안 작성 |
+| `create-pr` | `dev` 대상 PR 생성 |
 | `refactor` | 동작 변경 없는 리팩터링 후보 분석과 적용 |
 
 Skill 파일은 `.claude/skills/<skill-name>/SKILL.md`에 있습니다.

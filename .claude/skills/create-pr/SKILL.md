@@ -1,23 +1,24 @@
 ---
 name: create-pr
-description: 현재 브랜치 변경 내용을 분석해 프로젝트 PR 템플릿 기준으로 제목과 본문 초안을 작성합니다.
+description: 현재 작업 브랜치의 변경 내용을 분석해 프로젝트 PR 템플릿 기준으로 dev 대상 PR을 생성합니다.
 ---
 
 # create-pr
 
-PR 제목과 본문 초안을 만듭니다. 사용자가 명시하지 않으면 PR을 직접 생성하지 않습니다.
+작업 브랜치를 푸시하고 `dev` 대상 PR을 생성합니다. 흐름은 `.claude/rules/git-workflow.md`를 따릅니다. 머지는 하지 않습니다.
 본문 형식은 `.github/PULL_REQUEST_TEMPLATE.md`를 따릅니다.
 
 ## Workflow
 
 1. `git status --short`로 미커밋 변경을 확인합니다.
-2. `git log main..HEAD --oneline`과 `git diff main..HEAD --stat`을 확인합니다.
+2. `git log origin/dev..HEAD --oneline`과 `git diff origin/dev..HEAD --stat`을 확인합니다.
 3. `.github/PULL_REQUEST_TEMPLATE.md`를 읽고 section 이름과 순서를 그대로 사용합니다.
 4. 브랜치명에서 이슈 번호가 있으면 추출합니다.
 5. 변경 내용을 기능/수정/문서/테스트/설정/자동화/리팩터링으로 분류합니다.
 6. 변경 규모가 크면 `주요 변경사항`에는 핵심 요약을, `작업 내용`에는 세부 구현을 나눠 작성합니다.
 7. 검증 명령과 검증하지 못한 항목을 구분합니다.
-8. 아래 출력 형태로 채웁니다.
+8. 아래 출력 형태로 본문을 채웁니다.
+9. 브랜치를 푸시하고 `gh pr create --base dev`로 PR을 생성한 뒤 PR 주소를 보고합니다.
 
 ## Output Shape
 
@@ -47,8 +48,9 @@ PR 제목과 본문 초안을 만듭니다. 사용자가 명시하지 않으면 
 
 ## Rules
 
-- 제목은 필요할 때만 70자 이내로 제안합니다.
-- PR 제목이 자동화로 정리되는 브랜치에서는 본문 초안을 우선합니다.
+- 제목은 `<type>: <subject>` 형식으로 70자 이내로 씁니다.
+- PR 하나는 이슈 하나만 다룹니다. 브랜치에 여러 이슈의 변경이 섞여 있으면 PR을 만들지 않고 보고합니다.
+- 미커밋 변경이나 검증 실패가 있으면 PR을 만들지 않고 보고합니다.
 - PR 템플릿의 section 이름과 순서를 변경하지 않습니다.
 - 이슈 자동 종료가 필요하면 `Close #<번호>` 형식으로 작성합니다.
 - 자동 종료가 필요 없으면 `#<번호>`만 작성합니다.

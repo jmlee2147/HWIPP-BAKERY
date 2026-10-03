@@ -27,7 +27,8 @@ Figma 화면을 구현할 때는 `implement-screen` skill의 순서를 따릅니
 - 관련 없는 정리는 feature diff에 섞지 않습니다.
 - 기존 사용자 변경을 보존합니다.
 - 새 추상화보다 삭제와 재사용을 우선합니다.
-- 사용자가 요청하기 전에는 커밋하지 않습니다 (`.claude/rules/commit-convention.md`).
+- 코드 변경은 이슈 → 작업 브랜치 → PR 흐름으로 진행합니다 (`.claude/rules/git-workflow.md`).
+- `main`과 `dev`에 직접 커밋하지 않습니다.
 
 ## 결정 기록
 
