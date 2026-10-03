@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
+import { TypedText } from "@/components/common/TypedText/TypedText";
 import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { RelationCard } from "@/components/questions/RelationCard/RelationCard";
 import { CARD_SLOTS, RELATIONS, slotOffset } from "@/data/relations";
@@ -11,6 +12,8 @@ import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
 const QUESTION = "오늘 어떤 분을 위한 케이크를 구워드릴까요?";
+// 화면이 나타난 뒤 말을 시작하기까지의 뜸.
+const TYPING_DELAY_MS = 500;
 
 export const RelationScreen = () => {
   const setRelation = useExperienceStore((state) => state.setRelation);
@@ -50,7 +53,7 @@ export const RelationScreen = () => {
         {flipped ? RELATIONS[active].description : ""}
       </output>
       <SpeechBubble className="absolute left-[55px] top-[149px]">
-        {QUESTION}
+        <TypedText text={QUESTION} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
       <ProgressBar step={1} className="absolute left-[75px] top-[58px]" />
       {RELATIONS.map((relation, index) => {
