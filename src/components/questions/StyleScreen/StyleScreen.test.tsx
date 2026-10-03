@@ -13,6 +13,9 @@ import { StyleScreen } from "./StyleScreen";
 const button = (name: string) => screen.getByRole("button", { name });
 const click = (name: string) => fireEvent.click(button(name));
 const pressed = (name: string) => button(name).getAttribute("aria-pressed");
+// 요약 창은 닫힌 뒤에도 사라지는 모션 동안 화면에 남는다. 열림 여부는 이름 버튼의 상태로 확인한다.
+const summaryOpen = (name: string) =>
+  button(name).getAttribute("aria-expanded");
 
 describe("StyleScreen", () => {
   beforeEach(() => {
@@ -50,19 +53,21 @@ describe("StyleScreen", () => {
   it("한 줄 요약 창은 스타일 창이 뜰 때 한 번 보였다가 사라진다", () => {
     render(<StyleScreen />);
     expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
+    expect(summaryOpen("Trendsetter")).toBe("true");
 
     act(() => {
       vi.advanceTimersByTime(3000);
     });
-    expect(screen.queryByText(STYLES[0].summary)).toBeNull();
+    expect(summaryOpen("Trendsetter")).toBe("false");
 
     click("Minimalist 폴더");
     expect(screen.getByText(STYLES[3].summary)).toBeTruthy();
+    expect(summaryOpen("Minimalist")).toBe("true");
 
     act(() => {
       vi.advanceTimersByTime(3000);
     });
-    expect(screen.queryByText(STYLES[3].summary)).toBeNull();
+    expect(summaryOpen("Minimalist")).toBe("false");
   });
 
   it("스타일 이름을 누르면 요약 창이 다시 뜨고, 요약을 누르면 닫힌다", () => {
@@ -72,10 +77,10 @@ describe("StyleScreen", () => {
     });
 
     click("Trendsetter");
-    expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
+    expect(summaryOpen("Trendsetter")).toBe("true");
 
     click(STYLES[0].summary);
-    expect(screen.queryByText(STYLES[0].summary)).toBeNull();
+    expect(summaryOpen("Trendsetter")).toBe("false");
   });
 
   it("선택하기를 누르면 스타일을 저장하고, 요약 창을 한 번 더 보여 준 뒤 다음 단계로 간다", () => {
@@ -88,7 +93,7 @@ describe("StyleScreen", () => {
 
     click("선택하기");
     expect(useExperienceStore.getState().style).toBe("aesthetic-curator");
-    expect(screen.getByText(STYLES[1].summary)).toBeTruthy();
+    expect(summaryOpen("Aesthetic Curator")).toBe("true");
     expect(useExperienceStore.getState().step).toBe("style");
 
     act(() => {

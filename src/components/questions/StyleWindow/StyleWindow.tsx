@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  AnimatePresence,
+  MotionConfig,
+  motion,
+  type TargetAndTransition,
+} from "motion/react";
 import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import { type RecipientStyle, STYLES, type StyleId } from "@/data/styles";
 
@@ -10,6 +16,24 @@ const NAV_TRIANGLE =
 
 // 강조되는 말이 다음 말로 넘어가는 간격.
 const QUOTE_TURN_MS = 2500;
+
+// 요약 창은 톡 튀어나왔다가, 사라질 때는 작아지며 흐려진다.
+const SUMMARY_MOTION: Record<
+  "initial" | "animate" | "exit",
+  TargetAndTransition
+> = {
+  initial: { opacity: 0, scale: 0 },
+  animate: {
+    opacity: 1,
+    scale: [0, 1.12, 1],
+    transition: { duration: 0.45, times: [0, 0.7, 1], ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.8,
+    transition: { duration: 0.25, ease: "easeIn" },
+  },
+};
 
 const NAME_SIZE = {
   large: "text-[79.6px] tracking-[-1.99px]",
@@ -168,34 +192,41 @@ export const StyleWindow = ({
           </ul>
         </div>
 
-        {summaryOpen && (
-          <button
-            type="button"
-            className="absolute left-[278px] top-[303px] h-[204.87px] w-[604.8px] animate-pop-in rounded-[8.16px] bg-white shadow-[2.449px_7.346px_24.486px_0px_rgba(0,0,0,0.15)] motion-reduce:animate-none"
-            onClick={onToggleSummary}
-          >
-            <span
-              className={`${WINDOW_DOT} left-[18.77px] top-[18.77px] size-[16.23px] bg-candy`}
-            />
-            <span
-              className={`${WINDOW_DOT} left-[43.16px] top-[18.77px] size-[16.23px] bg-[#ffe6a7]`}
-            />
-            <span
-              className={`${WINDOW_DOT} left-[67.55px] top-[18.77px] size-[16.23px] bg-[#e6f4a4]`}
-            />
-            {[19.54, 26.07, 32.6].map((top) => (
-              <span
-                key={top}
-                className={`${MENU_LINE} left-[565.34px] h-[1.63px] w-[21.22px]`}
-                style={{ top }}
-              />
-            ))}
-            <span className="absolute left-[18.77px] top-[51.01px] h-[1.22px] w-[567.26px] bg-[#e4e4e4]" />
-            <span className="absolute left-[18.77px] top-[71.01px] flex h-[114.27px] w-[567.26px] items-center justify-center whitespace-nowrap rounded-[8.16px] bg-mint font-stardust text-[30px] font-bold leading-[34px] tracking-[-0.75px] text-[#00d8d8]">
-              {recipient.summary}
-            </span>
-          </button>
-        )}
+        <MotionConfig reducedMotion="user">
+          <AnimatePresence>
+            {summaryOpen && (
+              <motion.button
+                type="button"
+                className="absolute left-[278px] top-[303px] h-[204.87px] w-[604.8px] rounded-[8.16px] bg-white shadow-[2.449px_7.346px_24.486px_0px_rgba(0,0,0,0.15)]"
+                initial={SUMMARY_MOTION.initial}
+                animate={SUMMARY_MOTION.animate}
+                exit={SUMMARY_MOTION.exit}
+                onClick={onToggleSummary}
+              >
+                <span
+                  className={`${WINDOW_DOT} left-[18.77px] top-[18.77px] size-[16.23px] bg-candy`}
+                />
+                <span
+                  className={`${WINDOW_DOT} left-[43.16px] top-[18.77px] size-[16.23px] bg-[#ffe6a7]`}
+                />
+                <span
+                  className={`${WINDOW_DOT} left-[67.55px] top-[18.77px] size-[16.23px] bg-[#e6f4a4]`}
+                />
+                {[19.54, 26.07, 32.6].map((top) => (
+                  <span
+                    key={top}
+                    className={`${MENU_LINE} left-[565.34px] h-[1.63px] w-[21.22px]`}
+                    style={{ top }}
+                  />
+                ))}
+                <span className="absolute left-[18.77px] top-[51.01px] h-[1.22px] w-[567.26px] bg-[#e4e4e4]" />
+                <span className="absolute left-[18.77px] top-[71.01px] flex h-[114.27px] w-[567.26px] items-center justify-center whitespace-nowrap rounded-[8.16px] bg-mint font-stardust text-[30px] font-bold leading-[34px] tracking-[-0.75px] text-[#00d8d8]">
+                  {recipient.summary}
+                </span>
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </MotionConfig>
       </div>
     </div>
   );
