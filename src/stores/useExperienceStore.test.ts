@@ -32,11 +32,14 @@ describe("useExperienceStore", () => {
     expect(useExperienceStore.getState().step).toBe("editor");
   });
 
-  it("고른 관계를 저장하고, 처음으로 돌아가면 지운다", () => {
-    const { setRelation, reset } = useExperienceStore.getState();
+  it("고른 관계와 스타일을 저장하고, 처음으로 돌아가면 지운다", () => {
+    const { setRelation, setStyle, reset } = useExperienceStore.getState();
     setRelation("friend");
+    setStyle("cute-collector");
     expect(useExperienceStore.getState().relation).toBe("friend");
+    expect(useExperienceStore.getState().style).toBe("cute-collector");
     reset();
     expect(useExperienceStore.getState().relation).toBeNull();
+    expect(useExperienceStore.getState().style).toBeNull();
   });
 });

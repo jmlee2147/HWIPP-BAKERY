@@ -61,15 +61,26 @@ describe("ExperienceRoot", () => {
     await click("다음 카드");
     await click("선택하기");
 
-    await screen.findByRole("heading", { name: STEP_LABELS.style });
+    await screen.findByRole("button", { name: "Trendsetter 폴더" });
     expect(useExperienceStore.getState().relation).toBe("family");
   });
 
-  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("스타일 화면에서 선택하기를 누르면 고른 스타일을 저장하고 다음 단계로 간다", async () => {
     useExperienceStore.setState({ step: "style" });
     render(<ExperienceRoot />);
 
-    for (const step of STEPS.slice(2, -1)) {
+    await click("Minimalist 폴더");
+    await click("선택하기");
+
+    await screen.findByRole("heading", { name: STEP_LABELS.party }, WAIT);
+    expect(useExperienceStore.getState().style).toBe("minimalist");
+  });
+
+  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+    useExperienceStore.setState({ step: "party" });
+    render(<ExperienceRoot />);
+
+    for (const step of STEPS.slice(3, -1)) {
       await screen.findByRole("heading", { name: STEP_LABELS[step] });
       await click("다음");
     }

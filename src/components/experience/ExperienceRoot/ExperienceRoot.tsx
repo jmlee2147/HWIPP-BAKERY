@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { StepPlaceholder } from "@/components/experience/StepPlaceholder/StepPlaceholder";
 import { OpeningScreen } from "@/components/opening/OpeningScreen/OpeningScreen";
 import { RelationScreen } from "@/components/questions/RelationScreen/RelationScreen";
+import { StyleScreen } from "@/components/questions/StyleScreen/StyleScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
 import { FIRST_STEP } from "@/lib/steps";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
@@ -29,6 +30,8 @@ export const ExperienceRoot = () => {
           <OpeningScreen />
         ) : step === "relation" ? (
           <RelationScreen />
+        ) : step === "style" ? (
+          <StyleScreen />
         ) : (
           <StepPlaceholder
             step={step}
