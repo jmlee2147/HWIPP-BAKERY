@@ -9,7 +9,9 @@ import { DialogScene } from "@/components/opening/DialogScene/DialogScene";
 import { StoreSign } from "@/components/opening/StoreSign/StoreSign";
 import { TitleScene } from "@/components/opening/TitleScene/TitleScene";
 import { GREETING, INTRO_1, INTRO_2, QUESTION } from "@/data/opening";
+import { RELATION_IMAGES } from "@/data/relations";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
+import { preloadImages } from "@/lib/preload";
 import { playEffect, preloadSounds, startBgm, stopBgm } from "@/lib/sound";
 import { coverEnter, FADE_SECONDS, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
@@ -54,6 +56,7 @@ export const OpeningScreen = ({
 
   useEffect(() => {
     preloadSounds();
+    preloadImages(RELATION_IMAGES);
   }, []);
 
   // 타이틀은 다음 관람객을 기다리는 화면이다. 어떤 경로로 돌아왔든 배경음악을 멈춘다.

@@ -40,7 +40,8 @@ describe("ExperienceRoot", () => {
     await walkToQuestion("아니요. 예약 안 했어요.");
     await click("좋아! 내가 선물하고 싶은 상대는 ...");
 
-    await screen.findByRole("heading", { name: STEP_LABELS.relation });
+    await screen.findByRole("button", { name: "선택하기" });
+    expect(useExperienceStore.getState().step).toBe("relation");
   }, 15000);
 
   it("직접 디자인을 고르면 결과 수정 단계로 간다", async () => {
@@ -53,11 +54,22 @@ describe("ExperienceRoot", () => {
     expect(useExperienceStore.getState().step).toBe("editor");
   }, 15000);
 
-  it("문답 첫 단계부터 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("관계 화면에서 선택하기를 누르면 고른 관계를 저장하고 다음 단계로 간다", async () => {
     useExperienceStore.setState({ step: "relation" });
     render(<ExperienceRoot />);
 
-    for (const step of STEPS.slice(1, -1)) {
+    await click("다음 카드");
+    await click("선택하기");
+
+    await screen.findByRole("heading", { name: STEP_LABELS.style });
+    expect(useExperienceStore.getState().relation).toBe("family");
+  });
+
+  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+    useExperienceStore.setState({ step: "style" });
+    render(<ExperienceRoot />);
+
+    for (const step of STEPS.slice(2, -1)) {
       await screen.findByRole("heading", { name: STEP_LABELS[step] });
       await click("다음");
     }
