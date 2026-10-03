@@ -31,4 +31,12 @@ describe("useExperienceStore", () => {
     useExperienceStore.getState().goTo("editor");
     expect(useExperienceStore.getState().step).toBe("editor");
   });
+
+  it("고른 관계를 저장하고, 처음으로 돌아가면 지운다", () => {
+    const { setRelation, reset } = useExperienceStore.getState();
+    setRelation("friend");
+    expect(useExperienceStore.getState().relation).toBe("friend");
+    reset();
+    expect(useExperienceStore.getState().relation).toBeNull();
+  });
 });

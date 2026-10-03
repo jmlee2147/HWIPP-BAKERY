@@ -2,6 +2,8 @@ const EFFECTS = {
   doorBell: { src: "/assets/sounds/door-bell.m4a", volume: 0.7 },
   doorOpen: { src: "/assets/sounds/door-open.mp3", volume: 0.8 },
   choice: { src: "/assets/sounds/choice.mp3", volume: 0.4 },
+  cardSlide: { src: "/assets/sounds/card-slide.m4a", volume: 0.5 },
+  cardFlip: { src: "/assets/sounds/card-flip.m4a", volume: 0.6 },
 };
 
 type EffectName = keyof typeof EFFECTS;

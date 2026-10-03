@@ -47,6 +47,10 @@ const config: Config = {
         "plate-drift": {
           to: { transform: "translate(-57.15px, -74.42px)" },
         },
+        shimmer: {
+          from: { transform: "translateX(-100%)" },
+          to: { transform: "translateX(167%)" },
+        },
         "frame-first": {
           "0%, 49.99%": { opacity: "1" },
           "50%, 100%": { opacity: "0" },
@@ -62,6 +66,7 @@ const config: Config = {
         wobble: "wobble 3s ease-in-out infinite",
         "plate-drift": "plate-drift 5s linear infinite",
         "touch-ring": "touch-ring 0.5s ease-out both",
+        shimmer: "shimmer 2.4s ease-in-out infinite alternate",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",
       },
