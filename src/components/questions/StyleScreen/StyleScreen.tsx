@@ -6,7 +6,9 @@ import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { StyleWindow } from "@/components/questions/StyleWindow/StyleWindow";
+import { PARTY_IMAGES } from "@/data/parties";
 import { folderImage, STYLES, type StyleId } from "@/data/styles";
+import { preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -45,6 +47,10 @@ export const StyleScreen = () => {
   const [typed, setTyped] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const style = STYLES[active];
+
+  useEffect(() => {
+    preloadImages(PARTY_IMAGES);
+  }, []);
 
   // 말이 끝난 뒤, 그리고 스타일을 바꿀 때마다(active가 바뀐다) 잠시 뒤 요약 창이 한 번 뜬다.
   // biome-ignore lint/correctness/useExhaustiveDependencies: active는 타이머를 다시 시작시키는 용도다

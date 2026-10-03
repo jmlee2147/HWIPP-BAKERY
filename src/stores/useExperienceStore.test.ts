@@ -32,14 +32,18 @@ describe("useExperienceStore", () => {
     expect(useExperienceStore.getState().step).toBe("editor");
   });
 
-  it("고른 관계와 스타일을 저장하고, 처음으로 돌아가면 지운다", () => {
-    const { setRelation, setStyle, reset } = useExperienceStore.getState();
+  it("고른 관계, 스타일, 파티 테마를 저장하고, 처음으로 돌아가면 지운다", () => {
+    const { setRelation, setStyle, setParty, reset } =
+      useExperienceStore.getState();
     setRelation("friend");
     setStyle("cute-collector");
+    setParty("wedding");
+    expect(useExperienceStore.getState().party).toBe("wedding");
     expect(useExperienceStore.getState().relation).toBe("friend");
     expect(useExperienceStore.getState().style).toBe("cute-collector");
     reset();
     expect(useExperienceStore.getState().relation).toBeNull();
     expect(useExperienceStore.getState().style).toBeNull();
+    expect(useExperienceStore.getState().party).toBeNull();
   });
 });
