@@ -70,9 +70,9 @@ function sliceClipPath(centerAngle: number): string {
   return `polygon(50% 50%, ${points.join(", ")})`;
 }
 
-// 사라지는 순서대로 놓는다. 오른쪽 위 조각부터 시계 반대 방향으로 돈다.
+// 사라지는 순서대로 놓는다. 오른쪽 위 조각부터 시계 방향으로 돈다.
 export const CAKE_SLICES = Array.from({ length: SLICE_COUNT }, (_, index) =>
-  sliceClipPath(-SLICE_ANGLE - index * SLICE_ANGLE),
+  sliceClipPath(-SLICE_ANGLE + index * SLICE_ANGLE),
 );
 
 export const ANALYSIS_IMAGES = [

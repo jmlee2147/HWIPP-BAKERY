@@ -93,7 +93,6 @@ const config: Config = {
         shimmer: "shimmer 2.4s ease-in-out infinite alternate",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",
-        "cake-spin": "spin 9s linear infinite",
       },
       dropShadow: {
         window: "3px 9px 15px rgba(0, 0, 0, 0.15)",
