@@ -7,6 +7,8 @@ export interface SceneBox {
   height: number;
 }
 
+export type BakerFrame = { src: string } & SceneBox;
+
 export interface DialogSceneData {
   // 같은 가게 사진을 장면마다 다른 크기와 위치로 쓴다.
   background: SceneBox;
@@ -15,10 +17,15 @@ export interface DialogSceneData {
   // true면 케이크가 하나씩 생겨난다.
   popIn?: boolean;
   // 두 장이면 일정한 간격으로 번갈아 보여 준다.
-  baker: ({ src: string } & SceneBox)[];
+  baker: BakerFrame[];
 }
 
-const COUNTER: SceneBox = { left: -359, top: -61, width: 1557, height: 1981 };
+export const COUNTER: SceneBox = {
+  left: -359,
+  top: -61,
+  width: 1557,
+  height: 1981,
+};
 const FLOOR: SceneBox = { left: -255, top: -518, width: 2122, height: 2701 };
 
 const BAKER = {
@@ -28,7 +35,7 @@ const BAKER = {
 };
 
 // 포즈 이미지는 모두 같은 크기로 잘라 두었다. 같은 자리에 놓으면 포즈만 바뀐다.
-const COUNTER_SPOT: SceneBox = {
+export const COUNTER_SPOT: SceneBox = {
   left: 264.1,
   top: 987.4,
   width: 570.8,
