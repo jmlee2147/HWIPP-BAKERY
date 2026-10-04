@@ -9,7 +9,9 @@ import { CarouselDots } from "@/components/questions/CarouselDots/CarouselDots";
 import { ConfettiBurst } from "@/components/questions/ConfettiBurst/ConfettiBurst";
 import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { PartyBoard } from "@/components/questions/PartyBoard/PartyBoard";
+import { FLAVOR_IMAGES } from "@/data/flavors";
 import { PARTIES, PARTY_PAPER } from "@/data/parties";
+import { preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -33,6 +35,10 @@ export const PartyScreen = () => {
   });
   const [confirming, setConfirming] = useState(false);
   const party = PARTIES[active];
+
+  useEffect(() => {
+    preloadImages(FLAVOR_IMAGES);
+  }, []);
 
   useEffect(() => {
     if (!confirming) return;

@@ -38,12 +38,15 @@ describe("useExperienceStore", () => {
     setRelation("friend");
     setStyle("cute-collector");
     setParty("wedding");
+    useExperienceStore.getState().setFlavor("fruit");
     expect(useExperienceStore.getState().party).toBe("wedding");
+    expect(useExperienceStore.getState().flavor).toBe("fruit");
     expect(useExperienceStore.getState().relation).toBe("friend");
     expect(useExperienceStore.getState().style).toBe("cute-collector");
     reset();
     expect(useExperienceStore.getState().relation).toBeNull();
     expect(useExperienceStore.getState().style).toBeNull();
     expect(useExperienceStore.getState().party).toBeNull();
+    expect(useExperienceStore.getState().flavor).toBeNull();
   });
 });
