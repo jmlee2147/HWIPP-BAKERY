@@ -210,6 +210,10 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   top("cream-dollop", "cream", 102, 84, "center"),
   top("cream-rosette", "cream", 129, 112, "center"),
+  top("cream-ball-white", "cream", 44.4, 42, "center"),
+  top("cream-ball-pink", "cream", 44.4, 42, "center"),
+  top("cream-ball-sky", "cream", 97, 91.7, "center"),
+  top("cream-cloud-sky", "cream", 431.2, 253.7, "center"),
   top("fruit-strawberry-pile", "fruit", 321, 283, "center"),
   top("fruit-strawberry", "fruit", 92, 107, "bottom"),
   top("fruit-cherry", "fruit", 94.8, 152, "bottom"),
@@ -224,6 +228,9 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("topper-star", "candle", 157.8, 179.4, "bottom"),
   top("topper-house", "candle", 151.1, 187.4, "bottom"),
   top("topper-baker", "candle", 137.6, 161, "bottom"),
+  top("candle-heart-pink", "candle", 110, 147.1, "bottom"),
+  top("candle-heart-blue", "candle", 110, 147.1, "bottom"),
+  top("candle-heart-red", "candle", 110, 147.1, "bottom"),
   top("flower-lily-pink", "flower", 159.5, 146, "center"),
   top("flower-lily-silver", "flower", 167.2, 157.5, "center"),
   top("flower-lily-rose", "flower", 215.4, 163.5, "center"),
@@ -268,6 +275,34 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("lettering-happy-birthday", "lettering", "lettering", {
     round: ["lettering-happy-birthday-round", 191.9, 276.9, 289.6, 137.7],
   }),
+  fixed("lettering-hbd-dot-black", "lettering", "lettering", {
+    heart: ["lettering-hbd-dot-black", 203.3, 271.9, 327.6, 181],
+    square: ["lettering-hbd-dot-black", 141.6, 239.8, 375.8, 205.4],
+  }),
+  fixed("lettering-hbd-dot-white", "lettering", "lettering", {
+    heart: ["lettering-hbd-dot-white", 186.5, 313.6, 344, 190],
+  }),
+  fixed("lettering-hbd-strawberry", "lettering", "lettering", {
+    heart: ["lettering-hbd-strawberry", 187.7, 267.9, 367.3, 200.6],
+  }),
+  fixed("lettering-always-grateful", "lettering", "lettering", {
+    round: ["lettering-always-grateful", 196.7, 297.4, 275.7, 163.2],
+  }),
+  fixed("lettering-job-congrats", "lettering", "lettering", {
+    square: ["lettering-job-congrats", 223.1, 328, 204.8, 58.9],
+  }),
+  fixed("lettering-like-you", "lettering", "lettering", {
+    square: ["lettering-like-you", 189.5, 231.9, 271.6, 224.1],
+  }),
+  fixed("lettering-i-love-u", "lettering", "lettering", {
+    round: ["lettering-i-love-u", 161.4, 285.2, 339.7, 103.5],
+  }),
+  fixed("lettering-i-heart", "lettering", "lettering", {
+    round: ["lettering-i-heart", 135.8, 242.1, 376.9, 239.4],
+  }),
+  fixed("lettering-love-you", "lettering", "lettering", {
+    heart: ["lettering-love-you", 227.8, 320.1, 265.2, 94.8],
+  }),
   fixed("sprinkle", "others", "sprinkle", {
     round: ["sprinkle-round", 82.4, 242.5, 508.4, 238.4],
     heart: ["sprinkle-heart", 113.9, 212.5, 443.1, 303],
@@ -286,6 +321,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("star-white", "others", 91, 86, "center"),
   top("star-mini-pink", "others", 35, 34, "center"),
   top("pearl", "others", 70, 71, "center"),
+  top("pearl-gray", "others", 36, 36, "center"),
   top("cream-top-square", "cream", 599.7, 361.4, "center"),
   top("flower-stem", "flower", 534.8, 547.5, "center"),
   top("lettering-promise", "lettering", 284.8, 224, "center"),
