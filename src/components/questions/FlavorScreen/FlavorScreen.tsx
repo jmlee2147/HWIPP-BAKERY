@@ -6,11 +6,12 @@ import {
   useMotionValue,
   useReducedMotion,
 } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
+import { ANALYSIS_IMAGES } from "@/data/analysis";
 import {
   FLAVOR_CARD_HEIGHT,
   FLAVOR_CARD_PITCH,
@@ -19,6 +20,7 @@ import {
   FLAVORS,
   nearestFlavor,
 } from "@/data/flavors";
+import { preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -51,6 +53,10 @@ export const FlavorScreen = () => {
   const dragged = useRef(false);
   // 목록 그림을 받지 못하면 카드 문구를 글자로 보여 줘서 고를 수 있게 한다.
   const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    preloadImages(ANALYSIS_IMAGES);
+  }, []);
 
   const settle = (index: number) => {
     if (reduceMotion) listY.set(FLAVORS[index].listY);
