@@ -271,6 +271,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("sprinkle", "others", "sprinkle", {
     round: ["sprinkle-round", 82.4, 242.5, 508.4, 238.4],
     heart: ["sprinkle-heart", 113.9, 212.5, 443.1, 303],
+    // 사각형 전용 그림은 없다. 하트용 그림을 같은 비율로 줄여 쓴다.
     square: ["sprinkle-heart", 124.3, 226.8, 394.4, 269.7],
   }),
   top("topper-baker-face", "others", 203, 183, "bottom"),
