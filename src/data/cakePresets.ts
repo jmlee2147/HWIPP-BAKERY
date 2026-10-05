@@ -907,11 +907,51 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "heart",
       color: "sky",
       decorations: [
-        { id: "star-brown", x: 121.7, y: 562.5, scale: 0.39 },
-        { id: "star-brown", x: 535.3, y: 562.5, scale: 0.39 },
-        { id: "star-brown", x: 204.6, y: 621.5, scale: 0.39 },
-        { id: "star-brown", x: 322.5, y: 666.5, scale: 0.39 },
-        { id: "star-brown", x: 459.4, y: 666.5, scale: 0.39 },
+        // 옆면 아래쪽에 두른 별. 다른 모양에서는 계산으로 옮기면 간격과 높이가 들쭉날쭉해, 바닥을 따라 고르게 놓은 자리를 적는다.
+        {
+          id: "star-brown",
+          x: 121.7,
+          y: 562.5,
+          scale: 0.39,
+          at: { round: { x: 100, y: 621 }, square: { x: 80, y: 598 } },
+        },
+        {
+          id: "star-brown",
+          x: 535.3,
+          y: 562.5,
+          scale: 0.39,
+          at: { round: { x: 560, y: 608 }, square: { x: 535, y: 614 } },
+        },
+        // 네모는 옆면이 둘이라 앞면에 넷, 오른쪽 면에 둘을 놓는다. 오른쪽 면의 둘째 별은 네모에서만 그린다.
+        {
+          id: "star-brown",
+          x: 535.3,
+          y: 562.5,
+          scale: 0.39,
+          only: ["square"],
+          at: { square: { x: 595, y: 512 } },
+        },
+        {
+          id: "star-brown",
+          x: 204.6,
+          y: 621.5,
+          scale: 0.39,
+          at: { round: { x: 215, y: 692 }, square: { x: 190, y: 625 } },
+        },
+        {
+          id: "star-brown",
+          x: 322.5,
+          y: 666.5,
+          scale: 0.39,
+          at: { round: { x: 330, y: 705 }, square: { x: 300, y: 651 } },
+        },
+        {
+          id: "star-brown",
+          x: 459.4,
+          y: 666.5,
+          scale: 0.39,
+          at: { round: { x: 445, y: 685 }, square: { x: 410, y: 678 } },
+        },
         { id: "coating-choco", x: 324.9, y: 392.3 },
         { id: "lettering-hbd-dot-black" },
         {
