@@ -41,9 +41,11 @@ describe("pickCake", () => {
               ),
               label,
             ).toBe(true);
-            expect(cakeLayers(cake), label).toHaveLength(
-              cake.decorations.length + 1,
+            // 다른 모양에서만 그리는 장식은 원래 모양에서 그려지지 않는다.
+            const drawn = cake.decorations.filter(
+              (item) => !item.only || item.only.includes(cake.shape),
             );
+            expect(cakeLayers(cake), label).toHaveLength(drawn.length + 1);
           }
         }
       }
