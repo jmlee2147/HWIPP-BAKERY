@@ -1137,3 +1137,85 @@ describe("removeDecoration", () => {
     ]);
   });
 });
+
+describe("글자를 스티커로 놓기", () => {
+  const plain: CakeConfig = { ...DEFAULT_CAKE, decorations: [] };
+  const last = (cake: CakeConfig) => {
+    const layers = cakeLayers(cake);
+    return layers[layers.length - 1];
+  };
+
+  it("그 모양에서의 자리가 정해진 글자는 그 자리에, 아니면 윗면 가운데에 놓인다", () => {
+    const fixedSpot = last(placeDecoration(plain, "lettering-thankyou"));
+    expect(fixedSpot.left).toBeCloseTo(137.2);
+    expect(fixedSpot.top).toBeCloseTo(225.9);
+
+    const centered = last(placeDecoration(plain, "note-married"));
+    expect(centered.left + centered.width / 2).toBeCloseTo(
+      CAKE_TOPS.round.center.x,
+    );
+    expect(centered.top + centered.height / 2).toBeCloseTo(
+      CAKE_TOPS.round.center.y,
+    );
+  });
+
+  it("지금 모양의 그림이 없는 글자는 다른 모양의 그림으로 놓인다", () => {
+    // 원형용 그림만 있는 글자다.
+    const cake = placeDecoration(
+      { ...plain, shape: "heart" },
+      "lettering-i-heart",
+    );
+
+    expect(cake.decorations).toHaveLength(1);
+    expect(last(cake).src).toContain("lettering-i-heart");
+  });
+
+  it("같은 글자를 여러 번 놓을 수 있고, 예시의 글자는 그대로 그려진다", () => {
+    const preset: CakeConfig = {
+      ...plain,
+      decorations: [{ id: "lettering-hbd-pink" }],
+    };
+    const before = cakeLayers(preset);
+
+    const cake = placeDecoration(
+      placeDecoration(preset, "lettering-hbd-pink"),
+      "lettering-hbd-pink",
+    );
+
+    const after = cakeLayers(cake);
+    expect(after.slice(0, before.length)).toEqual(before);
+    expect(after).toHaveLength(before.length + 2);
+  });
+
+  it("놓은 글자는 옮기고 크기와 기울기를 고치고 지울 수 있다", () => {
+    const cake = placeDecoration(plain, "lettering-thankyou");
+
+    const moved = adjustDecoration(cake, 0, {
+      x: 300,
+      y: 300,
+      scale: 0.5,
+      rotate: 10,
+    });
+
+    expect(moved.decorations[0]).toMatchObject({
+      x: 300,
+      y: 300,
+      scale: 0.5,
+      rotate: 10,
+    });
+    expect(last(moved).width).toBeCloseTo(356.5 / 2);
+    expect(removeDecoration(moved, 0).decorations).toEqual([]);
+  });
+
+  it("모양을 바꾼 케이크에 놓은 글자는 놓은 자리에 그려진다", () => {
+    const cake = placeDecoration(
+      { ...plain, shape: "square", layoutShape: "round" },
+      "lettering-chukahaeyo",
+    );
+    const layer = last(cake);
+
+    expect(cake.layoutShape).toBe("round");
+    expect(layer.left + layer.width / 2).toBeCloseTo(CAKE_TOPS.square.center.x);
+    expect(layer.top + layer.height / 2).toBeCloseTo(CAKE_TOPS.square.center.y);
+  });
+});

@@ -20,6 +20,7 @@ import {
   DECORATION_SCALE,
   DECORATION_SETS,
   EDITOR_PACK_CHOICE,
+  LETTERING_CATEGORIES,
   LIST_CLOSE_LABEL,
   SHAPE_ICONS,
 } from "@/data/editor";
@@ -49,6 +50,7 @@ describe("EditorScreen", () => {
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
       "크기",
       "모양",
+      "레터링",
       "장식",
       "색상",
     ]);
@@ -176,6 +178,7 @@ describe("EditorScreen", () => {
 
     expect(screen.getAllByRole("tab").map((item) => item.textContent)).toEqual([
       "크기",
+      "레터링",
       "장식",
       "색상",
     ]);
@@ -231,6 +234,8 @@ describe("EditorScreen", () => {
     expect(useExperienceStore.getState().step).toBe("share");
   });
 });
+
+const control = (name: string) => screen.getByRole("button", { name });
 
 describe("EditorScreen 장식 탭", () => {
   beforeEach(() => {
@@ -337,7 +342,6 @@ describe("EditorScreen 장식 탭", () => {
     expect(tile("ribbon-garland")).toBeTruthy();
   });
 
-  const control = (name: string) => screen.getByRole("button", { name });
   const drag = (
     target: HTMLElement,
     from: { x: number; y: number },
@@ -558,5 +562,93 @@ describe("EditorScreen 장식 탭", () => {
     const after = storedCake()?.decorations[0];
     expect(after?.x).toBeCloseTo((before?.x ?? 0) + 100);
     expect(after?.y).toBeCloseTo(before?.y ?? 0);
+  });
+});
+
+describe("EditorScreen 레터링 탭", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    useExperienceStore.getState().reset();
+    useExperienceStore.setState({ step: "editor" });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  const openList = (category: string | RegExp) => {
+    click("tab", "레터링");
+    click("button", category);
+    act(() => {
+      vi.advanceTimersByTime(CATEGORY_HOLD_MS);
+    });
+  };
+  const listed = () =>
+    screen
+      .getAllByRole("listitem")
+      .map((item) => item.querySelector("button")?.getAttribute("aria-label"));
+
+  it("레터링 탭에는 분류 타일이 나오고, 분류를 누르면 정해 둔 글자 목록이 나온다", () => {
+    render(<EditorScreen />);
+    click("tab", "레터링");
+    expect(screen.getAllByRole("button", { pressed: false })).toHaveLength(
+      LETTERING_CATEGORIES.length,
+    );
+
+    click("button", "LOVE");
+    act(() => {
+      vi.advanceTimersByTime(CATEGORY_HOLD_MS);
+    });
+
+    expect(listed()).toEqual(
+      LETTERING_CATEGORIES.find((item) => item.id === "love")?.items,
+    );
+  });
+
+  it("레터링 탭과 장식 탭을 오가면 분류 타일부터 다시 보인다", () => {
+    render(<EditorScreen />);
+    openList("BIRTHDAY");
+
+    click("tab", "장식");
+
+    expect(tile("CANDLE").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.queryByRole("button", { name: "BIRTHDAY" })).toBeNull();
+  });
+
+  it("글자를 누르면 케이크 윗면에 놓이고 조절 상자가 생긴다", () => {
+    render(<EditorScreen />);
+    openList("THANKS");
+
+    click("button", "lettering-thankyou");
+
+    const placed = storedCake()?.decorations[0];
+    expect(placed).toMatchObject({ id: "lettering-thankyou", manual: true });
+    // 원형 케이크에서 이 글자의 정해진 자리다.
+    expect(placed?.x).toBeCloseTo(137.2 + 356.5 / 2);
+    expect(placed?.y).toBeCloseTo(225.9 + 233.4 / 2);
+    expect(control(CONTROL_LABELS.move).getAttribute("aria-pressed")).toBe(
+      "true",
+    );
+    expect(control(CONTROL_LABELS.remove)).toBeTruthy();
+  });
+
+  it("예시에 글자가 있는 케이크에도 글자를 더 놓고, 놓은 글자만 지울 수 있다", () => {
+    const preset = CAKE_PRESETS.find(({ cake }) =>
+      cake.decorations.some((item) => item.id === "lettering-hbd-pink"),
+    );
+    if (!preset) throw new Error("글자가 있는 예시가 없다");
+    useExperienceStore.setState({ cake: preset.cake });
+    render(<EditorScreen />);
+    openList(/JAPANESE/);
+
+    click("button", "lettering-ouen-pink");
+    expect(
+      screen.getAllByRole("button", { name: CONTROL_LABELS.move }),
+    ).toHaveLength(1);
+
+    click("button", CONTROL_LABELS.remove);
+
+    expect(storedCake()?.decorations).toEqual(preset.cake.decorations);
   });
 });
