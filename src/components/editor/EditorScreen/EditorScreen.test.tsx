@@ -1,5 +1,11 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CAKE_COLORS,
   CAKE_SHAPES,
@@ -7,7 +13,16 @@ import {
   cakeBaseImage,
 } from "@/data/cake";
 import { CAKE_PRESETS } from "@/data/cakePresets";
-import { EDITOR_PACK_CHOICE, SHAPE_ICONS } from "@/data/editor";
+import {
+  CATEGORY_HOLD_MS,
+  CONTROL_LABELS,
+  DECORATION_CATEGORIES,
+  DECORATION_SCALE,
+  DECORATION_SETS,
+  EDITOR_PACK_CHOICE,
+  LIST_CLOSE_LABEL,
+  SHAPE_ICONS,
+} from "@/data/editor";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { EditorScreen } from "./EditorScreen";
 
@@ -34,6 +49,7 @@ describe("EditorScreen", () => {
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
       "크기",
       "모양",
+      "장식",
       "색상",
     ]);
     expect(
@@ -160,6 +176,7 @@ describe("EditorScreen", () => {
 
     expect(screen.getAllByRole("tab").map((item) => item.textContent)).toEqual([
       "크기",
+      "장식",
       "색상",
     ]);
   });
@@ -212,5 +229,334 @@ describe("EditorScreen", () => {
     click("button", EDITOR_PACK_CHOICE);
 
     expect(useExperienceStore.getState().step).toBe("share");
+  });
+});
+
+describe("EditorScreen 장식 탭", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    useExperienceStore.getState().reset();
+    useExperienceStore.setState({ step: "editor" });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  const openList = (category: string) => {
+    click("tab", "장식");
+    click("button", category);
+    act(() => {
+      vi.advanceTimersByTime(CATEGORY_HOLD_MS);
+    });
+  };
+
+  it("장식 탭에는 분류 타일이 나온다", () => {
+    render(<EditorScreen />);
+
+    click("tab", "장식");
+
+    for (const category of DECORATION_CATEGORIES)
+      expect(tile(category.label)).toBeTruthy();
+  });
+
+  it("분류를 누르면 고른 상태가 된 뒤 그 분류의 장식 목록으로 바뀐다", () => {
+    render(<EditorScreen />);
+    click("tab", "장식");
+
+    click("button", "CANDLE");
+    expect(tile("CANDLE").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByRole("button", { name: "candle-pink" })).toBeNull();
+
+    act(() => {
+      vi.advanceTimersByTime(CATEGORY_HOLD_MS);
+    });
+    expect(tile("candle-pink")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "flower-rose" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "CANDLE" })).toBeNull();
+  });
+
+  it("닫기를 누르면 분류 타일로 돌아가고 고른 분류가 풀린다", () => {
+    render(<EditorScreen />);
+    openList("FLOWER");
+
+    click("button", LIST_CLOSE_LABEL);
+
+    expect(tile("FLOWER").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.queryByRole("button", { name: "flower-rose" })).toBeNull();
+  });
+
+  it("다른 탭에 다녀오면 분류 타일부터 다시 보인다", () => {
+    render(<EditorScreen />);
+    openList("FLOWER");
+
+    click("tab", "크기");
+    click("tab", "장식");
+
+    expect(tile("FLOWER").getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("목록에서 장식을 누르면 케이크에 더해진다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+
+    click("button", "candle-pink");
+    click("button", "candle-pink");
+
+    expect(storedCake()?.decorations).toMatchObject([
+      { id: "candle-pink", manual: true },
+      { id: "candle-pink", manual: true },
+    ]);
+  });
+
+  it("케이크 모양을 따라 그린 장식은 지금 모양의 그림이 있는 것만 목록에 나온다", () => {
+    useExperienceStore.setState({
+      cake: { size: "large", shape: "square", color: "white", decorations: [] },
+    });
+    render(<EditorScreen />);
+    openList("RIBBON");
+
+    const wrap = tile("ribbon-wrap").querySelector("img");
+    expect(wrap?.getAttribute("src")).toContain("ribbon-wrap-square");
+  });
+
+  it("예시에 처음부터 있던 장식이 차지한 자리의 장식은 목록에 나오지 않는다", () => {
+    useExperienceStore.setState({
+      cake: {
+        size: "large",
+        shape: "round",
+        color: "white",
+        decorations: [{ id: "ribbon-wrap" }],
+      },
+    });
+    render(<EditorScreen />);
+    openList("RIBBON");
+
+    expect(screen.queryByRole("button", { name: "ribbon-wrap" })).toBeNull();
+    expect(tile("ribbon-garland")).toBeTruthy();
+  });
+
+  const control = (name: string) => screen.getByRole("button", { name });
+  const drag = (
+    target: HTMLElement,
+    from: { x: number; y: number },
+    to: { x: number; y: number },
+  ) => {
+    fireEvent.pointerDown(target, {
+      pointerId: 1,
+      clientX: from.x,
+      clientY: from.y,
+    });
+    fireEvent.pointerMove(target, {
+      pointerId: 1,
+      clientX: to.x,
+      clientY: to.y,
+    });
+    fireEvent.pointerUp(target, { pointerId: 1, clientX: to.x, clientY: to.y });
+  };
+
+  it("장식을 더하면 그 장식에 조절 상자가 생긴다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+
+    click("button", "candle-pink");
+
+    expect(control(CONTROL_LABELS.move).getAttribute("aria-pressed")).toBe(
+      "true",
+    );
+    expect(control(CONTROL_LABELS.remove)).toBeTruthy();
+    expect(control(CONTROL_LABELS.scale)).toBeTruthy();
+    expect(control(CONTROL_LABELS.rotate)).toBeTruthy();
+  });
+
+  it("빈 곳을 누르면 조절 상자가 사라지고, 장식을 누르면 다시 생긴다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+    click("button", "candle-pink");
+
+    click("button", CONTROL_LABELS.release);
+    expect(
+      screen.queryByRole("button", { name: CONTROL_LABELS.remove }),
+    ).toBeNull();
+
+    fireEvent.pointerDown(control(CONTROL_LABELS.move), { pointerId: 1 });
+    expect(control(CONTROL_LABELS.remove)).toBeTruthy();
+  });
+
+  it("다른 장식을 누르면 조절 상자가 그 장식으로 옮겨 간다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+    click("button", "candle-pink");
+    click("button", "candle-mint");
+
+    const bodies = () =>
+      screen.getAllByRole("button", { name: CONTROL_LABELS.move });
+    expect(bodies().map((body) => body.getAttribute("aria-pressed"))).toEqual([
+      "false",
+      "true",
+    ]);
+
+    fireEvent.pointerDown(bodies()[0], { pointerId: 1 });
+
+    expect(bodies().map((body) => body.getAttribute("aria-pressed"))).toEqual([
+      "true",
+      "false",
+    ]);
+  });
+
+  it("상자 안쪽을 끌면 장식이 그만큼 옮겨져 저장된다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+    click("button", "candle-pink");
+    const before = storedCake()?.decorations[0];
+
+    drag(control(CONTROL_LABELS.move), { x: 300, y: 500 }, { x: 367, y: 433 });
+
+    // 케이크 창에서 케이크는 0.67배로 그려지므로, 화면의 67px은 케이크의 100px이다.
+    const after = storedCake()?.decorations[0];
+    expect(after?.x).toBeCloseTo((before?.x ?? 0) + 100);
+    expect(after?.y).toBeCloseTo((before?.y ?? 0) - 100);
+  });
+
+  it("크기 손잡이를 끌면 배율이 저장되고 한도를 넘지 않는다", () => {
+    render(<EditorScreen />);
+    openList("OTHERS");
+    click("button", "star-pink");
+    const body = control(CONTROL_LABELS.move).parentElement;
+    const center = /translate\(([\d.-]+)px, ([\d.-]+)px\)/.exec(
+      body?.style.transform ?? "",
+    );
+    const middle = {
+      x: Number(center?.[1]) + Number.parseFloat(body?.style.width ?? "0") / 2,
+      y: Number(center?.[2]) + Number.parseFloat(body?.style.height ?? "0") / 2,
+    };
+
+    drag(
+      control(CONTROL_LABELS.scale),
+      { x: middle.x + 50, y: middle.y },
+      { x: middle.x + 75, y: middle.y },
+    );
+    expect(storedCake()?.decorations[0].scale).toBeCloseTo(1.5);
+
+    drag(
+      control(CONTROL_LABELS.scale),
+      { x: middle.x + 10, y: middle.y },
+      { x: middle.x + 900, y: middle.y },
+    );
+    expect(storedCake()?.decorations[0].scale).toBe(DECORATION_SCALE.max);
+
+    drag(
+      control(CONTROL_LABELS.scale),
+      { x: middle.x + 500, y: middle.y },
+      { x: middle.x + 2, y: middle.y },
+    );
+    expect(storedCake()?.decorations[0].scale).toBe(DECORATION_SCALE.min);
+  });
+
+  it("기울기 손잡이를 끌면 돌린 각도가 저장된다", () => {
+    render(<EditorScreen />);
+    openList("OTHERS");
+    click("button", "star-pink");
+    const body = control(CONTROL_LABELS.move).parentElement;
+    const center = /translate\(([\d.-]+)px, ([\d.-]+)px\)/.exec(
+      body?.style.transform ?? "",
+    );
+    const middle = {
+      x: Number(center?.[1]) + Number.parseFloat(body?.style.width ?? "0") / 2,
+      y: Number(center?.[2]) + Number.parseFloat(body?.style.height ?? "0") / 2,
+    };
+
+    drag(
+      control(CONTROL_LABELS.rotate),
+      { x: middle.x + 60, y: middle.y },
+      { x: middle.x, y: middle.y + 60 },
+    );
+
+    expect(storedCake()?.decorations[0].rotate).toBeCloseTo(90);
+  });
+
+  it("삭제 손잡이를 누르면 그 장식만 빠진다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+    click("button", "candle-pink");
+    click("button", "candle-mint");
+
+    click("button", CONTROL_LABELS.remove);
+
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "candle-pink",
+    ]);
+    expect(
+      screen.queryByRole("button", { name: CONTROL_LABELS.remove }),
+    ).toBeNull();
+  });
+
+  it("예시에 처음부터 있던 장식에는 조절 상자가 생기지 않는다", () => {
+    useExperienceStore.setState({ cake: CAKE_PRESETS[0].cake });
+    render(<EditorScreen />);
+
+    click("tab", "장식");
+
+    expect(
+      screen.queryByRole("button", { name: CONTROL_LABELS.move }),
+    ).toBeNull();
+  });
+
+  it("목록에는 분류에 정해 둔 장식만 정해 둔 순서로 나온다", () => {
+    render(<EditorScreen />);
+    openList("RIBBON");
+
+    const listed = screen
+      .getAllByRole("listitem")
+      .map((item) => item.querySelector("button")?.getAttribute("aria-label"));
+    expect(listed).toEqual(
+      DECORATION_CATEGORIES.find((item) => item.id === "ribbon")?.items,
+    );
+    expect(
+      screen.queryByRole("button", { name: "ribbon-bow-wide" }),
+    ).toBeNull();
+  });
+
+  it("물방울 묶음을 누르면 지금 모양의 배치대로 한꺼번에 놓이고 조절 상자는 생기지 않는다", () => {
+    useExperienceStore.setState({
+      cake: { size: "large", shape: "heart", color: "white", decorations: [] },
+    });
+    render(<EditorScreen />);
+    openList("OTHERS");
+
+    click("button", "drops-white");
+
+    const parts = DECORATION_SETS["drops-white"].parts.heart;
+    expect(storedCake()?.decorations).toMatchObject(
+      parts.map((part) => ({ ...part, manual: true })),
+    );
+    expect(
+      screen.getAllByRole("button", { name: CONTROL_LABELS.move }),
+    ).toHaveLength(parts.length);
+    expect(
+      screen.queryByRole("button", { name: CONTROL_LABELS.remove }),
+    ).toBeNull();
+  });
+
+  it("작은 케이크에서도 끈 만큼 장식이 손가락을 따라 옮겨진다", () => {
+    useExperienceStore.setState({
+      cake: { size: "mini", shape: "round", color: "white", decorations: [] },
+    });
+    render(<EditorScreen />);
+    openList("OTHERS");
+    click("button", "star-pink");
+    const before = storedCake()?.decorations[0];
+
+    drag(
+      control(CONTROL_LABELS.move),
+      { x: 300, y: 500 },
+      { x: 340.2, y: 500 },
+    );
+
+    // 미니 케이크는 0.67 x 0.6배로 그려지므로, 화면의 40.2px은 케이크의 100px이다.
+    const after = storedCake()?.decorations[0];
+    expect(after?.x).toBeCloseTo((before?.x ?? 0) + 100);
+    expect(after?.y).toBeCloseTo(before?.y ?? 0);
   });
 });
