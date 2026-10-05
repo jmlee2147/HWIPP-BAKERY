@@ -130,4 +130,80 @@ describe("useExperienceStore", () => {
     expect(preset.cake).toEqual(before);
     expect(useExperienceStore.getState().cake).not.toBe(preset.cake);
   });
+
+  it("장식을 더해도 예시의 원본은 바뀌지 않는다", () => {
+    const preset = CAKE_PRESETS[0];
+    const before = structuredClone(preset.cake);
+    const { setCake, addDecoration } = useExperienceStore.getState();
+    setCake(preset.cake);
+
+    addDecoration("candle-pink");
+
+    expect(preset.cake).toEqual(before);
+    const cake = useExperienceStore.getState().cake;
+    expect(cake?.decorations).toHaveLength(before.decorations.length + 1);
+    expect(cake?.decorations.at(-1)).toMatchObject({
+      id: "candle-pink",
+      manual: true,
+    });
+    expect(cake?.layoutShape).toBe(before.shape);
+  });
+
+  it("케이크가 없을 때 장식을 더하면 기본 케이크에서 시작한다", () => {
+    useExperienceStore.getState().addDecoration("star-pink");
+
+    expect(useExperienceStore.getState().cake).toMatchObject({
+      shape: DEFAULT_CAKE.shape,
+      decorations: [{ id: "star-pink", manual: true }],
+    });
+    expect(DEFAULT_CAKE.decorations).toEqual([]);
+  });
+
+  it("기본 크기가 큰 하늘색 공은 다른 공과 같은 크기로 줄여 놓는다", () => {
+    const { addDecoration } = useExperienceStore.getState();
+
+    addDecoration("cream-ball-sky");
+    addDecoration("cream-ball-pink");
+
+    const [sky, pink] = useExperienceStore.getState().cake?.decorations ?? [];
+    expect(sky.scale).toBeLessThan(0.5);
+    expect(pink.scale).toBeUndefined();
+  });
+
+  it("색만 다른 물방울 묶음을 이어 놓으면 겹치지 않고 바뀐다", () => {
+    const { setCake, addDecoration } = useExperienceStore.getState();
+    for (const layoutShape of ["round", "heart"] as const) {
+      setCake({
+        size: "large",
+        shape: "round",
+        color: "white",
+        decorations: [],
+        layoutShape,
+      });
+
+      addDecoration("drops-black");
+      const count = useExperienceStore.getState().cake?.decorations.length;
+      addDecoration("drops-white");
+      addDecoration("drops-white");
+
+      const placed = useExperienceStore.getState().cake?.decorations ?? [];
+      expect(placed).toHaveLength(count ?? 0);
+      expect(placed.every((item) => item.id.startsWith("drop-white"))).toBe(
+        true,
+      );
+    }
+  });
+
+  it("옮겨 놓은 물방울은 묶음을 다시 놓아도 남는다", () => {
+    const { addDecoration, adjustDecoration } = useExperienceStore.getState();
+    addDecoration("drops-black");
+    const count = useExperienceStore.getState().cake?.decorations.length ?? 0;
+    adjustDecoration(0, { x: 50, y: 50 });
+
+    addDecoration("drops-white");
+
+    expect(useExperienceStore.getState().cake?.decorations).toHaveLength(
+      count + 1,
+    );
+  });
 });

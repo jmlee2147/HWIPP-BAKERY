@@ -6,10 +6,13 @@ import {
   CAKE_SHAPES,
   CAKE_SPOTS,
   CAKE_TOPS,
+  type CakeConfig,
   type CakeDecoration,
   DEFAULT_CAKE,
 } from "@/data/cake";
+import { CAKE_PRESETS } from "@/data/cakePresets";
 import {
+  adjustDecoration,
   type CakeLayer,
   cakeLayers,
   cakeScale,
@@ -18,6 +21,8 @@ import {
   lineRim,
   lostInShape,
   moveToShape,
+  placeDecoration,
+  removeDecoration,
   resizeForShape,
   shrinkForWall,
 } from "./cake";
@@ -923,5 +928,212 @@ describe("cakeScale", () => {
     expect(cakeScale("large")).toBeGreaterThan(cakeScale("medium"));
     expect(cakeScale("medium")).toBeGreaterThan(cakeScale("mini"));
     expect(cakeScale("giant")).toBe(cakeScale(DEFAULT_CAKE.size));
+  });
+});
+
+describe("placeDecoration", () => {
+  const plain: CakeConfig = { ...DEFAULT_CAKE, decorations: [] };
+  const centerOf = (layer: CakeLayer) => ({
+    x: layer.left + layer.width / 2,
+    y: layer.top + layer.height / 2,
+  });
+  const last = (cake: CakeConfig) => {
+    const layers = cakeLayers(cake);
+    return layers[layers.length - 1];
+  };
+
+  it("낱개 장식을 케이크 왼쪽의 빈 곳에 놓고, 받은 구성은 고치지 않는다", () => {
+    const before = structuredClone(plain);
+
+    const cake = placeDecoration(plain, "candle-pink");
+
+    expect(plain).toEqual(before);
+    expect(cake.decorations).toHaveLength(1);
+    expect(cake.decorations[0]).toMatchObject({
+      id: "candle-pink",
+      manual: true,
+    });
+    expect(cake.layoutShape).toBe("round");
+    const round = CAKE_SHAPES.find((shape) => shape.id === "round");
+    const edge = (CAKE_BOARD.width - (round?.width ?? 0)) / 2;
+    const layer = last(cake);
+    expect(layer.src).toContain("candle-pink");
+    expect(layer.left + layer.width).toBeLessThan(edge);
+  });
+
+  it("같은 장식을 여러 번 놓을 수 있다", () => {
+    const cake = placeDecoration(
+      placeDecoration(plain, "star-pink"),
+      "star-pink",
+    );
+
+    expect(cake.decorations).toHaveLength(2);
+    expect(cakeLayers(cake)).toHaveLength(3);
+  });
+
+  it("모양을 바꾼 케이크에 놓은 장식은 놓은 자리에 그려지고, 좌표는 처음 모양 기준으로 저장된다", () => {
+    for (const standing of ["candle-pink", "star-pink"]) {
+      const there = last(
+        placeDecoration({ ...plain, shape: "heart" }, standing),
+      );
+      const moved: CakeConfig = {
+        ...plain,
+        shape: "heart",
+        layoutShape: "round",
+      };
+
+      const cake = placeDecoration(moved, standing);
+
+      expect(cake.layoutShape).toBe("round");
+      expect(centerOf(last(cake)).x).toBeCloseTo(centerOf(there).x);
+      expect(centerOf(last(cake)).y).toBeCloseTo(centerOf(there).y);
+      // 처음 모양으로 돌아가도 케이크 왼쪽의 빈 곳에 남는다.
+      const back = last({ ...cake, shape: "round" });
+      expect(centerOf(back).x).toBeLessThan(CAKE_TOPS.round.center.x);
+      expect(Number.isFinite(centerOf(back).y)).toBe(true);
+    }
+  });
+
+  it("모양을 바꾼 예시 케이크에 장식을 더해도 원래 있던 장식은 움직이지 않는다", () => {
+    for (const preset of CAKE_PRESETS.slice(0, 12)) {
+      for (const shape of CAKE_SHAPES) {
+        const cake: CakeConfig = {
+          ...preset.cake,
+          shape: shape.id,
+          layoutShape: preset.cake.shape,
+        };
+        const before = cakeLayers(cake);
+
+        const after = cakeLayers(placeDecoration(cake, "flower-rose"));
+
+        expect(after.slice(0, before.length)).toEqual(before);
+        expect(after).toHaveLength(before.length + 1);
+      }
+    }
+  });
+
+  it("케이크 모양을 따라 그린 장식은 한 번 누르면 얹고 다시 누르면 뺀다", () => {
+    const worn = placeDecoration(plain, "ribbon-wrap");
+    expect(ids(cakeLayers(worn))).toEqual(["base", "ribbon-wrap"]);
+
+    expect(placeDecoration(worn, "ribbon-wrap").decorations).toEqual([]);
+  });
+
+  it("지금 모양의 그림이 없는 장식은 얹지 않는다", () => {
+    const cake = { ...plain, shape: "square" as const };
+
+    expect(placeDecoration(cake, "coating-pink")).toBe(cake);
+  });
+
+  it("예시에 처음부터 있던 장식은 빼거나 바꾸지 않는다", () => {
+    const cake: CakeConfig = { ...plain, decorations: [{ id: "ribbon-wrap" }] };
+
+    expect(placeDecoration(cake, "ribbon-wrap")).toBe(cake);
+  });
+
+  it("목록에 없는 장식은 더하지 않는다", () => {
+    expect(placeDecoration(plain, "unknown")).toBe(plain);
+  });
+});
+
+describe("adjustDecoration", () => {
+  const plain: CakeConfig = { ...DEFAULT_CAKE, decorations: [] };
+  const centerOf = (cake: CakeConfig) => {
+    const layers = cakeLayers(cake);
+    const layer = layers[layers.length - 1];
+    return {
+      x: layer.left + layer.width / 2,
+      y: layer.top + layer.height / 2,
+      width: layer.width,
+      rotate: layer.rotate,
+    };
+  };
+
+  it("옮긴 자리, 크기, 기울기를 저장하고 받은 구성은 고치지 않는다", () => {
+    const cake = placeDecoration(plain, "candle-pink");
+    const before = structuredClone(cake);
+
+    const moved = adjustDecoration(cake, 0, { x: 300, y: 250 });
+    const turned = adjustDecoration(moved, 0, { scale: 1.5, rotate: 30 });
+
+    expect(cake).toEqual(before);
+    expect(turned.decorations[0]).toMatchObject({
+      id: "candle-pink",
+      x: 300,
+      y: 250,
+      scale: 1.5,
+      rotate: 30,
+    });
+    // 세워 두는 장식도 크기를 바꿀 때 그림의 가운데는 제자리에 있다.
+    expect(centerOf(moved)).toMatchObject({ x: 300, y: 250 });
+    expect(centerOf(turned).x).toBeCloseTo(300);
+    expect(centerOf(turned).y).toBeCloseTo(250);
+    expect(centerOf(turned).width).toBeCloseTo(centerOf(moved).width * 1.5);
+    expect(centerOf(turned).rotate).toBe(30);
+  });
+
+  it("모양을 바꾼 케이크에서 옮기면 옮긴 자리에 그려지고, 좌표는 처음 모양 기준으로 저장된다", () => {
+    for (const id of ["candle-pink", "flower-rose"]) {
+      const cake = placeDecoration(
+        { ...plain, shape: "square", layoutShape: "round" },
+        id,
+      );
+      const spot = CAKE_TOPS.square.center;
+
+      const moved = adjustDecoration(cake, 0, { ...spot, scale: 1.4 });
+
+      expect(moved.layoutShape).toBe("round");
+      expect(centerOf(moved).x).toBeCloseTo(spot.x);
+      expect(centerOf(moved).y).toBeCloseTo(spot.y);
+      // 윗면 가운데에 놓았으니 처음 모양으로 돌아가도 윗면 위에 있다.
+      const back = centerOf({ ...moved, shape: "round" });
+      expect(Math.abs(back.x - CAKE_TOPS.round.center.x)).toBeLessThan(40);
+      expect(Math.abs(back.y - CAKE_TOPS.round.center.y)).toBeLessThan(120);
+    }
+  });
+
+  it("다른 모양에서 옮기면 앞서 적어 둔 모양별 자리는 버린다", () => {
+    const inHeart = placeDecoration(
+      { ...plain, shape: "heart", layoutShape: "round" },
+      "star-pink",
+    );
+    const inSquare = adjustDecoration({ ...inHeart, shape: "square" }, 0, {
+      x: 330,
+      y: 330,
+    });
+
+    expect(Object.keys(inSquare.decorations[0].at ?? {})).toEqual(["square"]);
+  });
+
+  it("예시에 처음부터 있던 장식은 고치거나 빼지 않는다", () => {
+    const cake: CakeConfig = {
+      ...plain,
+      decorations: [{ id: "star-pink", x: 300, y: 300 }],
+    };
+
+    expect(adjustDecoration(cake, 0, { x: 10, y: 10 })).toBe(cake);
+    expect(removeDecoration(cake, 0)).toBe(cake);
+    expect(adjustDecoration(cake, 5, { scale: 2 })).toBe(cake);
+  });
+});
+
+describe("removeDecoration", () => {
+  it("직접 놓은 장식만 빼고 받은 구성은 고치지 않는다", () => {
+    const cake = placeDecoration(
+      placeDecoration(
+        { ...DEFAULT_CAKE, decorations: [{ id: "pearl", x: 300, y: 300 }] },
+        "candle-pink",
+      ),
+      "star-pink",
+    );
+    const before = structuredClone(cake);
+
+    const removed = removeDecoration(cake, 1);
+
+    expect(cake).toEqual(before);
+    expect(removed.decorations.map((item) => item.id)).toEqual([
+      "pearl",
+      "star-pink",
+    ]);
   });
 });

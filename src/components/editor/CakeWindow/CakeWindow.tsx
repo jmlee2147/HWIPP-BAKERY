@@ -1,7 +1,8 @@
-import type { ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef, ReactNode } from "react";
 import { Cake } from "@/components/cake/Cake/Cake";
 import { CAKE_BOARD, type CakeConfig } from "@/data/cake";
-import { BROWSER_IMAGES, WINDOW_CAKE } from "@/data/editor";
+import { BROWSER_IMAGES, WINDOW_CAKE, windowCakeLift } from "@/data/editor";
+import { cakeScale } from "@/lib/cake";
 
 const layer = "absolute block max-w-none";
 const FIELD =
@@ -13,11 +14,14 @@ const GRID =
 
 interface CakeWindowProps extends ComponentPropsWithRef<"div"> {
   cake: CakeConfig;
+  // 케이크 위에 겹쳐 그릴 것. 좌표는 창의 왼쪽 위가 기준이다.
+  children?: ReactNode;
 }
 
 // 브라우저 창 모양의 미리보기. 케이크 구성만 받아 모눈 위에 그린다. 창의 단추와 주소 칸은 장식이라 누를 수 없다.
 export const CakeWindow = ({
   cake,
+  children,
   className = "",
   ...props
 }: CakeWindowProps) => {
@@ -80,12 +84,16 @@ export const CakeWindow = ({
           className="absolute origin-bottom"
           style={{
             left: WINDOW_CAKE.centerX - CAKE_BOARD.width / 2,
-            top: WINDOW_CAKE.bottom - CAKE_BOARD.height,
+            top:
+              WINDOW_CAKE.bottom -
+              CAKE_BOARD.height -
+              windowCakeLift(cakeScale(cake.size)),
             transform: `scale(${WINDOW_CAKE.scale})`,
           }}
         >
           <Cake cake={cake} />
         </div>
+        {children}
       </div>
     </div>
   );
