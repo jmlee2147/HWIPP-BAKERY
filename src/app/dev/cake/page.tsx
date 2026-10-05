@@ -9,6 +9,7 @@ import {
   DEFAULT_CAKE,
 } from "@/data/cake";
 import { CAKE_PRESETS } from "@/data/cakePresets";
+import { lostInShape } from "@/lib/cake";
 
 const PREVIEW_SCALE = 0.4;
 
@@ -56,6 +57,31 @@ export default function CakePreviewPage() {
           <Tile key={preset.id} cake={preset.cake} label={preset.id} />
         ))}
       </div>
+      {/* 완성 케이크를 세 모양으로 바꿨을 때의 모습. 원래 모양에는 "원래"를, 그릴 수 없게 되는 장식이 있으면 그 id를 적는다. */}
+      {CAKE_PRESETS.map((preset) => (
+        <div key={preset.id} className="mb-[12px] flex gap-[12px]">
+          {CAKE_SHAPES.map((shape) => {
+            const lost = lostInShape(preset.cake, shape.id);
+            const note =
+              shape.id === preset.cake.shape
+                ? "원래"
+                : lost.length > 0
+                  ? `빠짐: ${lost.join(", ")}`
+                  : "";
+            return (
+              <Tile
+                key={shape.id}
+                cake={{
+                  ...preset.cake,
+                  shape: shape.id,
+                  layoutShape: preset.cake.shape,
+                }}
+                label={`${preset.id} / ${shape.label} ${note}`}
+              />
+            );
+          })}
+        </div>
+      ))}
       <div className="flex flex-wrap gap-[12px]">
         {CAKE_SIZES.map((size) => (
           <Tile
