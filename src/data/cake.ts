@@ -69,6 +69,8 @@ export interface CakeDecorationItem {
       { x: number; y: number; under?: boolean; over?: boolean; scale?: number }
     >
   >;
+  // 관람객이 수정 화면에서 직접 놓은 장식. 예시의 배치와 한 묶음으로 옮기지 않고, 다른 장식들 위에 따로 그린다.
+  manual?: boolean;
 }
 
 export interface CakeConfig {
@@ -253,6 +255,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("cream-rosette", "cream", 129, 112, "center"),
   top("cream-ball-white", "cream", 44.4, 42, "center"),
   top("cream-ball-pink", "cream", 44.4, 42, "center"),
+  top("cream-ball-yellow", "cream", 44, 42.3, "center"),
   top("cream-ball-sky", "cream", 97, 91.7, "center"),
   top("cream-cloud-sky", "cream", 431.2, 253.7, "center"),
   top("cream-oval-yellow", "cream", 362.8, 185, "center"),
@@ -389,8 +392,10 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
     square: ["sprinkle-heart", 124.3, 226.8, 394.4, 269.7],
   }),
   top("topper-baker-face", "others", 203, 183, "bottom"),
+  top("topper-bears", "others", 99.5, 66, "bottom"),
   top("topper-cat-pudding", "others", 168, 166, "bottom"),
   top("topper-cat", "others", 132.4, 107.6, "bottom"),
+  top("topper-cat-snowball", "others", 162.1, 108.1, "bottom"),
   top("topper-paws", "others", 86.5, 83, "center"),
   top("plate-choco", "others", 146, 99, "bottom"),
   top("plate-pink", "others", 157, 109, "bottom"),

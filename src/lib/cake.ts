@@ -24,6 +24,8 @@ export interface CakeLayer extends CakeBox {
   src: string;
   rotate?: number;
   flip?: boolean;
+  // 관람객이 직접 놓은 장식이면, 케이크 구성의 장식 목록에서의 차례.
+  index?: number;
 }
 
 // 바깥에서 들어온 값은 목록에 없는 id일 수 있다. 그런 값은 기본 케이크의 값으로 바꾼다.
@@ -839,10 +841,17 @@ export function cakeLayers(
 ): CakeLayer[] {
   const shape = pick(CAKE_SHAPES, config.shape, DEFAULT_CAKE.shape);
   // 특정 모양에서만 그리는 장식은 그 모양이 아닐 때 처음부터 없는 것으로 친다.
+  // 관람객이 직접 놓은 장식은 예시의 배치를 옮기는 계산에 넣지 않는다. 넣으면 장식을 하나 더할 때마다 다른 장식이 움직인다.
+  const byHand = (chosen: CakeConfig["decorations"][number]) =>
+    chosen.manual === true &&
+    chosen.x !== undefined &&
+    chosen.y !== undefined &&
+    decorations.find((one) => one.id === chosen.id)?.placement === "top";
   const cake = {
     ...config,
     decorations: config.decorations.filter(
-      (chosen) => !chosen.only || chosen.only.includes(shape.id),
+      (chosen) =>
+        !byHand(chosen) && (!chosen.only || chosen.only.includes(shape.id)),
     ),
   };
   const layoutShape = pick(
@@ -1625,11 +1634,214 @@ export function cakeLayers(
     (layer) => layer ?? fixedInOrder.shift() ?? [],
   );
 
+  // 직접 놓은 장식은 놓은 순서대로 맨 위에 그린다. 놓은 모양에서는 놓은 자리 그대로, 다른 모양에서는 같은 자리로 옮겨 그린다.
+  const placedByHand = config.decorations.flatMap((chosen, index) => {
+    const item = decorations.find((one) => one.id === chosen.id);
+    if (item?.placement !== "top" || !byHand(chosen)) return [];
+    const standing = item.anchor === "bottom";
+    const pinned = layoutShape === shape.id ? undefined : chosen.at?.[shape.id];
+    const spot = pinned
+      ? anchorOf({ ...chosen, ...pinned }, item.height, standing)
+      : moveToShape(
+          anchorOf(chosen, item.height, standing),
+          layoutShape,
+          shape.id,
+        );
+    const width = item.width * (chosen.scale ?? 1);
+    const height = item.height * (chosen.scale ?? 1);
+    return [
+      {
+        key: `${item.id}-manual-${index}`,
+        index,
+        src: item.src,
+        rotate: chosen.rotate || undefined,
+        flip: chosen.flip || undefined,
+        left: spot.x - width / 2,
+        top: spot.y - height / (standing ? 1 : 2),
+        width,
+        height,
+      },
+    ];
+  });
+
   return [
     base,
     ...ordered,
     ...onTopOfAll,
     ...floorLine,
     ...inSpots.map(({ spotY: _spotY, ...layer }) => layer),
+    ...placedByHand,
   ];
+}
+
+// 직접 놓은 낱개 장식이면 그 장식의 정보를, 아니면 undefined를 돌려준다. 예시에 처음부터 있던 장식은 고칠 수 없다.
+function handPlaced(
+  cake: CakeConfig,
+  index: number,
+  decorations: CakeDecoration[],
+) {
+  const chosen = cake.decorations[index];
+  const item = decorations.find((one) => one.id === chosen?.id);
+  if (!chosen?.manual || item?.placement !== "top") return undefined;
+  if (chosen.x === undefined || chosen.y === undefined) return undefined;
+  return { chosen, item };
+}
+
+export interface DecorationChange {
+  // 지금 모양의 케이크에서 장식 그림의 가운데가 놓일 자리.
+  x?: number;
+  y?: number;
+  scale?: number;
+  rotate?: number;
+}
+
+// 직접 놓은 장식의 자리, 크기, 기울기를 고친 새 구성을 돌려준다.
+// 자리는 지금 모양에서의 것을 받아, 장식의 위치를 잡은 모양 기준으로 되돌려 저장한다.
+export function adjustDecoration(
+  cake: CakeConfig,
+  index: number,
+  change: DecorationChange,
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): CakeConfig {
+  const found = handPlaced(cake, index, decorations);
+  if (!found) return cake;
+  const { chosen, item } = found;
+  const layoutShape = cake.layoutShape ?? cake.shape;
+  const next = {
+    ...chosen,
+    scale: change.scale ?? chosen.scale,
+    rotate: change.rotate ?? chosen.rotate,
+  };
+  if (change.x !== undefined && change.y !== undefined) {
+    const spot = { x: change.x, y: change.y };
+    // 세워 두는 장식은 밑동을 기준으로 옮긴다.
+    const lift =
+      item.anchor === "bottom" ? (item.height * (next.scale ?? 1)) / 2 : 0;
+    const moved = moveToShape(
+      { x: spot.x, y: spot.y + lift },
+      cake.shape,
+      layoutShape,
+    );
+    next.x = moved.x;
+    next.y = moved.y - lift;
+    // 다른 모양에서 적어 둔 자리는 이제 맞지 않으므로 지운다.
+    next.at = layoutShape === cake.shape ? undefined : { [cake.shape]: spot };
+  }
+  return {
+    ...cake,
+    layoutShape,
+    decorations: cake.decorations.map((one, order) =>
+      order === index ? next : one,
+    ),
+  };
+}
+
+// 직접 놓은 장식을 뺀 새 구성을 돌려준다.
+export function removeDecoration(
+  cake: CakeConfig,
+  index: number,
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): CakeConfig {
+  if (!handPlaced(cake, index, decorations)) return cake;
+  return {
+    ...cake,
+    decorations: cake.decorations.filter((_, order) => order !== index),
+  };
+}
+
+// 새로 놓는 장식의 자리. 케이크 왼쪽의 빈 곳에, 바탕 그림에서 이만큼 띄워 놓는다.
+const NEW_GAP = 24;
+const NEW_Y = 362;
+
+// 예시 케이크에 처음부터 얹혀 있던 장식이 차지한 층. 그 장식은 바꾸거나 뺄 수 없어, 같은 층의 장식을 새로 얹을 수 없다.
+export function heldLayers(
+  cake: Pick<CakeConfig, "decorations">,
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): Set<CakeLayerId> {
+  return new Set(
+    cake.decorations.flatMap((chosen) => {
+      const item = decorations.find((one) => one.id === chosen.id);
+      return item?.placement === "fixed" && !chosen.manual ? [item.layer] : [];
+    }),
+  );
+}
+
+// 낱개 장식 하나를 지금 모양의 케이크에서 주어진 자리(그림의 가운데)에 놓은 새 구성을 돌려준다.
+// 좌표는 장식의 위치를 잡은 모양 기준으로 되돌려 저장하고, 지금 모양이 그와 다르면 지금 모양에서의 자리를 함께 적어
+// 놓은 자리에서 움직이지 않게 한다.
+export function placeAt(
+  cake: CakeConfig,
+  placed: { id: string; x: number; y: number; scale?: number; rotate?: number },
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): CakeConfig {
+  const item = decorations.find((one) => one.id === placed.id);
+  if (item?.placement !== "top") return cake;
+  const layoutShape = cake.layoutShape ?? cake.shape;
+  const spot = { x: placed.x, y: placed.y };
+  // 세워 두는 장식은 밑동을 기준으로 옮긴다.
+  const lift =
+    item.anchor === "bottom" ? (item.height * (placed.scale ?? 1)) / 2 : 0;
+  const moved = moveToShape(
+    { x: spot.x, y: spot.y + lift },
+    cake.shape,
+    layoutShape,
+  );
+  return {
+    ...cake,
+    layoutShape,
+    decorations: [
+      ...cake.decorations,
+      {
+        ...placed,
+        x: moved.x,
+        y: moved.y - lift,
+        manual: true,
+        ...(layoutShape === cake.shape ? {} : { at: { [cake.shape]: spot } }),
+      },
+    ],
+  };
+}
+
+// 수정 화면의 목록에서 고른 장식을 케이크에 더한 새 구성을 돌려준다. 받은 구성은 고치지 않는다.
+// 낱개 장식은 케이크 옆의 빈 곳에 놓는다.
+// 케이크 모양을 따라 그린 장식은 한 층에 하나만 얹을 수 있어 같은 층의 것과 바꾸고, 이미 얹혀 있으면 뺀다.
+// 예시에 처음부터 있던 장식은 건드리지 않는다.
+export function placeDecoration(
+  cake: CakeConfig,
+  id: string,
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+  // 낱개 장식을 놓을 때의 배율.
+  scale = 1,
+): CakeConfig {
+  const item = decorations.find((one) => one.id === id);
+  const layoutShape = cake.layoutShape ?? cake.shape;
+  if (!item) return cake;
+
+  if (item.placement === "fixed") {
+    if (!item.shapes[cake.shape]) return cake;
+    if (heldLayers(cake, decorations).has(item.layer)) return cake;
+    const rest = cake.decorations.filter((chosen) => {
+      const other = decorations.find((one) => one.id === chosen.id);
+      return !(other?.placement === "fixed" && other.layer === item.layer);
+    });
+    const worn = cake.decorations.some((chosen) => chosen.id === id);
+    return {
+      ...cake,
+      layoutShape,
+      decorations: worn ? rest : [...rest, { id, manual: true }],
+    };
+  }
+
+  const shape = pick(CAKE_SHAPES, cake.shape, DEFAULT_CAKE.shape);
+  const left = (CAKE_BOARD.width - shape.width) / 2 + shape.offsetX;
+  return placeAt(
+    cake,
+    {
+      id,
+      x: left - NEW_GAP - (item.width * scale) / 2,
+      y: NEW_Y,
+      ...(scale === 1 ? {} : { scale }),
+    },
+    decorations,
+  );
 }

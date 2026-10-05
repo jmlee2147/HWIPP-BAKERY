@@ -12,6 +12,8 @@ interface OptionTileProps extends ComponentPropsWithRef<"button"> {
   // 주면 그림의 흰 면에 이 색을 입힌다.
   tint?: string;
   selected: boolean;
+  // 장식 분류 타일은 폭이 좁고 바탕이 희다.
+  size?: "wide" | "narrow";
 }
 
 // 수정 화면의 선택지 하나. 고른 것은 분홍 바탕에 하트가 붙는다.
@@ -21,6 +23,7 @@ export const OptionTile = ({
   iconScale = 1,
   tint,
   selected,
+  size = "wide",
   type = "button",
   className = "",
   onClick,
@@ -28,12 +31,13 @@ export const OptionTile = ({
 }: OptionTileProps) => {
   const width = icon.width * iconScale;
   const height = icon.height * iconScale;
+  const narrow = size === "narrow";
 
   return (
     <button
       type={type}
       aria-pressed={selected}
-      className={`h-[275px] w-[297px] shrink-0 border-2 transition-transform duration-100 active:scale-[0.97] ${selected ? "border-cocoa bg-candy" : "border-[#d9d9d9] bg-[#fdfcfc]"} ${className}`}
+      className={`h-[275px] shrink-0 border-2 transition-transform duration-100 active:scale-[0.97] ${narrow ? "w-[270px]" : "w-[297px]"} ${selected ? "border-cocoa bg-candy" : narrow ? "border-mist bg-white" : "border-[#d9d9d9] bg-[#fdfcfc]"} ${className}`}
       onClick={(event) => {
         playEffect("choice");
         onClick?.(event);
@@ -42,8 +46,8 @@ export const OptionTile = ({
     >
       <span className="relative block size-full">
         <span
-          className="absolute left-1/2 top-[109px] block -translate-x-1/2 -translate-y-1/2"
-          style={{ width, height }}
+          className="absolute left-1/2 block -translate-x-1/2 -translate-y-1/2"
+          style={{ width, height, top: icon.centerY ?? 109 }}
         >
           {tint && (
             <span
@@ -67,7 +71,7 @@ export const OptionTile = ({
         {selected && (
           <span
             aria-hidden
-            className="absolute left-[233px] top-[12px] flex size-[44.53px] items-center justify-center rounded-full border-[0.96px] border-[#867b76] bg-mint font-stardust text-[26px] leading-none text-cocoa"
+            className={`absolute flex size-[44.53px] items-center justify-center rounded-full border-[0.96px] border-[#867b76] bg-mint font-stardust text-[26px] leading-none text-cocoa ${narrow ? "left-[208px] top-[13px]" : "left-[233px] top-[12px]"}`}
           >
             ♥
           </span>

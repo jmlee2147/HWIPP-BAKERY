@@ -1,9 +1,17 @@
 import { create } from "zustand";
 import { type CakeConfig, DEFAULT_CAKE } from "@/data/cake";
+import { DECORATION_PLACE_SCALES, DECORATION_SETS } from "@/data/editor";
 import type { FlavorId } from "@/data/flavors";
 import type { PartyId } from "@/data/parties";
 import type { RelationId } from "@/data/relations";
 import type { StyleId } from "@/data/styles";
+import {
+  adjustDecoration,
+  type DecorationChange,
+  placeAt,
+  placeDecoration,
+  removeDecoration,
+} from "@/lib/cake";
 import { FIRST_STEP, nextStep, prevStep, type Step } from "@/lib/steps";
 
 type CakeBasePatch = Partial<Pick<CakeConfig, "size" | "shape" | "color">>;
@@ -28,6 +36,11 @@ interface ExperienceState {
   setCake: (cake: CakeConfig) => void;
   // 케이크의 크기, 모양, 색상 중 준 것만 바꾼다. 케이크가 없으면 기본 케이크에서 시작한다.
   updateCake: (patch: CakeBasePatch) => void;
+  // 고른 장식이나 장식 묶음을 케이크에 더한다. 케이크 모양을 따라 그린 장식은 이미 얹혀 있으면 뺀다.
+  addDecoration: (id: string) => void;
+  // 직접 놓은 장식의 자리, 크기, 기울기를 고치거나 뺀다. index는 케이크의 장식 목록에서의 차례다.
+  adjustDecoration: (index: number, change: DecorationChange) => void;
+  removeDecoration: (index: number) => void;
   setOrderNumber: (orderNumber: number) => void;
   reset: () => void;
 }
@@ -61,6 +74,24 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
         },
       };
     }),
+  addDecoration: (id) =>
+    set((state) => {
+      const cake = state.cake ?? DEFAULT_CAKE;
+      const parts = DECORATION_SETS[id]?.parts[cake.shape];
+      return {
+        cake: parts
+          ? parts.reduce((next, part) => placeAt(next, part), cake)
+          : placeDecoration(cake, id, undefined, DECORATION_PLACE_SCALES[id]),
+      };
+    }),
+  adjustDecoration: (index, change) =>
+    set((state) =>
+      state.cake ? { cake: adjustDecoration(state.cake, index, change) } : {},
+    ),
+  removeDecoration: (index) =>
+    set((state) =>
+      state.cake ? { cake: removeDecoration(state.cake, index) } : {},
+    ),
   setOrderNumber: (orderNumber) => set({ orderNumber }),
   reset: () =>
     set({
