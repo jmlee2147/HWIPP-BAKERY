@@ -14,7 +14,7 @@ HWIPP BAKERY는 전시용 인터랙티브 웹 작품입니다. 흐름은 오프�
 - **Motion**: motion (`motion/react`), CSS keyframes
 - **Client State**: Zustand
 - **Validation**: Zod
-- **LLM**: route handler에서 Anthropic API 호출
+- **LLM**: 사용하지 않음. 케이크 분석은 규칙 기반 (`.claude/decisions/records/004-cake-analysis-rules.md`)
 - **Lint/Format**: Biome
 - **Test**: Vitest, Testing Library, happy-dom
 - **Package Manager**: pnpm
