@@ -17,6 +17,7 @@ import {
   type CakeTop,
   cakeBaseImage,
   DEFAULT_CAKE,
+  stickerOf,
 } from "@/data/cake";
 
 export interface CakeLayer extends CakeBox {
@@ -846,7 +847,10 @@ export function cakeLayers(
     chosen.manual === true &&
     chosen.x !== undefined &&
     chosen.y !== undefined &&
-    decorations.find((one) => one.id === chosen.id)?.placement === "top";
+    stickerOf(
+      decorations.find((one) => one.id === chosen.id),
+      shape.id,
+    ) !== undefined;
   const cake = {
     ...config,
     decorations: config.decorations.filter(
@@ -1636,8 +1640,11 @@ export function cakeLayers(
 
   // 직접 놓은 장식은 놓은 순서대로 맨 위에 그린다. 놓은 모양에서는 놓은 자리 그대로, 다른 모양에서는 같은 자리로 옮겨 그린다.
   const placedByHand = config.decorations.flatMap((chosen, index) => {
-    const item = decorations.find((one) => one.id === chosen.id);
-    if (item?.placement !== "top" || !byHand(chosen)) return [];
+    const item = stickerOf(
+      decorations.find((one) => one.id === chosen.id),
+      shape.id,
+    );
+    if (!item || !byHand(chosen)) return [];
     const standing = item.anchor === "bottom";
     const pinned = layoutShape === shape.id ? undefined : chosen.at?.[shape.id];
     const spot = pinned
@@ -1651,7 +1658,7 @@ export function cakeLayers(
     const height = item.height * (chosen.scale ?? 1);
     return [
       {
-        key: `${item.id}-manual-${index}`,
+        key: `${chosen.id}-manual-${index}`,
         index,
         src: item.src,
         rotate: chosen.rotate || undefined,
@@ -1681,8 +1688,11 @@ function handPlaced(
   decorations: CakeDecoration[],
 ) {
   const chosen = cake.decorations[index];
-  const item = decorations.find((one) => one.id === chosen?.id);
-  if (!chosen?.manual || item?.placement !== "top") return undefined;
+  const item = stickerOf(
+    decorations.find((one) => one.id === chosen?.id),
+    cake.shape,
+  );
+  if (!chosen?.manual || !item) return undefined;
   if (chosen.x === undefined || chosen.y === undefined) return undefined;
   return { chosen, item };
 }
@@ -1809,8 +1819,11 @@ export function placeAt(
   placed: { id: string; x: number; y: number; scale?: number; rotate?: number },
   decorations: CakeDecoration[] = CAKE_DECORATIONS,
 ): CakeConfig {
-  const item = decorations.find((one) => one.id === placed.id);
-  if (item?.placement !== "top") return cake;
+  const item = stickerOf(
+    decorations.find((one) => one.id === placed.id),
+    cake.shape,
+  );
+  if (!item) return cake;
   const layoutShape = cake.layoutShape ?? cake.shape;
   const spot = { x: placed.x, y: placed.y };
   // 세워 두는 장식은 밑동을 기준으로 옮긴다.
@@ -1838,7 +1851,7 @@ export function placeAt(
 }
 
 // 수정 화면의 목록에서 고른 장식을 케이크에 더한 새 구성을 돌려준다. 받은 구성은 고치지 않는다.
-// 낱개 장식은 케이크 옆의 빈 곳에 놓는다.
+// 낱개 장식은 케이크 옆의 빈 곳에, 글자는 윗면에 놓는다.
 // 케이크 모양을 따라 그린 장식은 한 층에 하나만 얹을 수 있어 같은 층의 것과 바꾸고, 이미 얹혀 있으면 뺀다.
 // 예시에 처음부터 있던 장식은 건드리지 않는다.
 export function placeDecoration(
@@ -1851,6 +1864,16 @@ export function placeDecoration(
   const item = decorations.find((one) => one.id === id);
   const layoutShape = cake.layoutShape ?? cake.shape;
   if (!item) return cake;
+
+  // 글자는 케이크 옆이 아니라 윗면에 놓는다. 그 모양에서의 자리가 정해진 글자는 그 자리에, 아니면 윗면 가운데에 놓는다.
+  if (item.category === "lettering") {
+    const part =
+      item.placement === "fixed" ? item.shapes[cake.shape] : undefined;
+    const spot = part
+      ? { x: part.left + part.width / 2, y: part.top + part.height / 2 }
+      : CAKE_TOPS[cake.shape].center;
+    return placeAt(cake, { id, ...spot }, decorations);
+  }
 
   if (item.placement === "fixed") {
     if (!item.shapes[cake.shape]) return cake;

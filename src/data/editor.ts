@@ -4,11 +4,11 @@ import {
   CAKE_DECORATIONS,
   CAKE_SHAPES,
   type CakeColorId,
-  type CakeDecorationCategory,
   type CakeLayerId,
   type CakeShapeId,
   type CakeSizeId,
   cakeBaseImage,
+  stickerOf,
 } from "./cake";
 import { BLACK_DROPS, type DropSpot, WHITE_DROPS } from "./drops";
 
@@ -21,6 +21,7 @@ export const EDITOR_PACK_CHOICE = "이대로 포장할래!";
 export const EDITOR_TABS = [
   { id: "size", label: "크기" },
   { id: "shape", label: "모양" },
+  { id: "lettering", label: "레터링" },
   { id: "decoration", label: "장식" },
   { id: "color", label: "색상" },
 ] as const;
@@ -68,14 +69,88 @@ export const COLOR_TINTS: Record<CakeColorId, string> = {
 
 const editorImage = (name: string) => `/assets/ui/editor/${name}`;
 
-// 장식 탭의 분류. 목록의 순서가 타일 줄에 보이는 순서다.
-export const DECORATION_CATEGORIES: {
-  id: CakeDecorationCategory;
+export interface EditorCategory {
+  id: string;
+  // 줄을 나눌 자리에는 줄바꿈 문자를 넣는다.
   label: string;
   icon: TileIcon;
   // 목록에 나오는 장식. 순서가 목록에 보이는 순서다. 묶음(DECORATION_SETS)의 id도 올 수 있다.
   items: string[];
-}[] = [
+}
+
+// 레터링 탭 분류 타일의 그림. 다섯 장 모두 같은 크기의 판에 그려져 있다.
+const letteringIcon = (name: string): TileIcon => ({
+  src: editorImage(`category-${name}.svg`),
+  width: 150,
+  height: 160,
+  centerY: 115,
+});
+
+// 레터링 탭의 분류. 목록의 순서가 타일 줄에 보이는 순서다.
+export const LETTERING_CATEGORIES: EditorCategory[] = [
+  {
+    id: "birthday",
+    label: "BIRTHDAY",
+    icon: letteringIcon("birthday"),
+    items: [
+      "lettering-hbd-dot-black",
+      "lettering-hbd-dot-white",
+      "lettering-hbd-strawberry",
+      "lettering-hbd-pink",
+      "lettering-hbd-brown",
+      "lettering-happy-birthday",
+    ],
+  },
+  {
+    id: "love",
+    label: "LOVE",
+    icon: letteringIcon("love"),
+    items: [
+      "lettering-i-heart",
+      "lettering-love-you",
+      "lettering-i-love-u",
+      "lettering-i-love-u-black",
+      "plate-yellow-love",
+      "lettering-promise",
+      "lettering-like-you",
+    ],
+  },
+  {
+    id: "thanks",
+    label: "THANKS",
+    icon: letteringIcon("thanks"),
+    items: ["lettering-thankyou", "lettering-always-grateful"],
+  },
+  {
+    id: "daily",
+    label: "DAILY",
+    icon: letteringIcon("daily"),
+    items: [
+      "plate-yellow-good-luck",
+      "lettering-job-congrats",
+      "lettering-chukahae-hearts",
+      "lettering-chukahaeyo",
+      "note-married",
+      "note-anniversary",
+    ],
+  },
+  {
+    id: "japanese",
+    label: "JAPANESE/\nDRAWING",
+    icon: letteringIcon("japanese"),
+    items: [
+      "plate-yellow-happiness",
+      "lettering-ouen-pink",
+      "lettering-ouen-black",
+      "lettering-ouen-sky",
+      "drawing-girl-pink",
+      "drawing-girl-black",
+    ],
+  },
+];
+
+// 장식 탭의 분류. 목록의 순서가 타일 줄에 보이는 순서다.
+export const DECORATION_CATEGORIES: EditorCategory[] = [
   {
     id: "candle",
     label: "CANDLE",
@@ -235,22 +310,31 @@ export interface DecorationChoice {
   height: number;
 }
 
-// 주어진 분류의 목록에서 지금 케이크에 얹을 수 있는 장식. 케이크 모양을 따라 그린 장식은 그 모양의 그림이 있는 것만 나오고,
-// 예시에 처음부터 있던 장식이 차지한 층(held)의 것은 나오지 않는다.
+// 분류를 고르는 탭과 그 탭의 분류.
+export const EDITOR_CATEGORIES: Partial<Record<EditorTabId, EditorCategory[]>> =
+  {
+    lettering: LETTERING_CATEGORIES,
+    decoration: DECORATION_CATEGORIES,
+  };
+
+// 분류의 목록에서 지금 케이크에 놓을 수 있는 것. 케이크 모양을 따라 그린 장식은 그 모양의 그림이 있는 것만 나오고,
+// 예시에 처음부터 있던 장식이 차지한 층(held)의 것은 나오지 않는다. 스티커로 놓는 글자는 늘 나온다.
 export function decorationChoices(
-  category: CakeDecorationCategory,
+  category: EditorCategory,
   shape: CakeShapeId,
   held: ReadonlySet<CakeLayerId> = new Set(),
 ): DecorationChoice[] {
-  const listed =
-    DECORATION_CATEGORIES.find((item) => item.id === category)?.items ?? [];
-  return listed.flatMap((id) => {
+  return category.items.flatMap((id) => {
     const set = DECORATION_SETS[id];
     if (set) return [{ id, ...set.thumbs[shape] }];
     const item = CAKE_DECORATIONS.find((one) => one.id === id);
     if (!item) return [];
-    if (item.placement === "fixed" && held.has(item.layer)) return [];
-    const part = item.placement === "top" ? item : item.shapes[shape];
+    const sticker = stickerOf(item, shape);
+    if (!sticker && item.placement === "fixed" && held.has(item.layer)) {
+      return [];
+    }
+    const part =
+      sticker ?? (item.placement === "fixed" ? item.shapes[shape] : undefined);
     if (!part) return [];
     const scale = Math.min(
       DECORATION_PLACE_SCALES[id] ?? 1,
@@ -320,12 +404,16 @@ export const EDITOR_IMAGES = [
   ),
   LIST_CLOSE_IMAGE,
   ...Object.values(CONTROL_IMAGES),
-  ...DECORATION_CATEGORIES.map((category) => category.icon.src),
-  // 목록을 열거나 모양을 바꿨을 때 빈 칸이 보이지 않도록 장식 그림도 받아 둔다.
+  ...Object.values(EDITOR_CATEGORIES).flatMap((categories) =>
+    categories.map((category) => category.icon.src),
+  ),
+  // 목록을 열거나 모양을 바꿨을 때 빈 칸이 보이지 않도록 장식과 글자 그림도 받아 둔다.
   ...new Set(
-    DECORATION_CATEGORIES.flatMap((category) =>
-      CAKE_SHAPES.flatMap((shape) =>
-        decorationChoices(category.id, shape.id).map((choice) => choice.src),
+    Object.values(EDITOR_CATEGORIES).flatMap((categories) =>
+      categories.flatMap((category) =>
+        CAKE_SHAPES.flatMap((shape) =>
+          decorationChoices(category, shape.id).map((choice) => choice.src),
+        ),
       ),
     ),
   ),
