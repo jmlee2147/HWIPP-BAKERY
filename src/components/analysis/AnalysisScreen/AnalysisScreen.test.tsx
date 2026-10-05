@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CONFIRM_CHOICE } from "@/data/analysis";
+import { pickCake } from "@/lib/analysis";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { AnalysisScreen } from "./AnalysisScreen";
 
@@ -52,6 +53,33 @@ describe("AnalysisScreen", () => {
     expect(useExperienceStore.getState().step).toBe("analysis");
 
     advance(1000);
+    expect(useExperienceStore.getState().step).toBe("result");
+  });
+
+  it("로딩이 끝나면 문답 답변으로 고른 케이크를 저장한다", () => {
+    const answers = {
+      relation: "friend",
+      style: "minimalist",
+      party: "comfort",
+      flavor: "fruit",
+    } as const;
+    useExperienceStore.setState(answers);
+    render(<AnalysisScreen initialScene="loading" loadingMs={2000} />);
+
+    advance(2000);
+    expect(useExperienceStore.getState().cake).toBeNull();
+
+    advance(1000);
+    expect(useExperienceStore.getState().cake).toEqual(pickCake(answers));
+  });
+
+  it("문답 답변이 비어 있어도 케이크를 저장하고 결과 단계로 간다", () => {
+    render(<AnalysisScreen initialScene="loading" loadingMs={2000} />);
+
+    advance(2000);
+    advance(1000);
+
+    expect(useExperienceStore.getState().cake).not.toBeNull();
     expect(useExperienceStore.getState().step).toBe("result");
   });
 });
