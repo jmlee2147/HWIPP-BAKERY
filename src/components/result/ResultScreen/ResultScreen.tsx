@@ -8,6 +8,7 @@ import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { OrderCard } from "@/components/result/OrderCard/OrderCard";
 import { DEFAULT_CAKE } from "@/data/cake";
+import { EDITOR_IMAGES } from "@/data/editor";
 import {
   RESULT_CHOICES,
   RESULT_TEXT,
@@ -15,6 +16,7 @@ import {
   SHOWCASE_IMAGE,
 } from "@/data/result";
 import { formatOrderDate, formatOrderNumber } from "@/lib/order";
+import { preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -41,6 +43,10 @@ export const ResultScreen = () => {
   const orderNumber = useExperienceStore((state) => state.orderNumber) ?? 1;
   const goTo = useExperienceStore((state) => state.goTo);
   const [date] = useState(() => formatOrderDate(new Date()));
+
+  useEffect(() => {
+    preloadImages(EDITOR_IMAGES);
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(

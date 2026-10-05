@@ -1,10 +1,12 @@
 import { create } from "zustand";
-import type { CakeConfig } from "@/data/cake";
+import { type CakeConfig, DEFAULT_CAKE } from "@/data/cake";
 import type { FlavorId } from "@/data/flavors";
 import type { PartyId } from "@/data/parties";
 import type { RelationId } from "@/data/relations";
 import type { StyleId } from "@/data/styles";
 import { FIRST_STEP, nextStep, prevStep, type Step } from "@/lib/steps";
+
+type CakeBasePatch = Partial<Pick<CakeConfig, "size" | "shape" | "color">>;
 
 interface ExperienceState {
   step: Step;
@@ -24,6 +26,8 @@ interface ExperienceState {
   setParty: (party: PartyId) => void;
   setFlavor: (flavor: FlavorId) => void;
   setCake: (cake: CakeConfig) => void;
+  // 케이크의 크기, 모양, 색상 중 준 것만 바꾼다. 케이크가 없으면 기본 케이크에서 시작한다.
+  updateCake: (patch: CakeBasePatch) => void;
   setOrderNumber: (orderNumber: number) => void;
   reset: () => void;
 }
@@ -44,6 +48,19 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   setParty: (party) => set({ party }),
   setFlavor: (flavor) => set({ flavor }),
   setCake: (cake) => set({ cake }),
+  // 예시 케이크의 원본을 건드리지 않도록 늘 새 객체로 바꿔 넣는다.
+  // 장식의 좌표는 처음 모양에 맞춰 잡힌 것이라, 모양을 바꿔도 처음 모양을 기억해 둔다.
+  updateCake: (patch) =>
+    set((state) => {
+      const cake = state.cake ?? DEFAULT_CAKE;
+      return {
+        cake: {
+          ...cake,
+          ...patch,
+          layoutShape: cake.layoutShape ?? cake.shape,
+        },
+      };
+    }),
   setOrderNumber: (orderNumber) => set({ orderNumber }),
   reset: () =>
     set({
