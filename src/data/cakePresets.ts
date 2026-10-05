@@ -1,4 +1,44 @@
-import type { CakeConfig } from "./cake";
+import {
+  CAKE_SHAPES,
+  type CakeConfig,
+  type CakeDecorationItem,
+  type CakeShapeId,
+} from "./cake";
+import { BLACK_DROPS, type DropSpot, WHITE_DROPS } from "./drops";
+
+// 물방울은 모양마다 디자이너가 놓은 배치가 있다. 케이크를 다른 모양으로 바꾸면 계산으로 옮기지 않고 그 모양의 배치를 쓴다.
+function drops(
+  shape: CakeShapeId,
+  color: "black" | "white",
+  options: {
+    // 이 케이크의 원래 모양에서의 자리. 주지 않으면 그 모양의 배치를 그대로 쓴다.
+    own?: DropSpot[];
+    // true면 다른 모양에서도 옆면의 물방울만 놓는다. 원래 옆면에만 물방울이 있는 케이크에 쓴다.
+    wallOnly?: boolean;
+    // 그 모양의 배치에서 뺄 물방울의 차례. 이 케이크의 글자와 겹쳐 글자의 일부처럼 보이는 것을 뺀다.
+    omit?: Partial<Record<CakeShapeId, number[]>>;
+  } = {},
+): CakeDecorationItem[] {
+  const layouts = color === "black" ? BLACK_DROPS : WHITE_DROPS;
+  return CAKE_SHAPES.flatMap((one) =>
+    one.id === shape
+      ? (options.own ?? layouts[shape]).map((spot) => ({
+          ...spot,
+          only: [shape],
+        }))
+      : layouts[one.id]
+          .filter(
+            (spot, order) =>
+              !options.omit?.[one.id]?.includes(order) &&
+              (!options.wallOnly || spot.id.includes("oval")),
+          )
+          .map((spot) => ({
+            ...spot,
+            only: [one.id],
+            at: { [one.id]: { x: spot.x, y: spot.y } },
+          })),
+  );
+}
 
 export interface CakePreset {
   id: string;
@@ -867,11 +907,51 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "heart",
       color: "sky",
       decorations: [
-        { id: "star-brown", x: 121.7, y: 562.5, scale: 0.39 },
-        { id: "star-brown", x: 535.3, y: 562.5, scale: 0.39 },
-        { id: "star-brown", x: 204.6, y: 621.5, scale: 0.39 },
-        { id: "star-brown", x: 322.5, y: 666.5, scale: 0.39 },
-        { id: "star-brown", x: 459.4, y: 666.5, scale: 0.39 },
+        // 옆면 아래쪽에 두른 별. 다른 모양에서는 계산으로 옮기면 간격과 높이가 들쭉날쭉해, 바닥을 따라 고르게 놓은 자리를 적는다.
+        {
+          id: "star-brown",
+          x: 121.7,
+          y: 562.5,
+          scale: 0.39,
+          at: { round: { x: 100, y: 621 }, square: { x: 80, y: 598 } },
+        },
+        {
+          id: "star-brown",
+          x: 535.3,
+          y: 562.5,
+          scale: 0.39,
+          at: { round: { x: 560, y: 608 }, square: { x: 535, y: 614 } },
+        },
+        // 네모는 옆면이 둘이라 앞면에 넷, 오른쪽 면에 둘을 놓는다. 오른쪽 면의 둘째 별은 네모에서만 그린다.
+        {
+          id: "star-brown",
+          x: 535.3,
+          y: 562.5,
+          scale: 0.39,
+          only: ["square"],
+          at: { square: { x: 595, y: 512 } },
+        },
+        {
+          id: "star-brown",
+          x: 204.6,
+          y: 621.5,
+          scale: 0.39,
+          at: { round: { x: 215, y: 692 }, square: { x: 190, y: 625 } },
+        },
+        {
+          id: "star-brown",
+          x: 322.5,
+          y: 666.5,
+          scale: 0.39,
+          at: { round: { x: 330, y: 705 }, square: { x: 300, y: 651 } },
+        },
+        {
+          id: "star-brown",
+          x: 459.4,
+          y: 666.5,
+          scale: 0.39,
+          at: { round: { x: 445, y: 685 }, square: { x: 410, y: 678 } },
+        },
         { id: "coating-choco", x: 324.9, y: 392.3 },
         { id: "lettering-hbd-dot-black" },
         {
@@ -1104,15 +1184,7 @@ export const CAKE_PRESETS: CakePreset[] = [
       color: "white",
       decorations: [
         { id: "frosting-cream" },
-        { id: "drop-black-oval", x: 129.2, y: 534.8, rotate: 3.7 },
-        { id: "drop-black-oval", x: 330.1, y: 603.6, rotate: -33.6 },
-        { id: "drop-black-oval", x: 529, y: 528.8, rotate: -65.5 },
-        { id: "drop-black-oval", x: 202.3, y: 670.4, rotate: -13.5 },
-        { id: "drop-black-oval", x: 486.5, y: 657.3, rotate: -56.6 },
-        { id: "drop-black-round", x: 144.7, y: 256.6 },
-        { id: "drop-black-round", x: 211.6, y: 425.5 },
-        { id: "drop-black-round", x: 429.1, y: 206.6 },
-        { id: "drop-black-round", x: 514, y: 353.2 },
+        ...drops("round", "black"),
         { id: "flower-stem", x: 481.2, y: 73.9, scale: 0.53, rotate: -1 },
         {
           id: "flower-gerbera-red",
@@ -1171,29 +1243,48 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "square",
       color: "sky",
       decorations: [
-        { id: "drop-black-oval", x: 82.6, y: 509.3, scale: 0.94, rotate: -4.3 },
-        {
-          id: "drop-black-oval",
-          x: 219.4,
-          y: 632.9,
-          scale: 0.94,
-          rotate: -4.3,
-        },
-        {
-          id: "drop-black-oval",
-          x: 394.2,
-          y: 589.4,
-          scale: 0.94,
-          rotate: -4.3,
-        },
-        {
-          id: "drop-black-oval",
-          x: 525.1,
-          y: 604.8,
-          scale: 0.94,
-          rotate: -96.5,
-        },
-        { id: "drop-black-oval", x: 593, y: 444.5, scale: 0.94, rotate: -96.5 },
+        ...drops("square", "black", {
+          own: [
+            {
+              id: "drop-black-oval",
+              x: 82.6,
+              y: 509.3,
+              scale: 0.94,
+              rotate: -4.3,
+            },
+            {
+              id: "drop-black-oval",
+              x: 219.4,
+              y: 632.9,
+              scale: 0.94,
+              rotate: -4.3,
+            },
+            {
+              id: "drop-black-oval",
+              x: 394.2,
+              y: 589.4,
+              scale: 0.94,
+              rotate: -4.3,
+            },
+            {
+              id: "drop-black-oval",
+              x: 525.1,
+              y: 604.8,
+              scale: 0.94,
+              rotate: -96.5,
+            },
+            {
+              id: "drop-black-oval",
+              x: 593,
+              y: 444.5,
+              scale: 0.94,
+              rotate: -96.5,
+            },
+          ],
+          wallOnly: true,
+          // 원형과 하트에서는 왼쪽 끝의 물방울이 꽃잎 밑에 깔린다.
+          omit: { round: [0], heart: [0] },
+        }),
         { id: "flower-sprig", x: 119.7, y: 163.6, scale: 1.33 },
         {
           id: "flower-sprig",
@@ -1403,15 +1494,7 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "heart",
       color: "yellow",
       decorations: [
-        { id: "drop-black-oval", x: 140.3, y: 552.2, scale: 0.9, rotate: 11.2 },
-        { id: "drop-black-oval", x: 242.4, y: 647.5, scale: 0.9, rotate: -4.4 },
-        { id: "drop-black-oval", x: 391.4, y: 646.5, scale: 0.9, rotate: -29 },
-        { id: "drop-black-oval", x: 525, y: 592.2, scale: 0.85, rotate: -93 },
-        { id: "drop-black-round", x: 367.2, y: 391.1, scale: 0.91 },
-        { id: "drop-black-round", x: 310, y: 506.5, scale: 0.91 },
-        { id: "drop-black-round", x: 187.2, y: 375.1, scale: 0.91 },
-        { id: "drop-black-round", x: 460.1, y: 273.8, scale: 0.91 },
-        { id: "drop-black-round", x: 507.4, y: 420.2, scale: 0.92 },
+        ...drops("heart", "black"),
         { id: "topper-star", x: 259.8, y: 348.7, scale: 1.05 },
       ],
     },
@@ -1437,28 +1520,7 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "square",
       color: "pink",
       decorations: [
-        { id: "drop-black-round", x: 322.1, y: 336.1 },
-        { id: "drop-black-round", x: 225.8, y: 245 },
-        { id: "drop-black-round", x: 504.7, y: 304.3 },
-        { id: "drop-black-round", x: 142.5, y: 382.4 },
-        { id: "drop-black-round", x: 421.4, y: 450.3 },
-        { id: "drop-black-oval", x: 96.9, y: 596.6, scale: 0.98, rotate: -4.4 },
-        {
-          id: "drop-black-oval",
-          x: 237.1,
-          y: 569.6,
-          scale: 0.98,
-          rotate: -13.2,
-        },
-        {
-          id: "drop-black-oval",
-          x: 383.1,
-          y: 659.3,
-          scale: 0.98,
-          rotate: -13.2,
-        },
-        { id: "drop-black-oval", x: 531.2, y: 594.6, scale: 0.92, rotate: -94 },
-        { id: "drop-black-oval", x: 595.4, y: 442.7, scale: 0.91, rotate: -94 },
+        ...drops("square", "black"),
         { id: "flower-sprig", x: 220.8, y: 299.4, scale: 1.33, rotate: -66.7 },
         { id: "flower-stem", x: 509.6, y: 166.7, scale: 0.56, rotate: -1 },
         {
@@ -1538,41 +1600,52 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "round",
       color: "white",
       decorations: [
-        {
-          id: "drop-black-oval",
-          x: 104.8,
-          y: 566.8,
-          scale: 0.93,
-          rotate: 11.2,
-        },
-        {
-          id: "drop-black-oval",
-          x: 186.5,
-          y: 678.6,
-          scale: 0.93,
-          rotate: -10.7,
-        },
-        {
-          id: "drop-black-oval",
-          x: 320.8,
-          y: 645.7,
-          scale: 0.93,
-          rotate: -35.3,
-        },
-        {
-          id: "drop-black-oval",
-          x: 455.9,
-          y: 688.5,
-          scale: 0.93,
-          rotate: -52.8,
-        },
-        { id: "drop-black-oval", x: 537.9, y: 581.8, scale: 0.93, rotate: -65 },
-        { id: "drop-black-round", x: 167.9, y: 270.6, scale: 0.94 },
-        { id: "drop-black-round", x: 477.5, y: 260.8, scale: 0.94 },
-        { id: "drop-black-round", x: 322.7, y: 334.8, scale: 0.94 },
-        { id: "drop-black-round", x: 144.2, y: 433.9, scale: 0.94 },
-        { id: "drop-black-round", x: 516.6, y: 420, scale: 0.94 },
-        { id: "drop-black-round", x: 330.3, y: 481.4, scale: 0.92 },
+        ...drops("round", "black", {
+          own: [
+            {
+              id: "drop-black-oval",
+              x: 104.8,
+              y: 566.8,
+              scale: 0.93,
+              rotate: 11.2,
+            },
+            {
+              id: "drop-black-oval",
+              x: 186.5,
+              y: 678.6,
+              scale: 0.93,
+              rotate: -10.7,
+            },
+            {
+              id: "drop-black-oval",
+              x: 320.8,
+              y: 645.7,
+              scale: 0.93,
+              rotate: -35.3,
+            },
+            {
+              id: "drop-black-oval",
+              x: 455.9,
+              y: 688.5,
+              scale: 0.93,
+              rotate: -52.8,
+            },
+            {
+              id: "drop-black-oval",
+              x: 537.9,
+              y: 581.8,
+              scale: 0.93,
+              rotate: -65,
+            },
+            { id: "drop-black-round", x: 167.9, y: 270.6, scale: 0.94 },
+            { id: "drop-black-round", x: 477.5, y: 260.8, scale: 0.94 },
+            { id: "drop-black-round", x: 322.7, y: 334.8, scale: 0.94 },
+            { id: "drop-black-round", x: 144.2, y: 433.9, scale: 0.94 },
+            { id: "drop-black-round", x: 516.6, y: 420, scale: 0.94 },
+            { id: "drop-black-round", x: 330.3, y: 481.4, scale: 0.92 },
+          ],
+          omit: { square: [1] },
+        }),
         { id: "lettering-i-heart" },
       ],
     },
@@ -1688,34 +1761,50 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "square",
       color: "white",
       decorations: [
-        { id: "drop-black-round", x: 325.6, y: 340.4, scale: 0.91 },
-        { id: "drop-black-round", x: 235.8, y: 255.4, scale: 0.91 },
-        { id: "drop-black-round", x: 495.8, y: 310.7, scale: 0.91 },
-        { id: "drop-black-round", x: 158.2, y: 383.5, scale: 0.91 },
-        { id: "drop-black-round", x: 418.2, y: 446.9, scale: 0.91 },
-        {
-          id: "drop-black-oval",
-          x: 115.8,
-          y: 583.3,
-          scale: 0.91,
-          rotate: -4.4,
-        },
-        {
-          id: "drop-black-oval",
-          x: 246.4,
-          y: 558.1,
-          scale: 0.91,
-          rotate: -13.2,
-        },
-        {
-          id: "drop-black-oval",
-          x: 382.6,
-          y: 641.7,
-          scale: 0.91,
-          rotate: -13.2,
-        },
-        { id: "drop-black-oval", x: 520.6, y: 581.4, scale: 0.86, rotate: -94 },
-        { id: "drop-black-oval", x: 580.5, y: 439.8, scale: 0.85, rotate: -94 },
+        ...drops("square", "black", {
+          own: [
+            { id: "drop-black-round", x: 325.6, y: 340.4, scale: 0.91 },
+            { id: "drop-black-round", x: 235.8, y: 255.4, scale: 0.91 },
+            { id: "drop-black-round", x: 495.8, y: 310.7, scale: 0.91 },
+            { id: "drop-black-round", x: 158.2, y: 383.5, scale: 0.91 },
+            { id: "drop-black-round", x: 418.2, y: 446.9, scale: 0.91 },
+            {
+              id: "drop-black-oval",
+              x: 115.8,
+              y: 583.3,
+              scale: 0.91,
+              rotate: -4.4,
+            },
+            {
+              id: "drop-black-oval",
+              x: 246.4,
+              y: 558.1,
+              scale: 0.91,
+              rotate: -13.2,
+            },
+            {
+              id: "drop-black-oval",
+              x: 382.6,
+              y: 641.7,
+              scale: 0.91,
+              rotate: -13.2,
+            },
+            {
+              id: "drop-black-oval",
+              x: 520.6,
+              y: 581.4,
+              scale: 0.86,
+              rotate: -94,
+            },
+            {
+              id: "drop-black-oval",
+              x: 580.5,
+              y: 439.8,
+              scale: 0.85,
+              rotate: -94,
+            },
+          ],
+        }),
         { id: "candle-heart-blue", x: 243.8, y: 189.7, scale: 0.98 },
         { id: "candle-heart-blue", x: 329.9, y: 276.9, scale: 0.98 },
         { id: "candle-heart-blue", x: 418.9, y: 376.9, scale: 0.98 },
@@ -1729,21 +1818,7 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "heart",
       color: "choco",
       decorations: [
-        { id: "drop-white-oval", x: 247.2, y: 643.1, rotate: -6.8 },
-        { id: "drop-white-oval", x: 405.2, y: 637.9, rotate: -19.5 },
-        {
-          id: "drop-white-oval",
-          x: 530.4,
-          y: 584.6,
-          scale: 0.86,
-          rotate: -94.3,
-        },
-        { id: "drop-white-oval", x: 152.9, y: 544.1, rotate: 7.1 },
-        { id: "drop-white-round", x: 195.8, y: 377.2 },
-        { id: "drop-white-round", x: 368.7, y: 378.6 },
-        { id: "drop-white-round", x: 309.2, y: 498.9 },
-        { id: "drop-white-round", x: 507.8, y: 438 },
-        { id: "drop-white-round", x: 459.1, y: 271.8 },
+        ...drops("heart", "white"),
         { id: "flower-sprig", x: 218.4, y: 413.8, scale: 1.23, rotate: -28.8 },
         { id: "flower-gerbera-red", x: 357, y: 391, scale: 1.5 },
       ],
@@ -1847,23 +1922,46 @@ export const CAKE_PRESETS: CakePreset[] = [
         { id: "topper-wing", x: 477.8, y: 247.3, scale: 1.44 },
         { id: "candle-black", x: 219.7, y: 142.6, scale: 0.91 },
         { id: "candle-heart-blue", x: 291.8, y: 198.3, scale: 0.81 },
-        { id: "drop-black-oval", x: 88.9, y: 596.7, scale: 0.8, rotate: -4.4 },
-        {
-          id: "drop-black-oval",
-          x: 221.8,
-          y: 557.1,
-          scale: 0.89,
-          rotate: -13.2,
-        },
-        {
-          id: "drop-black-oval",
-          x: 366.8,
-          y: 652.5,
-          scale: 0.9,
-          rotate: -13.2,
-        },
-        { id: "drop-black-oval", x: 528.7, y: 578, scale: 0.78, rotate: -94 },
-        { id: "drop-black-oval", x: 604.5, y: 433.5, scale: 0.7, rotate: -90 },
+        ...drops("square", "black", {
+          own: [
+            {
+              id: "drop-black-oval",
+              x: 88.9,
+              y: 596.7,
+              scale: 0.8,
+              rotate: -4.4,
+            },
+            {
+              id: "drop-black-oval",
+              x: 221.8,
+              y: 557.1,
+              scale: 0.89,
+              rotate: -13.2,
+            },
+            {
+              id: "drop-black-oval",
+              x: 366.8,
+              y: 652.5,
+              scale: 0.9,
+              rotate: -13.2,
+            },
+            {
+              id: "drop-black-oval",
+              x: 528.7,
+              y: 578,
+              scale: 0.78,
+              rotate: -94,
+            },
+            {
+              id: "drop-black-oval",
+              x: 604.5,
+              y: 433.5,
+              scale: 0.7,
+              rotate: -90,
+            },
+          ],
+          wallOnly: true,
+        }),
       ],
     },
   },

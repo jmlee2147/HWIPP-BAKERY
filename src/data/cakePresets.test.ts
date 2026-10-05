@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { cakeLayers } from "@/lib/cake";
-import { CAKE_BOARD, CAKE_DECORATIONS } from "./cake";
+import { CAKE_BOARD, CAKE_DECORATIONS, CAKE_SHAPES } from "./cake";
 import { CAKE_PRESETS } from "./cakePresets";
+import { BLACK_DROPS, WHITE_DROPS } from "./drops";
 
 describe("CAKE_PRESETS", () => {
   it("id가 겹치지 않는다", () => {
@@ -48,6 +49,54 @@ describe("CAKE_PRESETS", () => {
           CAKE_BOARD.height + margin,
         );
       }
+    }
+  });
+});
+
+describe("물방울이 있는 완성 케이크", () => {
+  const withDrops = CAKE_PRESETS.filter(({ cake }) =>
+    cake.decorations.some((item) => item.id.startsWith("drop-")),
+  );
+  const dropCenters = (layers: ReturnType<typeof cakeLayers>) =>
+    layers
+      .filter((layer) => layer.src.includes("/drop-"))
+      .map((layer) => ({
+        x: layer.left + layer.width / 2,
+        y: layer.top + layer.height / 2,
+      }));
+
+  it("모양을 바꾸면 물방울이 그 모양의 배치 자리에 그대로 놓인다", () => {
+    expect(withDrops.length).toBeGreaterThan(0);
+    for (const { cake } of withDrops) {
+      const white = cake.decorations.some((item) =>
+        item.id.startsWith("drop-white"),
+      );
+      const layouts = white ? WHITE_DROPS : BLACK_DROPS;
+      for (const shape of CAKE_SHAPES) {
+        if (shape.id === cake.shape) continue;
+        const centers = dropCenters(
+          cakeLayers({ ...cake, shape: shape.id, layoutShape: cake.shape }),
+        );
+        expect(centers.length).toBeGreaterThan(0);
+        for (const center of centers) {
+          const nearest = Math.min(
+            ...layouts[shape.id].map((spot) =>
+              Math.hypot(spot.x - center.x, spot.y - center.y),
+            ),
+          );
+          expect(nearest).toBeLessThan(0.01);
+        }
+      }
+    }
+  });
+
+  it("원래 모양에서는 다른 모양용 물방울이 그려지지 않는다", () => {
+    for (const { cake } of withDrops) {
+      const own = cake.decorations.filter(
+        (item) =>
+          item.id.startsWith("drop-") && item.only?.includes(cake.shape),
+      );
+      expect(dropCenters(cakeLayers(cake))).toHaveLength(own.length);
     }
   });
 });

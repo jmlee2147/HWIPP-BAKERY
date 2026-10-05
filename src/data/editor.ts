@@ -10,6 +10,7 @@ import {
   type CakeSizeId,
   cakeBaseImage,
 } from "./cake";
+import { BLACK_DROPS, type DropSpot, WHITE_DROPS } from "./drops";
 
 export const EDITOR_TEXT =
   "어떤 걸 수정하면 좋을까요?\n각 항목을 선택하여 자유롭게 커스텀 해주세요!";
@@ -177,55 +178,6 @@ export const DECORATION_CATEGORIES: {
   },
 ];
 
-type SetPart = {
-  id: string;
-  x: number;
-  y: number;
-  scale?: number;
-  rotate?: number;
-};
-
-// 케이크 윗면과 옆면에 흩어 놓는 검은 물방울의 자리. 모양마다 디자이너가 놓은 배치가 다르다.
-const BLACK_DROPS: Record<CakeShapeId, SetPart[]> = {
-  round: [
-    { id: "drop-black-oval", x: 129.2, y: 534.8, rotate: 3.7 },
-    { id: "drop-black-oval", x: 330.1, y: 603.6, rotate: -33.6 },
-    { id: "drop-black-oval", x: 529, y: 528.8, rotate: -65.5 },
-    { id: "drop-black-oval", x: 202.3, y: 670.4, rotate: -13.5 },
-    { id: "drop-black-oval", x: 486.5, y: 657.3, rotate: -56.6 },
-    { id: "drop-black-round", x: 144.7, y: 256.6 },
-    { id: "drop-black-round", x: 211.6, y: 425.5 },
-    { id: "drop-black-round", x: 429.1, y: 206.6 },
-    { id: "drop-black-round", x: 514, y: 353.2 },
-  ],
-  heart: [
-    { id: "drop-black-oval", x: 140.3, y: 552.2, scale: 0.9, rotate: 11.2 },
-    { id: "drop-black-oval", x: 242.4, y: 647.5, scale: 0.9, rotate: -4.4 },
-    { id: "drop-black-oval", x: 391.4, y: 646.5, scale: 0.9, rotate: -29 },
-    { id: "drop-black-oval", x: 525, y: 592.2, scale: 0.85, rotate: -93 },
-    { id: "drop-black-round", x: 367.2, y: 391.1, scale: 0.91 },
-    { id: "drop-black-round", x: 310, y: 506.5, scale: 0.91 },
-    { id: "drop-black-round", x: 187.2, y: 375.1, scale: 0.91 },
-    { id: "drop-black-round", x: 460.1, y: 273.8, scale: 0.91 },
-    { id: "drop-black-round", x: 507.4, y: 420.2, scale: 0.92 },
-  ],
-  square: [
-    { id: "drop-black-round", x: 322.1, y: 336.1 },
-    { id: "drop-black-round", x: 225.8, y: 245 },
-    { id: "drop-black-round", x: 504.7, y: 304.3 },
-    { id: "drop-black-round", x: 142.5, y: 382.4 },
-    { id: "drop-black-round", x: 421.4, y: 450.3 },
-    { id: "drop-black-oval", x: 96.9, y: 596.6, scale: 0.98, rotate: -4.4 },
-    { id: "drop-black-oval", x: 237.1, y: 569.6, scale: 0.98, rotate: -13.2 },
-    { id: "drop-black-oval", x: 383.1, y: 659.3, scale: 0.98, rotate: -13.2 },
-    { id: "drop-black-oval", x: 531.2, y: 594.6, scale: 0.92, rotate: -94 },
-    { id: "drop-black-oval", x: 595.4, y: 442.7, scale: 0.91, rotate: -94 },
-  ],
-};
-
-const recolor = (parts: SetPart[], from: string, to: string) =>
-  parts.map((part) => ({ ...part, id: part.id.replace(from, to) }));
-
 const dropThumb = (color: string, sizes: Record<CakeShapeId, number[]>) =>
   Object.fromEntries(
     Object.entries(sizes).map(([shape, [width, height]]) => [
@@ -240,7 +192,7 @@ export const DECORATION_SETS: Record<
   string,
   {
     thumbs: Record<CakeShapeId, { src: string; width: number; height: number }>;
-    parts: Record<CakeShapeId, SetPart[]>;
+    parts: Record<CakeShapeId, DropSpot[]>;
   }
 > = {
   "drops-black": {
@@ -251,18 +203,13 @@ export const DECORATION_SETS: Record<
     }),
     parts: BLACK_DROPS,
   },
-  // 흰 물방울은 받은 배치가 없어 검은 물방울의 자리를 그대로 쓴다.
   "drops-white": {
     thumbs: dropThumb("white", {
       heart: [170, 164.3],
       round: [151.8, 149.5],
       square: [180.5, 150.3],
     }),
-    parts: {
-      round: recolor(BLACK_DROPS.round, "black", "white"),
-      heart: recolor(BLACK_DROPS.heart, "black", "white"),
-      square: recolor(BLACK_DROPS.square, "black", "white"),
-    },
+    parts: WHITE_DROPS,
   },
 };
 
