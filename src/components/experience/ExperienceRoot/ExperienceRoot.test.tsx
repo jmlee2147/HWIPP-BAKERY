@@ -102,15 +102,21 @@ describe("ExperienceRoot", () => {
     expect(useExperienceStore.getState().flavor).toBe("sweet");
   });
 
-  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("결과 화면에서 수정하기를 고르면 결과 수정 단계로 간다", async () => {
     useExperienceStore.setState({ step: "result" });
     render(<ExperienceRoot />);
+    await click("조금만 수정해 볼래!");
+    await screen.findByRole("heading", { name: STEP_LABELS.editor }, WAIT);
+    expect(useExperienceStore.getState().step).toBe("editor");
+  });
 
-    for (const step of STEPS.slice(STEPS.indexOf("result"), -1)) {
+  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+    useExperienceStore.setState({ step: "editor" });
+    render(<ExperienceRoot />);
+    for (const step of STEPS.slice(STEPS.indexOf("editor"), -1)) {
       await screen.findByRole("heading", { name: STEP_LABELS[step] });
       await click("다음");
     }
-
     await screen.findByRole("heading", { name: STEP_LABELS.share });
   });
 
