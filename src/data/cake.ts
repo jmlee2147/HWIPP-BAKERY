@@ -214,6 +214,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("cream-ball-pink", "cream", 44.4, 42, "center"),
   top("cream-ball-sky", "cream", 97, 91.7, "center"),
   top("cream-cloud-sky", "cream", 431.2, 253.7, "center"),
+  top("cream-oval-yellow", "cream", 362.8, 185, "center"),
   top("fruit-strawberry-pile", "fruit", 321, 283, "center"),
   top("fruit-strawberry", "fruit", 92, 107, "bottom"),
   top("fruit-cherry", "fruit", 94.8, 152, "bottom"),
@@ -244,6 +245,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("petal-purple", "flower", 100.9, 74.6, "center"),
   top("flower-rose", "flower", 140.2, 133.4, "center"),
   top("petal-rose", "flower", 46.1, 45.1, "center"),
+  top("petal-navy", "flower", 51.7, 38.1, "center"),
   top("flower-gerbera-stem", "flower", 289.3, 252.5, "center"),
   top("flower-sprig", "flower", 105, 140, "center"),
   top("ribbon-bow-silver", "ribbon", 123.5, 131.2, "center"),
@@ -303,6 +305,19 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("lettering-love-you", "lettering", "lettering", {
     heart: ["lettering-love-you", 227.8, 320.1, 265.2, 94.8],
   }),
+  fixed("lettering-happiness", "lettering", "lettering", {
+    heart: ["lettering-happiness", 324.1, 315.1, 157.2, 82.3],
+  }),
+  fixed("lettering-good-luck", "lettering", "lettering", {
+    round: ["lettering-good-luck", 205, 218.6, 256.4, 110.7],
+  }),
+  fixed("drawing-girl-pink", "lettering", "lettering", {
+    round: ["drawing-girl-pink", 143.1, 174.7, 390.2, 401.2],
+  }),
+  fixed("drawing-girl-black", "lettering", "lettering", {
+    square: ["drawing-girl-black", 69.8, 242.2, 494.1, 275],
+  }),
+  top("drawing-baker-red", "lettering", 86.1, 72.2, "center"),
   fixed("sprinkle", "others", "sprinkle", {
     round: ["sprinkle-round", 82.4, 242.5, 508.4, 238.4],
     heart: ["sprinkle-heart", 113.9, 212.5, 443.1, 303],
@@ -332,6 +347,8 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("star-yellow", "others", 85.7, 72.5, "center"),
   top("drop-black-oval", "others", 55.3, 46.8, "center"),
   top("drop-black-round", "others", 55.2, 52.4, "center"),
+  top("drop-white-oval", "others", 49.9, 42.2, "center"),
+  top("drop-white-round", "others", 50, 47.5, "center"),
   top("splat-red-1", "others", 102.6, 80.9, "center"),
   top("splat-red-2", "others", 134.1, 79.3, "center"),
   top("splat-red-3", "others", 73, 61, "center"),
