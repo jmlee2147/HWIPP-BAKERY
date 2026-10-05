@@ -13,17 +13,17 @@ import {
   CAKE_COLORS,
   CAKE_SHAPES,
   CAKE_SIZES,
-  type CakeDecorationCategory,
   DEFAULT_CAKE,
 } from "@/data/cake";
 import {
   CATEGORY_HOLD_MS,
   COLOR_TINTS,
-  DECORATION_CATEGORIES,
   decorationChoices,
+  EDITOR_CATEGORIES,
   EDITOR_PACK_CHOICE,
   EDITOR_TABS,
   EDITOR_TEXT,
+  type EditorCategory,
   type EditorTabId,
   SHAPE_ICONS,
   SHAPE_MARKS,
@@ -54,7 +54,7 @@ export const EditorScreen = () => {
   const goTo = useExperienceStore((state) => state.goTo);
   const [tab, setTab] = useState<EditorTabId>(EDITOR_TABS[0].id);
   // 장식 탭에서 고른 분류와, 그 분류의 목록이 열렸는지. 분류를 누르면 고른 상태를 잠깐 보여 준 뒤 목록을 연다.
-  const [category, setCategory] = useState<CakeDecorationCategory | null>(null);
+  const [category, setCategory] = useState<EditorCategory | null>(null);
   const [listOpen, setListOpen] = useState(false);
   // 조절 상자를 두른 장식의, 케이크 장식 목록에서의 차례.
   const [selected, setSelected] = useState<number | null>(null);
@@ -69,6 +69,9 @@ export const EditorScreen = () => {
     setCategory(null);
     setListOpen(false);
   };
+
+  // 레터링과 장식 탭에서는 분류를 먼저 고른다.
+  const categories = EDITOR_CATEGORIES[tab];
 
   // 낱개 장식 하나를 더하면 그 장식에 바로 조절 상자를 두른다.
   const pickDecoration = (id: string) => {
@@ -122,7 +125,7 @@ export const EditorScreen = () => {
       </div>
 
       <CakeWindow cake={cake} className="absolute left-[68px] top-[614px]">
-        {tab === "decoration" && (
+        {categories && (
           <DecorationControls
             cake={cake}
             selected={selected}
@@ -133,7 +136,7 @@ export const EditorScreen = () => {
         )}
       </CakeWindow>
 
-      {tab === "decoration" && category && listOpen ? (
+      {categories && category && listOpen ? (
         <DecorationList
           role="tabpanel"
           className="absolute left-[68px] top-[1426px]"
@@ -144,19 +147,18 @@ export const EditorScreen = () => {
       ) : (
         <div
           role="tabpanel"
-          className={`${SCROLL_ROW} top-[1426px] ${tab === "decoration" ? "gap-[20px]" : "gap-[27px]"}`}
+          className={`${SCROLL_ROW} top-[1426px] ${categories ? "gap-[20px]" : "gap-[27px]"}`}
         >
-          {tab === "decoration" &&
-            DECORATION_CATEGORIES.map((item) => (
-              <OptionTile
-                key={item.id}
-                size="narrow"
-                label={item.label}
-                icon={item.icon}
-                selected={category === item.id}
-                onClick={() => setCategory(item.id)}
-              />
-            ))}
+          {categories?.map((item) => (
+            <OptionTile
+              key={item.id}
+              size="narrow"
+              label={item.label}
+              icon={item.icon}
+              selected={category?.id === item.id}
+              onClick={() => setCategory(item)}
+            />
+          ))}
           {tab === "size" &&
             CAKE_SIZES.map((item) => (
               <OptionTile

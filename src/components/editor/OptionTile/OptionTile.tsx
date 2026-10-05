@@ -65,7 +65,10 @@ export const OptionTile = ({
             src={icon.src}
           />
         </span>
-        <span className="absolute inset-x-0 top-[166px] whitespace-nowrap text-center font-pretendard text-[40px] font-light leading-[104.39px] tracking-[-1px] text-black">
+        {/* 두 줄짜리 이름은 줄 간격을 좁혀 한 줄짜리와 같은 자리에 놓는다. */}
+        <span
+          className={`absolute inset-x-0 text-center font-pretendard text-[40px] font-light tracking-[-1px] text-black ${label.includes("\n") ? "top-[178px] whitespace-pre leading-[41px]" : "top-[166px] whitespace-nowrap leading-[104.39px]"}`}
+        >
           {label}
         </span>
         {selected && (

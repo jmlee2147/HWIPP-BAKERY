@@ -408,6 +408,18 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("pearl-gray", "others", 36, 36, "center"),
   top("flower-stem", "flower", 534.8, 547.5, "center"),
   top("lettering-promise", "lettering", 284.8, 224, "center"),
+  top("lettering-i-love-u-black", "lettering", 339.7, 103.9, "center"),
+  // 노란 판에 얼굴과 글자를 얹은 이름표. 판은 cream-oval-yellow와 같은 크기다.
+  top("plate-yellow-love", "lettering", 362.8, 186.2, "center"),
+  top("plate-yellow-good-luck", "lettering", 362.8, 186.2, "center"),
+  top("plate-yellow-happiness", "lettering", 362.8, 186.2, "center"),
+  top("lettering-chukahae-hearts", "lettering", 330, 114.4, "center"),
+  top("lettering-chukahaeyo", "lettering", 322, 109.9, "center"),
+  top("note-married", "lettering", 262, 165.9, "center"),
+  top("note-anniversary", "lettering", 262, 166, "center"),
+  top("lettering-ouen-pink", "lettering", 292, 165.8, "center"),
+  top("lettering-ouen-black", "lettering", 292, 165.8, "center"),
+  top("lettering-ouen-sky", "lettering", 292, 165.8, "center"),
   top("topper-paw", "others", 38, 30.5, "center"),
   top("topper-wing", "others", 63.2, 68.9, "center"),
   top("plate-omedetou", "others", 181.2, 55.5, "bottom"),
@@ -421,6 +433,29 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("splat-red-2", "others", 134.1, 79.3, "center"),
   top("splat-red-3", "others", 73, 61, "center"),
 ];
+
+export interface CakeSticker {
+  src: string;
+  width: number;
+  height: number;
+  anchor: "bottom" | "center";
+}
+
+// 관람객이 스티커처럼 놓고 옮길 수 있는 장식이면 그 그림과 크기를, 아니면 undefined를 돌려준다.
+// 낱개 장식은 모두 놓을 수 있다. 케이크 모양별 자리가 정해진 장식 가운데는 글자만 놓을 수 있고,
+// 지금 모양의 그림이 없으면 다른 모양의 그림을 쓴다.
+export function stickerOf(
+  item: CakeDecoration | undefined,
+  shape: CakeShapeId,
+): CakeSticker | undefined {
+  if (!item) return undefined;
+  if (item.placement === "top") return item;
+  if (item.layer !== "lettering") return undefined;
+  const part =
+    item.shapes[shape] ??
+    CAKE_SHAPES.flatMap((one) => item.shapes[one.id] ?? [])[0];
+  return part && { ...part, anchor: "center" };
+}
 
 export interface CakeSpot {
   x: number;
