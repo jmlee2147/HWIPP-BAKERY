@@ -49,4 +49,18 @@ describe("useExperienceStore", () => {
     expect(useExperienceStore.getState().party).toBeNull();
     expect(useExperienceStore.getState().flavor).toBeNull();
   });
+
+  it("만든 케이크 구성을 저장하고, 처음으로 돌아가면 지운다", () => {
+    const cake = {
+      size: "mini" as const,
+      shape: "heart" as const,
+      color: "pink" as const,
+      decorations: [{ id: "candle-pink" }],
+    };
+    expect(useExperienceStore.getState().cake).toBeNull();
+    useExperienceStore.getState().setCake(cake);
+    expect(useExperienceStore.getState().cake).toEqual(cake);
+    useExperienceStore.getState().reset();
+    expect(useExperienceStore.getState().cake).toBeNull();
+  });
 });
