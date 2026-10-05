@@ -17,12 +17,13 @@ export const ResultPreview = ({ presetId, size }: ResultPreviewProps) => {
 
   useEffect(() => {
     const preset = CAKE_PRESETS.find((item) => item.id === presetId);
-    if (preset) {
-      const chosen = CAKE_SIZES.find((item) => item.id === size);
-      useExperienceStore
-        .getState()
-        .setCake({ ...preset.cake, size: chosen?.id ?? preset.cake.size });
-    }
+    const chosen = CAKE_SIZES.find((item) => item.id === size);
+    // 예시를 찾지 못하면 앞서 넣어 둔 케이크가 남지 않도록 비운다.
+    useExperienceStore.setState({
+      cake: preset
+        ? { ...preset.cake, size: chosen?.id ?? preset.cake.size }
+        : null,
+    });
     setReady(true);
   }, [presetId, size]);
 
