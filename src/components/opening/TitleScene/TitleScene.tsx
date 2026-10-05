@@ -1,38 +1,12 @@
+import { Awning } from "@/components/common/Awning/Awning";
 import { LogoEmblem } from "@/components/common/LogoEmblem/LogoEmblem";
 import { LogoPlate } from "@/components/common/LogoPlate/LogoPlate";
+import { SizeGuide } from "@/components/common/SizeGuide/SizeGuide";
 import { StickerGroup } from "@/components/common/StickerGroup/StickerGroup";
 import { TITLE_STICKERS } from "@/data/stickers";
 
 const asset = (name: string) => `/assets/title/${name}`;
 const layer = "absolute block max-w-none";
-
-// 상단 띠의 케이크 크기 안내.
-const SIZE_GUIDE = [
-  {
-    src: "size-1.svg",
-    className: "left-[37.94px] top-[30px] h-[70.81px] w-[90.51px]",
-  },
-  {
-    src: "size-1-text.svg",
-    className: "left-[37px] top-[118px] h-[13.79px] w-[91.6px]",
-  },
-  {
-    src: "size-2.svg",
-    className: "left-[156.18px] top-[30px] h-[70.81px] w-[74.68px]",
-  },
-  {
-    src: "size-2-text.svg",
-    className: "left-[149.86px] top-[118px] h-[13.79px] w-[91.6px]",
-  },
-  {
-    src: "size-heart.svg",
-    className: "left-[258.6px] top-[33.83px] h-[68.66px] w-[82px]",
-  },
-  {
-    src: "size-heart-text.svg",
-    className: "left-[272.07px] top-[119.94px] h-[13.5px] w-[61.63px]",
-  },
-];
 
 // 점무늬 종이. 엇갈린 두 겹의 점을 배경으로 그린다.
 const PAPER =
@@ -104,14 +78,7 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
 
       <div className="absolute left-0 top-0 h-[163px] w-full bg-cream" />
       <div className="absolute left-0 top-[152.96px] h-[10.04px] w-full bg-[#e2e2e2]" />
-      {SIZE_GUIDE.map((item) => (
-        <img
-          key={item.src}
-          alt=""
-          className={`${layer} ${item.className}`}
-          src={asset(item.src)}
-        />
-      ))}
+      <SizeGuide className="absolute left-[37px] top-[30px]" />
 
       <div className="absolute left-[50.59px] top-[304.43px] h-[1408.37px] w-[974.83px] bg-cocoa" />
       <div className="absolute left-[89.14px] top-[338.45px] h-[1330.27px] w-[897.73px] border-[1.02px] border-[#c2c2c2] bg-[#e2e2e2]" />
@@ -152,11 +119,7 @@ export const TitleScene = ({ onStart }: TitleSceneProps) => {
 
       <Stickers name="cherryChoco" />
 
-      <img
-        alt=""
-        className={`${layer} left-[165.44px] top-[1259.87px] h-[393.11px] w-[737.27px]`}
-        src={asset("awning.svg")}
-      />
+      <Awning className="absolute left-[165.44px] top-[1259.87px] h-[393.11px] w-[737.27px] text-[#ebeced]" />
 
       <HeartBadge className="left-[184.01px] top-[1278.96px]" />
       <HeartBadge className="left-[226.7px] top-[1304.1px]" />
