@@ -18,6 +18,7 @@ export function nextOrderNumber(): number {
   }
 }
 
+// 순번을 주문서에 적는 모양으로 바꾼다. 7은 (007)이 된다.
 export function formatOrderNumber(orderNumber: number): string {
   return `(${String(orderNumber).padStart(3, "0")})`;
 }

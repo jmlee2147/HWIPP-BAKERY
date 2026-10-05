@@ -28,6 +28,7 @@ interface AnalysisScreenProps {
   loadingMs?: number;
 }
 
+// 지금까지의 문답 답변으로 고른 케이크.
 function chosenCake(): CakeConfig {
   const { relation, style, party, flavor } = useExperienceStore.getState();
   // 문답을 건너뛰고 들어온 경우에도 멈추지 않도록 빈 답변은 첫 선택지로 채운다.
