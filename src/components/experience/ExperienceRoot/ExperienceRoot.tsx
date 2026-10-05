@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import type { ComponentType } from "react";
 import { AnalysisScreen } from "@/components/analysis/AnalysisScreen/AnalysisScreen";
+import { EditorScreen } from "@/components/editor/EditorScreen/EditorScreen";
 import { StepPlaceholder } from "@/components/experience/StepPlaceholder/StepPlaceholder";
 import { OpeningScreen } from "@/components/opening/OpeningScreen/OpeningScreen";
 import { FlavorScreen } from "@/components/questions/FlavorScreen/FlavorScreen";
@@ -26,6 +27,7 @@ const SCREENS: Partial<Record<Step, ComponentType>> = {
   flavor: FlavorScreen,
   analysis: AnalysisScreen,
   result: ResultScreen,
+  editor: EditorScreen,
 };
 
 export const ExperienceRoot = () => {

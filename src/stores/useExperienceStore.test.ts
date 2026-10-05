@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { DEFAULT_CAKE } from "@/data/cake";
+import { CAKE_PRESETS } from "@/data/cakePresets";
 import { useExperienceStore } from "./useExperienceStore";
 
 describe("useExperienceStore", () => {
@@ -62,5 +64,70 @@ describe("useExperienceStore", () => {
     expect(useExperienceStore.getState().cake).toEqual(cake);
     useExperienceStore.getState().reset();
     expect(useExperienceStore.getState().cake).toBeNull();
+  });
+
+  it("케이크의 크기, 모양, 색상 중 준 것만 바꾸고 장식은 그대로 둔다", () => {
+    const { setCake, updateCake } = useExperienceStore.getState();
+    setCake({
+      size: "large",
+      shape: "round",
+      color: "white",
+      decorations: [{ id: "candle-pink" }],
+    });
+
+    updateCake({ shape: "heart" });
+    updateCake({ color: "choco" });
+
+    expect(useExperienceStore.getState().cake).toEqual({
+      size: "large",
+      shape: "heart",
+      color: "choco",
+      decorations: [{ id: "candle-pink" }],
+      layoutShape: "round",
+    });
+  });
+
+  it("모양을 여러 번 바꿔도 장식의 위치를 잡은 처음 모양을 기억한다", () => {
+    const { setCake, updateCake } = useExperienceStore.getState();
+    setCake({
+      size: "large",
+      shape: "square",
+      color: "white",
+      decorations: [{ id: "star-pink", x: 100, y: 200 }],
+    });
+
+    updateCake({ shape: "heart" });
+    updateCake({ shape: "round" });
+
+    expect(useExperienceStore.getState().cake).toMatchObject({
+      shape: "round",
+      layoutShape: "square",
+      decorations: [{ id: "star-pink", x: 100, y: 200 }],
+    });
+  });
+
+  it("케이크가 없을 때 고치면 기본 케이크에서 시작하고, 기본 케이크는 바뀌지 않는다", () => {
+    const before = structuredClone(DEFAULT_CAKE);
+
+    useExperienceStore.getState().updateCake({ size: "mini" });
+
+    expect(useExperienceStore.getState().cake).toEqual({
+      ...before,
+      size: "mini",
+      layoutShape: before.shape,
+    });
+    expect(DEFAULT_CAKE).toEqual(before);
+  });
+
+  it("예시 케이크를 고쳐도 예시의 원본은 바뀌지 않는다", () => {
+    const preset = CAKE_PRESETS[0];
+    const before = structuredClone(preset.cake);
+    const { setCake, updateCake } = useExperienceStore.getState();
+    setCake(preset.cake);
+
+    updateCake({ size: "mini", shape: "heart", color: "pink" });
+
+    expect(preset.cake).toEqual(before);
+    expect(useExperienceStore.getState().cake).not.toBe(preset.cake);
   });
 });

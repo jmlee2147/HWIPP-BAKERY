@@ -6,7 +6,8 @@ import {
   screen,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { STEP_LABELS, STEPS } from "@/lib/steps";
+import { EDITOR_PACK_CHOICE } from "@/data/editor";
+import { STEP_LABELS } from "@/lib/steps";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { ExperienceRoot } from "./ExperienceRoot";
 
@@ -56,7 +57,7 @@ describe("ExperienceRoot", () => {
     await walkToQuestion("여기는 뭐하는 곳이에요?");
     await click("내가 바로 직접 디자인 해볼래");
 
-    await screen.findByRole("heading", { name: STEP_LABELS.editor });
+    await screen.findByRole("button", { name: EDITOR_PACK_CHOICE }, WAIT);
     expect(useExperienceStore.getState().step).toBe("editor");
   }, 15000);
 
@@ -112,7 +113,7 @@ describe("ExperienceRoot", () => {
     useExperienceStore.setState({ step: "result" });
     render(<ExperienceRoot />);
     await click("조금만 수정해 볼래!");
-    await screen.findByRole("heading", { name: STEP_LABELS.editor }, WAIT);
+    await screen.findByRole("button", { name: EDITOR_PACK_CHOICE }, WAIT);
     expect(useExperienceStore.getState().step).toBe("editor");
   });
 
@@ -132,14 +133,14 @@ describe("ExperienceRoot", () => {
     }
   });
 
-  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("결과 수정 화면에서 포장하기를 누르면 소장 및 공유 단계로 간다", async () => {
     useExperienceStore.setState({ step: "editor" });
     render(<ExperienceRoot />);
-    for (const step of STEPS.slice(STEPS.indexOf("editor"), -1)) {
-      await screen.findByRole("heading", { name: STEP_LABELS[step] });
-      await click("다음");
-    }
-    await screen.findByRole("heading", { name: STEP_LABELS.share });
+
+    await click(EDITOR_PACK_CHOICE);
+
+    await screen.findByRole("heading", { name: STEP_LABELS.share }, WAIT);
+    expect(useExperienceStore.getState().step).toBe("share");
   });
 
   it("마지막 단계에서 처음으로를 누르면 오프닝으로 돌아간다", async () => {
