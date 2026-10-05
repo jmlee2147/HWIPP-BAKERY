@@ -169,4 +169,41 @@ describe("useExperienceStore", () => {
     expect(sky.scale).toBeLessThan(0.5);
     expect(pink.scale).toBeUndefined();
   });
+
+  it("색만 다른 물방울 묶음을 이어 놓으면 겹치지 않고 바뀐다", () => {
+    const { setCake, addDecoration } = useExperienceStore.getState();
+    for (const layoutShape of ["round", "heart"] as const) {
+      setCake({
+        size: "large",
+        shape: "round",
+        color: "white",
+        decorations: [],
+        layoutShape,
+      });
+
+      addDecoration("drops-black");
+      const count = useExperienceStore.getState().cake?.decorations.length;
+      addDecoration("drops-white");
+      addDecoration("drops-white");
+
+      const placed = useExperienceStore.getState().cake?.decorations ?? [];
+      expect(placed).toHaveLength(count ?? 0);
+      expect(placed.every((item) => item.id.startsWith("drop-white"))).toBe(
+        true,
+      );
+    }
+  });
+
+  it("옮겨 놓은 물방울은 묶음을 다시 놓아도 남는다", () => {
+    const { addDecoration, adjustDecoration } = useExperienceStore.getState();
+    addDecoration("drops-black");
+    const count = useExperienceStore.getState().cake?.decorations.length ?? 0;
+    adjustDecoration(0, { x: 50, y: 50 });
+
+    addDecoration("drops-white");
+
+    expect(useExperienceStore.getState().cake?.decorations).toHaveLength(
+      count + 1,
+    );
+  });
 });

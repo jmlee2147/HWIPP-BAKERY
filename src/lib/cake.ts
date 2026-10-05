@@ -1749,6 +1749,41 @@ export function removeDecoration(
   };
 }
 
+// 장식 묶음을 한꺼번에 놓은 새 구성을 돌려준다. 자리는 지금 모양의 케이크에서의 것이다.
+// 같은 자리에 먼저 놓아 둔 장식이 있으면 그것과 바꾼다. 그대로 겹치면 색만 다른 묶음을 이어 눌렀을 때
+// 아래에 깔린 장식이 테두리처럼 비친다.
+export function placeSet(
+  cake: CakeConfig,
+  parts: {
+    id: string;
+    x: number;
+    y: number;
+    scale?: number;
+    rotate?: number;
+  }[],
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): CakeConfig {
+  const layoutShape = cake.layoutShape ?? cake.shape;
+  const taken = (chosen: CakeConfig["decorations"][number]) => {
+    if (!chosen.manual) return false;
+    const spot = layoutShape === cake.shape ? chosen : chosen.at?.[cake.shape];
+    return parts.some(
+      (part) =>
+        spot?.x !== undefined &&
+        spot.y !== undefined &&
+        Math.hypot(part.x - spot.x, part.y - spot.y) < 1,
+    );
+  };
+  const cleared = {
+    ...cake,
+    decorations: cake.decorations.filter((chosen) => !taken(chosen)),
+  };
+  return parts.reduce(
+    (next, part) => placeAt(next, part, decorations),
+    cleared,
+  );
+}
+
 // 새로 놓는 장식의 자리. 케이크 왼쪽의 빈 곳에, 바탕 그림에서 이만큼 띄워 놓는다.
 const NEW_GAP = 24;
 const NEW_Y = 362;

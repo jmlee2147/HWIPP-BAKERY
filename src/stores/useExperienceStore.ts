@@ -8,8 +8,8 @@ import type { StyleId } from "@/data/styles";
 import {
   adjustDecoration,
   type DecorationChange,
-  placeAt,
   placeDecoration,
+  placeSet,
   removeDecoration,
 } from "@/lib/cake";
 import { FIRST_STEP, nextStep, prevStep, type Step } from "@/lib/steps";
@@ -80,7 +80,7 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
       const parts = DECORATION_SETS[id]?.parts[cake.shape];
       return {
         cake: parts
-          ? parts.reduce((next, part) => placeAt(next, part), cake)
+          ? placeSet(cake, parts)
           : placeDecoration(cake, id, undefined, DECORATION_PLACE_SCALES[id]),
       };
     }),
