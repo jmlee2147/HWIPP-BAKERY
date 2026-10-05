@@ -16,6 +16,7 @@ const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
 describe("AnalysisScreen", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    window.localStorage.clear();
     useExperienceStore.getState().reset();
     useExperienceStore.setState({ step: "analysis" });
   });
@@ -71,6 +72,21 @@ describe("AnalysisScreen", () => {
 
     advance(1000);
     expect(useExperienceStore.getState().cake).toEqual(pickCake(answers));
+  });
+
+  it("케이크가 만들어질 때마다 순번이 하나씩 오른다", () => {
+    render(<AnalysisScreen initialScene="loading" loadingMs={2000} />);
+    advance(2000);
+    advance(1000);
+    expect(useExperienceStore.getState().orderNumber).toBe(1);
+    cleanup();
+
+    useExperienceStore.getState().reset();
+    expect(useExperienceStore.getState().orderNumber).toBeNull();
+    render(<AnalysisScreen initialScene="loading" loadingMs={2000} />);
+    advance(2000);
+    advance(1000);
+    expect(useExperienceStore.getState().orderNumber).toBe(2);
   });
 
   it("문답 답변이 비어 있어도 케이크를 저장하고 결과 단계로 간다", () => {

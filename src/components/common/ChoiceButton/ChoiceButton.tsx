@@ -3,12 +3,15 @@
 import type { ComponentPropsWithRef } from "react";
 import { playEffect } from "@/lib/sound";
 
-type ChoiceTone = "pink" | "mint";
+type ChoiceTone = "pink" | "mint" | "cocoa";
 
-const TONE_CLASS: Record<ChoiceTone, string> = {
-  pink: "bg-petal",
-  mint: "bg-mint",
-};
+// 어두운 바탕은 덜 비치게 하고 글자를 밝게 바꾼다.
+const TONES: Record<ChoiceTone, { fill: string; face: string; text: string }> =
+  {
+    pink: { fill: "bg-petal", face: "opacity-60", text: "text-cocoa" },
+    mint: { fill: "bg-mint", face: "opacity-60", text: "text-cocoa" },
+    cocoa: { fill: "bg-cocoa", face: "opacity-80", text: "text-[#ffd8ed]" },
+  };
 
 // 별은 좌우에 두 개씩 놓인다.
 const STARS = [
@@ -30,6 +33,8 @@ export const ChoiceButton = ({
   onClick,
   ...props
 }: ChoiceButtonProps) => {
+  const { fill, face, text } = TONES[tone];
+
   return (
     <button
       type={type}
@@ -42,10 +47,10 @@ export const ChoiceButton = ({
     >
       <span className="relative block size-full">
         <span className="absolute inset-0 rounded-[8.52px] bg-[#f2f2f2] opacity-70 shadow-[-0.682px_1.022px_19.957px_0px_rgba(255,255,255,0.63)]" />
-        <span className="absolute inset-[4.32%_0.94%] rounded-[8.52px] border-[0.341px] border-[#909090] opacity-60">
-          <span
-            className={`absolute inset-0 rounded-[8.52px] ${TONE_CLASS[tone]}`}
-          />
+        <span
+          className={`absolute inset-[4.32%_0.94%] rounded-[8.52px] border-[0.341px] border-[#909090] ${face}`}
+        >
+          <span className={`absolute inset-0 rounded-[8.52px] ${fill}`} />
           <span className="absolute inset-0 rounded-[inherit] shadow-[inset_3.749px_-2.979px_21.297px_0px_rgba(255,255,255,0.47)]" />
         </span>
         {STARS.map((position) => (
@@ -60,7 +65,9 @@ export const ChoiceButton = ({
             />
           </span>
         ))}
-        <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap font-stardust text-body text-cocoa">
+        <span
+          className={`absolute inset-0 flex items-center justify-center whitespace-nowrap font-stardust text-body ${text}`}
+        >
           {children}
         </span>
       </span>

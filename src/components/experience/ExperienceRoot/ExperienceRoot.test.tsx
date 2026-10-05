@@ -1,5 +1,11 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { STEP_LABELS, STEPS } from "@/lib/steps";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { ExperienceRoot } from "./ExperienceRoot";
@@ -102,15 +108,37 @@ describe("ExperienceRoot", () => {
     expect(useExperienceStore.getState().flavor).toBe("sweet");
   });
 
-  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+  it("결과 화면에서 수정하기를 고르면 결과 수정 단계로 간다", async () => {
     useExperienceStore.setState({ step: "result" });
     render(<ExperienceRoot />);
+    await click("조금만 수정해 볼래!");
+    await screen.findByRole("heading", { name: STEP_LABELS.editor }, WAIT);
+    expect(useExperienceStore.getState().step).toBe("editor");
+  });
 
-    for (const step of STEPS.slice(STEPS.indexOf("result"), -1)) {
+  it("결과 화면에서 아무것도 누르지 않으면 처음으로 돌아간다", () => {
+    vi.useFakeTimers();
+    try {
+      useExperienceStore.setState({ step: "result" });
+      render(<ExperienceRoot />);
+
+      act(() => vi.advanceTimersByTime(119_000));
+      expect(useExperienceStore.getState().step).toBe("result");
+
+      act(() => vi.advanceTimersByTime(1_000));
+      expect(useExperienceStore.getState().step).toBe("opening");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("임시 화면에서는 다음 버튼만 눌러 마지막 단계까지 이동한다", async () => {
+    useExperienceStore.setState({ step: "editor" });
+    render(<ExperienceRoot />);
+    for (const step of STEPS.slice(STEPS.indexOf("editor"), -1)) {
       await screen.findByRole("heading", { name: STEP_LABELS[step] });
       await click("다음");
     }
-
     await screen.findByRole("heading", { name: STEP_LABELS.share });
   });
 

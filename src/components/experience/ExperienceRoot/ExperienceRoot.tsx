@@ -9,6 +9,7 @@ import { FlavorScreen } from "@/components/questions/FlavorScreen/FlavorScreen";
 import { PartyScreen } from "@/components/questions/PartyScreen/PartyScreen";
 import { RelationScreen } from "@/components/questions/RelationScreen/RelationScreen";
 import { StyleScreen } from "@/components/questions/StyleScreen/StyleScreen";
+import { ResultScreen } from "@/components/result/ResultScreen/ResultScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
 import { FIRST_STEP, type Step } from "@/lib/steps";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
@@ -24,6 +25,7 @@ const SCREENS: Partial<Record<Step, ComponentType>> = {
   party: PartyScreen,
   flavor: FlavorScreen,
   analysis: AnalysisScreen,
+  result: ResultScreen,
 };
 
 export const ExperienceRoot = () => {

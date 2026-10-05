@@ -14,6 +14,8 @@ interface ExperienceState {
   flavor: FlavorId | null;
   // 문답 답변으로 만든 케이크 구성. 분석이 끝나기 전에는 null이다.
   cake: CakeConfig | null;
+  // 이 기기에서 몇 번째로 만든 케이크인지. 케이크가 만들어질 때 함께 정해진다.
+  orderNumber: number | null;
   goNext: () => void;
   goPrev: () => void;
   goTo: (step: Step) => void;
@@ -22,6 +24,7 @@ interface ExperienceState {
   setParty: (party: PartyId) => void;
   setFlavor: (flavor: FlavorId) => void;
   setCake: (cake: CakeConfig) => void;
+  setOrderNumber: (orderNumber: number) => void;
   reset: () => void;
 }
 
@@ -32,6 +35,7 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   party: null,
   flavor: null,
   cake: null,
+  orderNumber: null,
   goNext: () => set((state) => ({ step: nextStep(state.step) })),
   goPrev: () => set((state) => ({ step: prevStep(state.step) })),
   goTo: (step) => set({ step }),
@@ -40,6 +44,7 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   setParty: (party) => set({ party }),
   setFlavor: (flavor) => set({ flavor }),
   setCake: (cake) => set({ cake }),
+  setOrderNumber: (orderNumber) => set({ orderNumber }),
   reset: () =>
     set({
       step: FIRST_STEP,
@@ -48,5 +53,6 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
       party: null,
       flavor: null,
       cake: null,
+      orderNumber: null,
     }),
 }));
