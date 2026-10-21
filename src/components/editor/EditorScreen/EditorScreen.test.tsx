@@ -53,6 +53,7 @@ describe("EditorScreen", () => {
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
       "크기",
       "모양",
+      "토핑",
       "레터링",
       "장식",
       "색상",
@@ -181,6 +182,7 @@ describe("EditorScreen", () => {
 
     expect(screen.getAllByRole("tab").map((item) => item.textContent)).toEqual([
       "크기",
+      "토핑",
       "레터링",
       "장식",
       "색상",
@@ -325,6 +327,24 @@ describe("EditorScreen 장식 탭", () => {
       vi.advanceTimersByTime(CATEGORY_HOLD_MS);
     });
   };
+
+  it("토핑 탭에는 토핑 분류가 나오고, 분류를 누르면 그 분류의 토핑을 케이크에 얹는다", () => {
+    render(<EditorScreen />);
+    click("tab", "토핑");
+
+    for (const label of ["FRUIT", "CREAM", "CHOCOLATE", "SWEETS", "COATING"]) {
+      expect(tile(label)).toBeTruthy();
+    }
+    click("button", "FRUIT");
+    act(() => {
+      vi.advanceTimersByTime(CATEGORY_HOLD_MS);
+    });
+    click("button", "fruit-cherry");
+
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "fruit-cherry",
+    ]);
+  });
 
   it("장식 탭에는 분류 타일이 나온다", () => {
     render(<EditorScreen />);

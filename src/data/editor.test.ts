@@ -6,6 +6,7 @@ import {
   decorationChoices,
   EDITOR_CATEGORIES,
   LETTERING_CATEGORIES,
+  TOPPING_CATEGORIES,
 } from "./editor";
 
 const ALL_CATEGORIES = Object.values(EDITOR_CATEGORIES).flat();
@@ -17,7 +18,9 @@ describe("EDITOR_CATEGORIES", () => {
       ...Object.keys(DECORATION_SETS),
     ]);
     expect(ALL_CATEGORIES).toHaveLength(
-      DECORATION_CATEGORIES.length + LETTERING_CATEGORIES.length,
+      TOPPING_CATEGORIES.length +
+        DECORATION_CATEGORIES.length +
+        LETTERING_CATEGORIES.length,
     );
     for (const category of ALL_CATEGORIES) {
       expect(category.items.filter((id) => !known.has(id))).toEqual([]);
@@ -40,11 +43,21 @@ describe("EDITOR_CATEGORIES", () => {
 
 describe("decorationChoices", () => {
   it("낱개 장식과 묶음은 어느 모양에서나 나오고, 그림은 목록 칸보다 크지 않다", () => {
+    // 케이크 모양을 따라 그린 장식(글자 제외)은 그 모양의 그림이 있을 때만 나온다.
+    const followsShape = new Set(
+      CAKE_DECORATIONS.filter(
+        (item) => item.placement === "fixed" && item.layer !== "lettering",
+      ).map((item) => item.id),
+    );
     for (const category of ALL_CATEGORIES) {
       for (const shape of CAKE_SHAPES) {
         const choices = decorationChoices(category, shape.id);
-        // 시안의 장식은 세 모양의 그림이 모두 있고, 글자는 없는 모양에서 다른 모양의 그림을 써서 빠지는 것이 없다.
-        expect(choices.map((choice) => choice.id)).toEqual(category.items);
+        // 낱개 장식은 세 모양의 그림이 모두 있고, 글자는 없는 모양에서 다른 모양의 그림을 써서 빠지는 것이 없다.
+        expect(
+          choices
+            .map((choice) => choice.id)
+            .filter((id) => !followsShape.has(id)),
+        ).toEqual(category.items.filter((id) => !followsShape.has(id)));
         for (const choice of choices) {
           expect(choice.width).toBeLessThan(230.01);
           expect(choice.height).toBeLessThan(227.01);
@@ -54,14 +67,14 @@ describe("decorationChoices", () => {
   });
 
   it("예시의 장식이 차지한 층의 장식은 빠진다", () => {
-    const others = DECORATION_CATEGORIES.find((item) => item.id === "others");
-    if (!others) throw new Error("OTHERS 분류가 없다");
-    const ids = decorationChoices(others, "round", new Set(["sprinkle"])).map(
+    const sweets = TOPPING_CATEGORIES.find((item) => item.id === "sweets");
+    if (!sweets) throw new Error("SWEETS 분류가 없다");
+    const ids = decorationChoices(sweets, "round", new Set(["sprinkle"])).map(
       (choice) => choice.id,
     );
 
     expect(ids).not.toContain("sprinkle");
-    expect(ids).toContain("topper-bears");
+    expect(ids).toContain("topper-cat-pudding");
   });
 
   it("예시에 글자가 있어도 글자는 목록에 모두 나온다", () => {
