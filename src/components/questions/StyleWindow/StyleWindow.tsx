@@ -11,10 +11,11 @@ import { type RecipientStyle, STYLES, type StyleId } from "@/data/styles";
 
 const WINDOW_DOT = "absolute rounded-full";
 const MENU_LINE = "absolute rounded-full bg-black";
-// 삼각형은 작아서, 누르는 영역을 삼각형 둘레로 넓힌 버튼 안에 둔다.
-const NAV_BUTTON = "absolute top-[58px] h-[88px] w-[49px]";
+// 삼각형은 작아서 88px 버튼 안에 둔다. 두 버튼은 가운데 세로줄에서 맞닿고,
+// 이전 버튼은 즐겨찾기 머리글 쪽으로, 다음 버튼은 제목 글자 쪽으로 넓힌다.
+const NAV_BUTTON = "absolute top-[38px] size-[88px]";
 const NAV_TRIANGLE =
-  "absolute top-[36.5px] block h-[15.65px] w-[17.74px] max-w-none";
+  "absolute top-[56.5px] block h-[15.65px] w-[17.74px] max-w-none";
 
 // 강조되는 말이 다음 말로 넘어가는 간격.
 const QUOTE_TURN_MS = 2500;
@@ -128,14 +129,19 @@ export const StyleWindow = ({
                 type="button"
                 aria-label={`${item.name} 즐겨찾기`}
                 aria-pressed={selected}
-                className={`absolute left-[18.03px] size-[80.62px] overflow-hidden ${selected ? "bg-[#a2deff]" : "bg-[#e9f8ff]"}`}
-                style={{ top: 46.67 + index * 102.9 }}
+                className="absolute left-[14.34px] size-[88px]"
+                style={{ top: 42.98 + index * 102.9 }}
                 onClick={() => onSelectStyle(item.id)}
               >
-                <PortraitImage portrait={item.portrait} box="thumb" />
-                {selected && (
-                  <span className="absolute inset-0 border-[3px] border-candy" />
-                )}
+                {/* 보이는 썸네일은 80.62px이고, 누르는 영역만 88px로 넓혔다. */}
+                <span
+                  className={`absolute inset-[3.69px] overflow-hidden ${selected ? "bg-[#a2deff]" : "bg-[#e9f8ff]"}`}
+                >
+                  <PortraitImage portrait={item.portrait} box="thumb" />
+                  {selected && (
+                    <span className="absolute inset-0 border-[3px] border-candy" />
+                  )}
+                </span>
               </button>
             );
           })}
@@ -144,12 +150,12 @@ export const StyleWindow = ({
         <button
           type="button"
           aria-label="이전 스타일"
-          className={`${NAV_BUTTON} left-[150px]`}
+          className={`${NAV_BUTTON} left-[111.36px]`}
           onClick={() => onSelectStyle(neighbor(-1))}
         >
           <img
             alt=""
-            className={`${NAV_TRIANGLE} left-[19.27px] -rotate-90`}
+            className={`${NAV_TRIANGLE} left-[57.91px] -rotate-90`}
             src="/assets/ui/window/triangle.svg"
           />
         </button>
