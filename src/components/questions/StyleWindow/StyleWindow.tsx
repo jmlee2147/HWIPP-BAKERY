@@ -11,8 +11,11 @@ import { type RecipientStyle, STYLES, type StyleId } from "@/data/styles";
 
 const WINDOW_DOT = "absolute rounded-full";
 const MENU_LINE = "absolute rounded-full bg-black";
+// 삼각형은 작아서 88px 버튼 안에 둔다. 두 버튼은 가운데 세로줄에서 맞닿고,
+// 이전 버튼은 즐겨찾기 머리글 쪽으로, 다음 버튼은 제목 글자 쪽으로 넓힌다.
+const NAV_BUTTON = "absolute top-[38px] size-[88px]";
 const NAV_TRIANGLE =
-  "absolute top-[94.5px] block h-[15.65px] w-[17.74px] max-w-none";
+  "absolute top-[56.5px] block h-[15.65px] w-[17.74px] max-w-none";
 
 // 강조되는 말이 다음 말로 넘어가는 간격.
 const QUOTE_TURN_MS = 2500;
@@ -41,6 +44,24 @@ const NAME_SIZE = {
   small: "text-[59.7px] tracking-[-1.49px]",
 };
 
+const PortraitImage = ({
+  portrait,
+  box,
+}: {
+  portrait: RecipientStyle["portrait"];
+  box: "large" | "thumb";
+}) => {
+  const { x, y, width, height } = portrait[box];
+  return (
+    <img
+      alt=""
+      className="absolute block max-w-none"
+      style={{ left: x, top: y, width, height }}
+      src={portrait.src}
+    />
+  );
+};
+
 interface StyleWindowProps extends ComponentPropsWithRef<"div"> {
   recipient: RecipientStyle;
   summaryOpen: boolean;
@@ -58,6 +79,11 @@ export const StyleWindow = ({
   ...props
 }: StyleWindowProps) => {
   const quoteCount = recipient.quotes[0].length + recipient.quotes[1].length;
+  // 끝에서 넘기면 반대쪽 끝으로 이어진다.
+  const neighbor = (delta: number) => {
+    const index = STYLES.findIndex((item) => item.id === recipient.id);
+    return STYLES[(index + delta + STYLES.length) % STYLES.length].id;
+  };
   const [activeQuote, setActiveQuote] = useState(0);
 
   // 자주 하는 말이 하나씩 차례로 강조된다. 화면이 가만히 멈춰 있지 않게 하기 위해서다.
@@ -95,35 +121,64 @@ export const StyleWindow = ({
           <p className="absolute left-[31.83px] top-[4.24px] whitespace-nowrap text-[13.79px] font-semibold leading-[33.95px] tracking-[-0.34px] text-cocoa">
             즐겨찾기
           </p>
-          {STYLES.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-label={`${item.name} 즐겨찾기`}
-              aria-pressed={item.id === recipient.id}
-              className={`absolute left-[18.03px] size-[80.62px] bg-[#d9d9d9] ${item.id === recipient.id ? "border-[3px] border-candy" : ""}`}
-              style={{ top: 46.67 + index * 102.9 }}
-              onClick={() => onSelectStyle(item.id)}
-            />
-          ))}
+          {STYLES.map((item, index) => {
+            const selected = item.id === recipient.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                aria-label={`${item.name} 즐겨찾기`}
+                aria-pressed={selected}
+                className="absolute left-[14.34px] size-[88px]"
+                style={{ top: 42.98 + index * 102.9 }}
+                onClick={() => onSelectStyle(item.id)}
+              >
+                {/* 보이는 썸네일은 80.62px이고, 누르는 영역만 88px로 넓혔다. */}
+                <span
+                  className={`absolute inset-[3.69px] overflow-hidden ${selected ? "bg-[#a2deff]" : "bg-[#e9f8ff]"}`}
+                >
+                  <PortraitImage portrait={item.portrait} box="thumb" />
+                  {selected && (
+                    <span className="absolute inset-0 border-[3px] border-candy" />
+                  )}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        <img
-          alt=""
-          className={`${NAV_TRIANGLE} left-[169.27px] -rotate-90`}
-          src="/assets/ui/window/triangle.svg"
-        />
+        <button
+          type="button"
+          aria-label="이전 스타일"
+          className={`${NAV_BUTTON} left-[111.36px]`}
+          onClick={() => onSelectStyle(neighbor(-1))}
+        >
+          <img
+            alt=""
+            className={`${NAV_TRIANGLE} left-[57.91px] -rotate-90`}
+            src="/assets/ui/window/triangle.svg"
+          />
+        </button>
         <div className="absolute left-[199.36px] top-[94.41px] h-[16.97px] w-[1.06px] bg-[#e4e4e4]" />
-        <img
-          alt=""
-          className={`${NAV_TRIANGLE} left-[212.76px] rotate-90`}
-          src="/assets/ui/window/triangle.svg"
-        />
+        <button
+          type="button"
+          aria-label="다음 스타일"
+          className={`${NAV_BUTTON} left-[200.42px]`}
+          onClick={() => onSelectStyle(neighbor(1))}
+        >
+          <img
+            alt=""
+            className={`${NAV_TRIANGLE} left-[12.34px] rotate-90`}
+            src="/assets/ui/window/triangle.svg"
+          />
+        </button>
         <p className="absolute left-[247.62px] top-[84.86px] whitespace-nowrap text-[23.34px] font-semibold leading-[33.95px] tracking-[-0.58px] text-[#909090]">
           Recipient Style
         </p>
 
-        <div className="absolute left-[166.55px] top-[138.96px] size-[247.17px] rounded-[10px] bg-[#d9d9d9]" />
+        <div className="absolute left-[166.55px] top-[138.96px] size-[247.17px] overflow-hidden rounded-[10px] bg-gradient-to-b from-[#98dbff] to-[#f6fcff]">
+          <PortraitImage portrait={recipient.portrait} box="large" />
+        </div>
 
         <div className="absolute left-[447.71px] top-[158px] flex h-[47.49px]">
           <button

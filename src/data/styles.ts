@@ -7,6 +7,20 @@ export type StyleId =
 
 export type FolderColor = "pink" | "orange" | "yellow" | "green" | "purple";
 
+interface Box {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// 캐릭터 그림. 큰 그림과 즐겨찾기 썸네일이 같은 파일을 쓰고, 그림을 담는 정사각형 안에서의 자리만 다르다.
+interface Portrait {
+  src: string;
+  large: Box;
+  thumb: Box;
+}
+
 export interface RecipientStyle {
   id: StyleId;
   name: string;
@@ -26,7 +40,14 @@ export interface RecipientStyle {
   // 두 줄로 놓인다. 창보다 길면 오른쪽이 잘린다.
   quotes: [string[], string[]];
   traits: string[];
+  portrait: Portrait;
 }
+
+const portrait = (id: StyleId, large: Box, thumb: Box): Portrait => ({
+  src: `/assets/characters/recipient-${id}.webp`,
+  large,
+  thumb,
+});
 
 // 폴더가 왼쪽부터 놓이는 순서다.
 export const STYLES: RecipientStyle[] = [
@@ -56,6 +77,11 @@ export const STYLES: RecipientStyle[] = [
       "얼리어답터",
       "팝업 성지순례",
     ],
+    portrait: portrait(
+      "trendsetter",
+      { x: 0.5, y: 17, width: 246, height: 230 },
+      { x: -1, y: 4, width: 82, height: 74 },
+    ),
   },
   {
     id: "aesthetic-curator",
@@ -83,6 +109,11 @@ export const STYLES: RecipientStyle[] = [
       "독서 및 교양 필수",
       "성수 자주 출몰",
     ],
+    portrait: portrait(
+      "aesthetic-curator",
+      { x: 0.5, y: 24, width: 247, height: 223 },
+      { x: 4, y: 12, width: 73, height: 66 },
+    ),
   },
   {
     id: "cute-collector",
@@ -112,6 +143,11 @@ export const STYLES: RecipientStyle[] = [
       "캐릭터 굿즈 수집",
       "아기자기한 디자인 선호",
     ],
+    portrait: portrait(
+      "cute-collector",
+      { x: -0.5, y: 24, width: 247, height: 223 },
+      { x: 3, y: 12, width: 73, height: 66 },
+    ),
   },
   {
     id: "minimalist",
@@ -141,6 +177,11 @@ export const STYLES: RecipientStyle[] = [
       "질 좋은 기본템 하나 사서 오래 씀",
       "화려한 거 싫어함",
     ],
+    portrait: portrait(
+      "minimalist",
+      { x: -0.5, y: 24, width: 247, height: 223 },
+      { x: 3, y: 11, width: 74, height: 67 },
+    ),
   },
   {
     id: "subculture-digger",
@@ -165,6 +206,11 @@ export const STYLES: RecipientStyle[] = [
       ],
     ],
     traits: ["B급, 서브컬처 감성 애호", "자신만의 확실한 마이너한 취향 존재"],
+    portrait: portrait(
+      "subculture-digger",
+      { x: -12.5, y: 20, width: 277.7, height: 235.1 },
+      { x: 4, y: 17, width: 72.7, height: 60.8 },
+    ),
   },
 ];
 
@@ -174,6 +220,7 @@ export const folderImage = (color: FolderColor, open: boolean) =>
 export const STYLE_IMAGES = STYLES.flatMap((style) => [
   folderImage(style.folder, false),
   folderImage(style.folder, true),
+  style.portrait.src,
 ]);
 
 // 스타일 창에 쓰이는 글꼴 굵기. 앞 화면에서 미리 받아 둔다.
