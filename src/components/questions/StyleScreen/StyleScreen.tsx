@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
+import { QuestionProgress } from "@/components/questions/QuestionProgress/QuestionProgress";
 import { StyleWindow } from "@/components/questions/StyleWindow/StyleWindow";
 import { PARTY_IMAGES } from "@/data/parties";
 import { folderImage, STYLES, type StyleId } from "@/data/styles";
@@ -125,7 +125,7 @@ export const StyleScreen = () => {
           onDone={() => setTyped(true)}
         />
       </SpeechBubble>
-      <ProgressBar step={2} className="absolute left-[75px] top-[58px]" />
+      <QuestionProgress step={2} className="absolute left-[75px] top-[58px]" />
       {STYLES.map((item, index) => (
         <button
           key={item.id}

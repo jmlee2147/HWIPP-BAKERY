@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog/ConfirmDialog";
 import {
   ProgressBar,
   type ProgressStep,
@@ -45,6 +47,20 @@ export default function ComponentsPage() {
             className="absolute right-[20px] top-[160px]"
           />
         </div>
+        <div className="flex gap-[24px]">
+          <ConfirmButton tone="pink">선택하기</ConfirmButton>
+          <ConfirmButton tone="mint" size="half">
+            다음
+          </ConfirmButton>
+        </div>
+        <ConfirmDialog message="케이크 제작을 끝내고 처음으로 돌아갈까요?">
+          <ConfirmButton tone="gray" size="half">
+            처음으로
+          </ConfirmButton>
+          <ConfirmButton tone="pink" size="half">
+            계속하기
+          </ConfirmButton>
+        </ConfirmDialog>
       </div>
     </main>
   );

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import { HomeButton } from "@/components/common/HomeButton/HomeButton";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { DialogScene } from "@/components/opening/DialogScene/DialogScene";
@@ -31,6 +32,9 @@ const DOOR_OPEN_MS = 2000;
 const STORE_TEXT =
   "어? 여기 새로 생긴 디저트 가게인가?\n맛있어 보인다. 한 번 들어가 볼까?";
 
+// 처음으로 버튼을 두는 장면. 아래쪽을 선택지 버튼이 차지하는 장면에는 두지 않는다.
+const HOME_SCENES: OpeningScene[] = ["store", "intro1", "intro2"];
+
 const upperChoice = "absolute left-[62px] top-[1559.4px]";
 const lowerChoice = "absolute left-[62px] top-[1723.6px]";
 
@@ -45,14 +49,12 @@ export const OpeningScreen = ({
   const [scene, setScene] = useState<OpeningScene>(initialScene);
   const [doorOpen, setDoorOpen] = useState(false);
 
-  useIdleReset(
-    IDLE_RESET_MS,
-    () => {
-      setDoorOpen(false);
-      setScene("title");
-    },
-    scene !== "title",
-  );
+  const backToTitle = () => {
+    setDoorOpen(false);
+    setScene("title");
+  };
+
+  useIdleReset(IDLE_RESET_MS, backToTitle, scene !== "title");
 
   useEffect(() => {
     preloadSounds();
@@ -202,16 +204,24 @@ export const OpeningScreen = ({
       : holdUntilCovered;
 
   return (
-    <AnimatePresence initial={false}>
-      <motion.div
-        key={scene}
-        className="absolute inset-0 origin-[319px_1176px]"
-        initial={coverEnter.initial}
-        animate={coverEnter.animate}
-        exit={exit}
-      >
-        {renderScene()}
-      </motion.div>
-    </AnimatePresence>
+    <>
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={scene}
+          className="absolute inset-0 origin-[319px_1176px]"
+          initial={coverEnter.initial}
+          animate={coverEnter.animate}
+          exit={exit}
+        >
+          {renderScene()}
+        </motion.div>
+      </AnimatePresence>
+      {HOME_SCENES.includes(scene) && (
+        <HomeButton
+          className="absolute left-[65px] top-[1772px] z-10"
+          onHome={backToTitle}
+        />
+      )}
+    </>
   );
 };

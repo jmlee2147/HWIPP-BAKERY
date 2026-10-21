@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
-import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CarouselDots } from "@/components/questions/CarouselDots/CarouselDots";
 import { ConfettiBurst } from "@/components/questions/ConfettiBurst/ConfettiBurst";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { PartyBoard } from "@/components/questions/PartyBoard/PartyBoard";
+import { QuestionProgress } from "@/components/questions/QuestionProgress/QuestionProgress";
 import { FLAVOR_IMAGES } from "@/data/flavors";
 import { PARTIES, PARTY_PAPER } from "@/data/parties";
 import { preloadImages } from "@/lib/preload";
@@ -67,7 +67,7 @@ export const PartyScreen = () => {
       <SpeechBubble className="absolute left-[51.55px] top-[149px]">
         <TypedText text={QUESTION} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
-      <ProgressBar step={3} className="absolute left-[75px] top-[58px]" />
+      <QuestionProgress step={3} className="absolute left-[75px] top-[58px]" />
       <ArrowButton
         direction="prev"
         aria-label="이전 카드"
