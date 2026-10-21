@@ -92,6 +92,8 @@ export const ProgressBar = ({
   const barRef = useRef<HTMLDivElement>(null);
   // 끄는 동안 손잡이 가운데가 놓인 자리. 끌고 있지 않으면 null이다.
   const [dragX, setDragX] = useState<number | null>(null);
+  // 손을 떼고 고른 단계. 다음 화면이 덮을 때까지 손잡이를 이 단계에 붙여 둔다.
+  const [pickedStep, setPickedStep] = useState<MovableStep | null>(null);
 
   const reachable = MOVABLE_STEPS.filter((item) => item <= maxStep);
   const nearestStep = (x: number) =>
@@ -111,14 +113,19 @@ export const ProgressBar = ({
     );
   };
 
-  const shownStep = dragX === null ? step : nearestStep(dragX);
+  const shownStep = dragX === null ? (pickedStep ?? step) : nearestStep(dragX);
   const layout = LAYOUTS[step];
   const shownLayout = LAYOUTS[shownStep];
   const isComplete = step === "complete";
   const knobLeft = knobLeftOf(layout.fillWidth);
   const labelLeft = knobLeft + KNOB_SIZE / 2 - layout.labelWidth / 2;
   // 끄는 동안에는 손잡이와 이름표만 손가락을 따라 옮긴다.
-  const dragShift = dragX === null ? 0 : dragX - knobCenterOf(step);
+  // 손을 뗀 뒤에는 고른 단계 자리에 둔다.
+  const knobX =
+    dragX ?? (pickedStep === null ? null : knobCenterOf(pickedStep));
+  const dragShift = knobX === null ? 0 : knobX - knobCenterOf(step);
+  // 채움 끝도 손잡이를 따라간다. 손가락이 움직일 때만 바뀌어 프레임마다 다시 그리지 않는다.
+  const fillWidth = layout.fillWidth + dragShift;
 
   return (
     <div className={`h-[154.06px] w-[930.25px] ${className}`} {...props}>
@@ -128,7 +135,7 @@ export const ProgressBar = ({
         <div className="absolute left-0 top-[14.24px] h-[33.77px] w-full rounded-[50px] border-2 border-[#d4c7c1] bg-mint" />
         <div
           className={`absolute left-0 top-[14px] h-[34px] overflow-hidden rounded-[50px] border-2 border-[#867b76] ${layout.fillClass}`}
-          style={{ width: layout.fillWidth }}
+          style={{ width: fillWidth }}
         >
           {/* 채움 위를 오가는 빛. 그라데이션이 일렁이는 것처럼 보인다. */}
           <div className="absolute inset-y-0 left-0 w-[60%] animate-shimmer motion-reduce:hidden bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.75)_50%,rgba(255,255,255,0)_100%)]" />
@@ -190,7 +197,9 @@ export const ProgressBar = ({
                 if (dragX === null) return;
                 const target = nearestStep(toBarX(event.clientX));
                 setDragX(null);
-                if (target !== step) onSelectStep(target);
+                if (target === step) return;
+                setPickedStep(target);
+                onSelectStep(target);
               }}
               onPointerCancel={() => setDragX(null)}
             />
