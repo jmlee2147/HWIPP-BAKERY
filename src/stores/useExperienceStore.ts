@@ -8,9 +8,10 @@ import type { StyleId } from "@/data/styles";
 import {
   adjustDecoration,
   type DecorationChange,
+  moveDecorations,
   placeDecoration,
   placeSet,
-  removeDecoration,
+  removeDecorations,
 } from "@/lib/cake";
 import { FIRST_STEP, nextStep, prevStep, type Step } from "@/lib/steps";
 
@@ -38,9 +39,11 @@ interface ExperienceState {
   updateCake: (patch: CakeBasePatch) => void;
   // 고른 장식이나 장식 묶음을 케이크에 더한다. 케이크 모양을 따라 그린 장식은 이미 얹혀 있으면 뺀다.
   addDecoration: (id: string) => void;
-  // 직접 놓은 장식의 자리, 크기, 기울기를 고치거나 뺀다. index는 케이크의 장식 목록에서의 차례다.
+  // 장식의 자리, 크기, 기울기를 고치거나 뺀다. index는 케이크의 장식 목록에서의 차례다.
   adjustDecoration: (index: number, change: DecorationChange) => void;
-  removeDecoration: (index: number) => void;
+  // 묶음처럼 여러 장식을 함께 옮기거나 뺀다.
+  moveDecorations: (moves: { index: number; x: number; y: number }[]) => void;
+  removeDecorations: (indices: number[]) => void;
   // 레터링, 토핑, 장식을 모두 걷어 내고 크기, 모양, 색상만 남긴다.
   clearDecorations: () => void;
   setOrderNumber: (orderNumber: number) => void;
@@ -90,9 +93,13 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
     set((state) =>
       state.cake ? { cake: adjustDecoration(state.cake, index, change) } : {},
     ),
-  removeDecoration: (index) =>
+  moveDecorations: (moves) =>
     set((state) =>
-      state.cake ? { cake: removeDecoration(state.cake, index) } : {},
+      state.cake ? { cake: moveDecorations(state.cake, moves) } : {},
+    ),
+  removeDecorations: (indices) =>
+    set((state) =>
+      state.cake ? { cake: removeDecorations(state.cake, indices) } : {},
     ),
   clearDecorations: () =>
     set((state) => {
