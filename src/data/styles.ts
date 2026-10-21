@@ -11,6 +11,8 @@ export interface RecipientStyle {
   id: StyleId;
   name: string;
   folder: FolderColor;
+  // 폴더 아래 이름표.
+  folderLabel: string;
   // 이름이 길면 작게, 짧으면 크게 쓴다.
   nameSize: "large" | "small";
   tagline: string;
@@ -32,6 +34,7 @@ export const STYLES: RecipientStyle[] = [
     id: "trendsetter",
     name: "Trendsetter",
     folder: "pink",
+    folderLabel: "트렌디한",
     nameSize: "large",
     tagline: "트렌드를 가장 먼저\n경험하고 기록하는 FOMO",
     description:
@@ -58,6 +61,7 @@ export const STYLES: RecipientStyle[] = [
     id: "aesthetic-curator",
     name: "Aesthetic Curator",
     folder: "orange",
+    folderLabel: "감각적인",
     nameSize: "small",
     tagline: "작은 디테일에서도\n영감을 발견하는 느좋남녀",
     description:
@@ -84,6 +88,7 @@ export const STYLES: RecipientStyle[] = [
     id: "cute-collector",
     name: "Cute Collector",
     folder: "yellow",
+    folderLabel: "귀여운",
     nameSize: "small",
     tagline: "주머니 속 작은 캐릭터 하나로\n온종일 행복!",
     description:
@@ -112,6 +117,7 @@ export const STYLES: RecipientStyle[] = [
     id: "minimalist",
     name: "Minimalist",
     folder: "green",
+    folderLabel: "미니멀한",
     nameSize: "large",
     tagline: "비울수록 채워지는\n감성의 미니멀리스트",
     description:
@@ -131,16 +137,16 @@ export const STYLES: RecipientStyle[] = [
       ],
     ],
     traits: [
-      "SNS 트렌드에 민감",
-      "릴스·숏폼 헤비 유저",
-      "얼리어답터",
-      "팝업 성지순례",
+      "책상 위/방 안 소품 최소화",
+      "질 좋은 기본템 하나 사서 오래 씀",
+      "화려한 거 싫어함",
     ],
   },
   {
     id: "subculture-digger",
     name: "Subculture Digger",
     folder: "purple",
+    folderLabel: "서브컬쳐",
     nameSize: "small",
     tagline: "독창성과 유니크함에\n집착하는 4차원 취향가",
     description:

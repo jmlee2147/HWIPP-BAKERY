@@ -16,7 +16,7 @@ import { FIRST_STEP, type Step } from "@/lib/steps";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
-const IDLE_RESET_MS = 120_000;
+const IDLE_RESET_MS = 40_000;
 
 // 구현이 끝난 단계의 화면. 여기에 없는 단계는 임시 화면으로 이어 준다.
 const SCREENS: Partial<Record<Step, ComponentType>> = {

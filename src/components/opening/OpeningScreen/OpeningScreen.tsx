@@ -24,7 +24,7 @@ export type OpeningScene =
   | "intro2"
   | "question";
 
-const IDLE_RESET_MS = 120_000;
+const IDLE_RESET_MS = 40_000;
 // 문이 열리는 데 0.5초, 열린 모습을 보여 주는 데 1.5초.
 const DOOR_OPEN_MS = 2000;
 
