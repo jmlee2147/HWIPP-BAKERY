@@ -29,14 +29,14 @@ describe("FlavorScreen", () => {
     expect(screen.getByRole("status").textContent).toBe(FLAVORS[3].label);
   });
 
-  it("선택하기를 눌러야 고른 조건이 저장되고 다음 단계로 간다", () => {
+  it("다음을 눌러야 고른 조건이 저장되고 다음 단계로 간다", () => {
     render(<FlavorScreen />);
 
     fireEvent.click(card(2));
     expect(useExperienceStore.getState().flavor).toBeNull();
     expect(useExperienceStore.getState().step).toBe("flavor");
 
-    fireEvent.click(screen.getByRole("button", { name: "선택하기" }));
+    fireEvent.click(screen.getByRole("button", { name: "다음" }));
     expect(useExperienceStore.getState().flavor).toBe("allergy");
     expect(useExperienceStore.getState().step).toBe("analysis");
   });
@@ -47,7 +47,9 @@ describe("FlavorScreen", () => {
       screen.queryByText(FLAVORS[1].label, { selector: "button" }),
     ).toBeNull();
 
-    const list = container.querySelector('img[src="/assets/flavor/list.webp"]');
+    const list = container.querySelector(
+      'img[src="/assets/flavor/card-rich.webp"]',
+    );
     if (!list) throw new Error("목록 그림이 없다");
     fireEvent.error(list);
 

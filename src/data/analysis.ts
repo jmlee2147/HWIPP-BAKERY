@@ -23,7 +23,7 @@ export const CONFIRM: DialogSceneData = {
   ],
 };
 
-export const CONFIRM_CHOICE = "응 ! 당장 구워 줘 !";
+export const CONFIRM_CHOICE = "응! 당장 구워 줘!";
 
 export const LOADING_TEXT =
   "레시피를 열심히 분석하고 반죽하는 중이에요\n조금만 기다려주세요... ";

@@ -1,30 +1,89 @@
 import type { ComponentPropsWithRef, ReactNode } from "react";
 import { Cake } from "@/components/cake/Cake/Cake";
 import { CAKE_BOARD, type CakeConfig } from "@/data/cake";
-import { BROWSER_IMAGES, WINDOW_CAKE, windowCakeLift } from "@/data/editor";
+import {
+  BROWSER_IMAGES,
+  EDITOR_HISTORY_LABELS,
+  EDITOR_QUIT,
+  WINDOW_CAKE,
+  windowCakeLift,
+} from "@/data/editor";
 import { cakeScale } from "@/lib/cake";
 
 const layer = "absolute block max-w-none";
 const FIELD =
-  "absolute top-[55px] h-[44.4px] border-[1.2px] border-[#686868] bg-[linear-gradient(100deg,rgba(255,255,255,0.8)_27%,rgba(255,255,255,0)_97.5%)] shadow-[inset_3.6px_4.8px_3.6px_0px_rgba(0,0,0,0.05)]";
-const TITLE_BUTTON = "top-[17.87px] h-[26.81px] w-[46.91px]";
+  "absolute left-[185.8px] top-[33.8px] h-[51px] border-[1.2px] border-[#686868] bg-[linear-gradient(100deg,rgba(255,255,255,0.8)_27%,rgba(255,255,255,0)_97.5%)] shadow-[inset_3.6px_4.8px_3.6px_0px_rgba(0,0,0,0.05)]";
+// 실행 취소와 다시 실행 화살표. 할 수 있으면 큰 분홍 원, 없으면 작은 회색 원이다.
+// 두 원은 12px 띄워 놓고, 세로 가운데를 맞춘다. 그림은 테두리만큼 원보다 조금 크다.
+const ARROW = {
+  on: { size: 76, image: 77 },
+  off: { size: 59.2, image: 60 },
+};
+const ARROW_LEFT = { on: 13.77, off: 17.77 };
+const ARROW_GAP = 12;
+const ARROW_MIDDLE = 59.8;
+// 화살표의 터치 영역 높이. 너비는 두 화살표 사이를 반씩 나눠 갖는다.
+const ARROW_TOUCH = 88;
+
 // 13px 간격의 모눈.
 const GRID =
   "bg-white bg-[linear-gradient(to_right,rgba(0,0,0,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.08)_1px,transparent_1px)] [background-position:10.55px_12.55px] [background-size:13px_13px]";
 
 interface CakeWindowProps extends ComponentPropsWithRef<"div"> {
   cake: CakeConfig;
+  // 창의 X를 눌렀을 때.
+  onClose: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
   // 케이크 위에 겹쳐 그릴 것. 좌표는 창의 왼쪽 위가 기준이다.
   children?: ReactNode;
 }
 
-// 브라우저 창 모양의 미리보기. 케이크 구성만 받아 모눈 위에 그린다. 창의 단추와 주소 칸은 장식이라 누를 수 없다.
+// 브라우저 창 모양의 미리보기. 케이크 구성만 받아 모눈 위에 그린다.
+// 누를 수 있는 것은 실행 취소, 다시 실행 화살표와 X이고, 주소 칸은 장식이다.
 export const CakeWindow = ({
   cake,
+  onClose,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
   children,
   className = "",
   ...props
 }: CakeWindowProps) => {
+  const back = ARROW[canUndo ? "on" : "off"];
+  const forward = ARROW[canRedo ? "on" : "off"];
+  const backLeft = ARROW_LEFT[canUndo ? "on" : "off"];
+  const forwardLeft = backLeft + back.size + ARROW_GAP;
+  const backCenter = backLeft + back.size / 2;
+  const forwardCenter = forwardLeft + forward.size / 2;
+  const split = (backCenter + forwardCenter) / 2;
+  const arrows = [
+    {
+      label: EDITOR_HISTORY_LABELS.undo,
+      enabled: canUndo,
+      onClick: onUndo,
+      left: 0,
+      width: split,
+      center: backCenter,
+      image: back.image,
+      src: canUndo ? BROWSER_IMAGES.backOn : BROWSER_IMAGES.backOff,
+    },
+    {
+      label: EDITOR_HISTORY_LABELS.redo,
+      enabled: canRedo,
+      onClick: onRedo,
+      left: split,
+      width: ARROW_TOUCH,
+      center: forwardCenter,
+      image: forward.image,
+      src: canRedo ? BROWSER_IMAGES.forwardOn : BROWSER_IMAGES.forwardOff,
+    },
+  ];
+
   return (
     <div
       className={`h-[790px] w-[945px] overflow-hidden rounded-[5.75px] border-[2.23px] border-[#8b4b5e] bg-[linear-gradient(166.36deg,rgba(255,241,249,0.8)_31.6%,rgba(250,250,250,0.4)_65.9%)] ${className}`}
@@ -43,39 +102,16 @@ export const CakeWindow = ({
           />
         </div>
 
-        <img
-          alt=""
-          className={`${layer} left-[13.77px] top-[48.76px] h-[51.36px] w-[95.59px]`}
-          src={BROWSER_IMAGES.nav}
-        />
-        <div className={`${FIELD} left-[118px] w-[465.6px]`} />
-        <p className="absolute left-[224.77px] top-[49.77px] -translate-x-1/2 whitespace-nowrap font-dinaru text-[18px] leading-[49.2px] tracking-[0.36px] text-[#a2a2a2]">
+        <div className={`${FIELD} w-[615px]`} />
+        <div className={`${FIELD} w-[570.1px]`} />
+        <p className="absolute left-[313.8px] top-[34.8px] -translate-x-1/2 whitespace-nowrap font-dinaru text-[20px] leading-[49.2px] tracking-[0.4px] text-[#a2a2a2]">
           www.WHIPPBAKERY.com
         </p>
-        <div className={`${FIELD} left-[590.8px] w-[218.4px]`} />
-        <div className={`${FIELD} left-[590.8px] w-[176.4px]`} />
         <img
           alt=""
-          className={`${layer} left-[736px] top-[65.8px] size-[24px]`}
+          className={`${layer} left-[706.6px] top-[45.8px] size-[28.4px]`}
           src={BROWSER_IMAGES.clear}
         />
-
-        <div
-          className={`absolute left-[775.14px] rounded-[3.35px] border-[0.84px] border-[#8a8080] bg-[linear-gradient(to_bottom,#ffd8ed,#fda6d5_60.9%,#ffd8ed)] shadow-[inset_3.35px_1.68px_8.04px_0px_rgba(255,255,255,0.59)] ${TITLE_BUTTON}`}
-        >
-          <div className="absolute left-[14.23px] top-[15.92px] h-[5.03px] w-[16.75px] border-[0.84px] border-[#8a8080] bg-white" />
-        </div>
-        <img
-          alt=""
-          className={`${layer} left-[827.63px] ${TITLE_BUTTON}`}
-          src={BROWSER_IMAGES.maximize}
-        />
-        <img
-          alt=""
-          className={`${layer} left-[880.13px] ${TITLE_BUTTON}`}
-          src={BROWSER_IMAGES.close}
-        />
-
         <div
           className={`absolute left-[37px] top-[191px] h-[545px] w-[877px] border-[1.45px] border-[#cacaca] shadow-[inset_4.47px_4.47px_11.62px_0px_rgba(0,0,0,0.1)] ${GRID}`}
         />
@@ -94,6 +130,49 @@ export const CakeWindow = ({
           <Cake cake={cake} />
         </div>
         {children}
+        {arrows.map((arrow) => (
+          <button
+            key={arrow.label}
+            type="button"
+            aria-label={arrow.label}
+            disabled={!arrow.enabled}
+            className="absolute transition-transform duration-100 enabled:active:scale-95"
+            style={{
+              left: arrow.left,
+              top: ARROW_MIDDLE - ARROW_TOUCH / 2,
+              width: arrow.width,
+              height: ARROW_TOUCH,
+            }}
+            onClick={arrow.onClick}
+          >
+            <img
+              alt=""
+              draggable={false}
+              className={layer}
+              style={{
+                left: arrow.center - arrow.left - arrow.image / 2,
+                top: ARROW_TOUCH / 2 - arrow.image / 2,
+                width: arrow.image,
+                height: arrow.image,
+              }}
+              src={arrow.src}
+            />
+          </button>
+        ))}
+        {/* 장식 조절 상자보다 위에 둔다. 보이는 높이는 52px이고, 터치 영역만 위아래로 18px씩 넓혔다. */}
+        <button
+          type="button"
+          aria-label={EDITOR_QUIT.label}
+          className="absolute left-[813.8px] top-[15.8px] flex h-[88px] w-[113px] items-center transition-transform duration-100 active:scale-95"
+          onClick={onClose}
+        >
+          <img
+            alt=""
+            draggable={false}
+            className="block h-[52px] w-[113px] max-w-none"
+            src={BROWSER_IMAGES.close}
+          />
+        </button>
       </div>
     </div>
   );

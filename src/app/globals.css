@@ -1,4 +1,17 @@
 @tailwind base;
+
+/* Tailwind 기본 스타일은 버튼 바탕을 지우는 규칙을 :where()로 묶어 둔다. :where()를 모르는 브라우저(Chromium 87)는
+   그 규칙을 통째로 버려 버튼에 기본 회색 바탕이 생기므로, :where() 없이 한 번 더 적는다. */
+@layer base {
+  button,
+  [type="button"],
+  [type="reset"],
+  [type="submit"] {
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+  }
+}
 @tailwind components;
 @tailwind utilities;
 

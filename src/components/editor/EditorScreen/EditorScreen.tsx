@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog/ConfirmDialog";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
@@ -20,21 +22,31 @@ import {
   COLOR_TINTS,
   decorationChoices,
   EDITOR_CATEGORIES,
+  EDITOR_ERASE,
   EDITOR_PACK_CHOICE,
+  EDITOR_QUIT,
   EDITOR_TABS,
   EDITOR_TEXT,
   type EditorCategory,
   type EditorTabId,
+  ERASER_IMAGE,
   SHAPE_ICONS,
   SHAPE_MARKS,
   SIZE_ICON_SCALES,
 } from "@/data/editor";
+import { useCakeHistory } from "@/hooks/editor/useCakeHistory";
 import { heldLayers, lostInShape } from "@/lib/cake";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
 // 화면이 나타난 뒤 말을 시작하기까지의 뜸.
 const TYPING_DELAY_MS = 500;
+
+// 확인 팝업이 누른 버튼 쪽에서 커져 나오도록 잡은 기준점. 팝업의 왼쪽 위가 기준이다.
+const POPUP_ORIGIN = {
+  quit: "origin-[811px_-101px]",
+  erase: "origin-[794px_511px]",
+};
 
 // 줄이 화면보다 길면 좌우로 밀어 본다. 스크롤 막대는 숨긴다.
 const SCROLL_ROW =
@@ -51,6 +63,10 @@ export const EditorScreen = () => {
   const removeDecoration = useExperienceStore(
     (state) => state.removeDecoration,
   );
+  const clearDecorations = useExperienceStore(
+    (state) => state.clearDecorations,
+  );
+  const setCake = useExperienceStore((state) => state.setCake);
   const goTo = useExperienceStore((state) => state.goTo);
   const [tab, setTab] = useState<EditorTabId>(EDITOR_TABS[0].id);
   // 장식 탭에서 고른 분류와, 그 분류의 목록이 열렸는지. 분류를 누르면 고른 상태를 잠깐 보여 준 뒤 목록을 연다.
@@ -58,6 +74,11 @@ export const EditorScreen = () => {
   const [listOpen, setListOpen] = useState(false);
   // 조절 상자를 두른 장식의, 케이크 장식 목록에서의 차례.
   const [selected, setSelected] = useState<number | null>(null);
+  // 그만두면 되돌아갈, 수정 화면에 들어올 때의 케이크.
+  const [startCake] = useState(() => useExperienceStore.getState().cake);
+  // 띄운 확인 팝업.
+  const [asking, setAsking] = useState<keyof typeof POPUP_ORIGIN | null>(null);
+  const history = useCakeHistory();
 
   useEffect(() => {
     if (!category || listOpen) return;
@@ -70,12 +91,28 @@ export const EditorScreen = () => {
     setListOpen(false);
   };
 
+  const ask = (popup: keyof typeof POPUP_ORIGIN) => {
+    playEffect("popUp");
+    setAsking(popup);
+  };
+
+  const quit = () => {
+    if (startCake) setCake(startCake);
+    goTo("result");
+  };
+
+  const erase = () => {
+    history.track(clearDecorations);
+    setSelected(null);
+    setAsking(null);
+  };
+
   // 레터링과 장식 탭에서는 분류를 먼저 고른다.
   const categories = EDITOR_CATEGORIES[tab];
 
   // 낱개 장식 하나를 더하면 그 장식에 바로 조절 상자를 두른다.
   const pickDecoration = (id: string) => {
-    addDecoration(id);
+    history.track(() => addDecoration(id));
     const added = useExperienceStore.getState().cake?.decorations ?? [];
     const one =
       added.length === cake.decorations.length + 1 &&
@@ -124,16 +161,48 @@ export const EditorScreen = () => {
         ))}
       </div>
 
-      <CakeWindow cake={cake} className="absolute left-[68px] top-[614px]">
+      <CakeWindow
+        cake={cake}
+        className="absolute left-[68px] top-[614px]"
+        onClose={() => ask("quit")}
+        canUndo={history.canUndo}
+        canRedo={history.canRedo}
+        onUndo={() => {
+          playEffect("choice");
+          history.undo();
+          setSelected(null);
+        }}
+        onRedo={() => {
+          playEffect("choice");
+          history.redo();
+          setSelected(null);
+        }}
+      >
         {categories && (
           <DecorationControls
             cake={cake}
             selected={selected}
             onSelect={setSelected}
             onAdjust={adjustDecoration}
-            onRemove={removeDecoration}
+            onAdjustStart={history.startDrag}
+            onAdjustEnd={history.endDrag}
+            onRemove={(index) => history.track(() => removeDecoration(index))}
           />
         )}
+        {/* 장식 조절 상자보다 위에 둔다. 보이는 지름은 78px이고, 터치 영역만 88px로 넓혔다. */}
+        <button
+          type="button"
+          aria-label={EDITOR_ERASE.label}
+          className="absolute left-[808.8px] top-[627.8px] flex size-[88px] items-center justify-center transition-transform duration-100 active:scale-95"
+          onClick={() => ask("erase")}
+        >
+          <img
+            alt=""
+            draggable={false}
+            className="block size-[78px] max-w-none"
+            src={ERASER_IMAGE}
+          />
+        </button>
       </CakeWindow>
 
       {categories && category && listOpen ? (
@@ -167,7 +236,9 @@ export const EditorScreen = () => {
                 icon={SHAPE_ICONS[cake.shape]}
                 iconScale={SIZE_ICON_SCALES[item.id]}
                 selected={cake.size === item.id}
-                onClick={() => updateCake({ size: item.id })}
+                onClick={() =>
+                  history.track(() => updateCake({ size: item.id }))
+                }
               />
             ))}
           {tab === "shape" &&
@@ -177,7 +248,9 @@ export const EditorScreen = () => {
                 label={`${SHAPE_MARKS[item.id]} - ${item.label}`}
                 icon={SHAPE_ICONS[item.id]}
                 selected={cake.shape === item.id}
-                onClick={() => updateCake({ shape: item.id })}
+                onClick={() =>
+                  history.track(() => updateCake({ shape: item.id }))
+                }
               />
             ))}
           {tab === "color" &&
@@ -188,7 +261,9 @@ export const EditorScreen = () => {
                 icon={SHAPE_ICONS.round}
                 tint={COLOR_TINTS[item.id]}
                 selected={cake.color === item.id}
-                onClick={() => updateCake({ color: item.id })}
+                onClick={() =>
+                  history.track(() => updateCake({ color: item.id }))
+                }
               />
             ))}
         </div>
@@ -201,6 +276,46 @@ export const EditorScreen = () => {
       >
         {EDITOR_PACK_CHOICE}
       </ChoiceButton>
+
+      {asking && (
+        // 팝업이 떠 있는 동안에는 뒤 화면을 누를 수 없다.
+        <div className="absolute inset-0 z-20">
+          <ConfirmDialog
+            message={
+              asking === "quit" ? EDITOR_QUIT.message : EDITOR_ERASE.message
+            }
+            className={`absolute left-[129px] top-[777px] animate-window-pop motion-reduce:animate-none ${POPUP_ORIGIN[asking]}`}
+          >
+            {asking === "quit" ? (
+              <>
+                <ConfirmButton tone="gray" size="half" onClick={quit}>
+                  {EDITOR_QUIT.confirm}
+                </ConfirmButton>
+                <ConfirmButton
+                  tone="pink"
+                  size="half"
+                  onClick={() => setAsking(null)}
+                >
+                  {EDITOR_QUIT.cancel}
+                </ConfirmButton>
+              </>
+            ) : (
+              <>
+                <ConfirmButton
+                  tone="gray"
+                  size="half"
+                  onClick={() => setAsking(null)}
+                >
+                  {EDITOR_ERASE.cancel}
+                </ConfirmButton>
+                <ConfirmButton tone="pink" size="half" onClick={erase}>
+                  {EDITOR_ERASE.confirm}
+                </ConfirmButton>
+              </>
+            )}
+          </ConfirmDialog>
+        </div>
+      )}
     </section>
   );
 };

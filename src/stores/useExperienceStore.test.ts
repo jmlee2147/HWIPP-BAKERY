@@ -106,6 +106,28 @@ describe("useExperienceStore", () => {
     });
   });
 
+  it("장식을 모두 지우면 크기, 모양, 색상만 남고 예시의 원본은 바뀌지 않는다", () => {
+    const preset = CAKE_PRESETS.find(
+      (item) => item.cake.decorations.length > 0,
+    );
+    if (!preset) throw new Error("장식이 있는 예시가 없다");
+    const before = structuredClone(preset.cake);
+    const { setCake, updateCake, clearDecorations } =
+      useExperienceStore.getState();
+    setCake(preset.cake);
+    updateCake({ shape: preset.cake.shape === "heart" ? "round" : "heart" });
+    clearDecorations();
+
+    const cake = useExperienceStore.getState().cake;
+    expect(cake).toEqual({
+      size: preset.cake.size,
+      shape: preset.cake.shape === "heart" ? "round" : "heart",
+      color: preset.cake.color,
+      decorations: [],
+    });
+    expect(preset.cake).toEqual(before);
+  });
+
   it("케이크가 없을 때 고치면 기본 케이크에서 시작하고, 기본 케이크는 바뀌지 않는다", () => {
     const before = structuredClone(DEFAULT_CAKE);
 

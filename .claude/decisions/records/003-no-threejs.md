@@ -14,7 +14,7 @@ three.js를 포함한 WebGL 라이브러리를 도입하지 않습니다.
 
 ## 근거
 
-- 카드 뒤집기는 CSS 3D transform(`rotateY`, `backface-visibility`, `perspective`)으로 구현되며 Chromium 108에서 지원됩니다.
+- 카드 뒤집기는 CSS 3D transform(`rotateY`, `backface-visibility`, `perspective`)으로 구현되며 Chromium 87에서 지원됩니다.
 - 그리드 확대/이동은 2D `transform`의 scale과 translate 조합입니다.
 - 케이크와 장식 에셋은 전부 2D PNG입니다. 3D 모델이 없어 WebGL로 얻는 것이 없습니다.
 - 키오스크는 TV급 칩셋이라 WebGL 컨텍스트와 텍스처 메모리가 부담이고, 번들도 수백 KB 늘어납니다.

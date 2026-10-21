@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
-import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CarouselDots } from "@/components/questions/CarouselDots/CarouselDots";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
+import { QuestionProgress } from "@/components/questions/QuestionProgress/QuestionProgress";
 import { RelationCard } from "@/components/questions/RelationCard/RelationCard";
 import { CARD_SLOTS, RELATIONS, slotOffset } from "@/data/relations";
 import { STYLE_FONTS, STYLE_IMAGES } from "@/data/styles";
@@ -60,10 +60,13 @@ export const RelationScreen = () => {
       <output className="sr-only">
         {flipped ? RELATIONS[active].description : ""}
       </output>
-      <SpeechBubble className="absolute left-[55px] top-[149px]">
+      <SpeechBubble
+        hint="카드를 클릭하면 설명이 나와요!"
+        className="absolute left-[55px] top-[149px]"
+      >
         <TypedText text={QUESTION} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
-      <ProgressBar step={1} className="absolute left-[75px] top-[58px]" />
+      <QuestionProgress step={1} className="absolute left-[75px] top-[58px]" />
       {RELATIONS.map((relation, index) => {
         const offset = slotOffset(index, active);
         const slot = CARD_SLOTS[offset];

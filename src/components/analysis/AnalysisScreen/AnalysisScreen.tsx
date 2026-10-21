@@ -74,7 +74,7 @@ export const AnalysisScreen = ({
         {scene === "confirm" ? (
           <DialogScene scene={CONFIRM} progressStep={4}>
             <ChoiceButton
-              tone="mint"
+              tone="cocoa"
               className="absolute left-[62px] top-[1723.6px]"
               onClick={() => setScene("loading")}
             >

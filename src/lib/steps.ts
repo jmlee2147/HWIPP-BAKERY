@@ -33,3 +33,19 @@ export function nextStep(step: Step): Step {
 export function prevStep(step: Step): Step {
   return STEPS[Math.max(STEPS.indexOf(step) - 1, 0)];
 }
+
+// 문답 네 단계. 이 단계들 사이에서는 진행 바로 오갈 수 있다.
+export const QUESTION_STEPS = ["relation", "style", "party", "flavor"] as const;
+
+export type QuestionStep = (typeof QUESTION_STEPS)[number];
+
+// 진행 바로 갈 수 있는 가장 뒤 단계. 아직 답하지 않은 첫 단계까지 갈 수 있다.
+// 예: 1, 2단계에 답하고 3단계를 보류했다면 1~3단계를 오갈 수 있고 4단계로는 갈 수 없다.
+export function furthestQuestionStep(
+  answers: Record<QuestionStep, unknown>,
+): QuestionStep {
+  return (
+    QUESTION_STEPS.find((step) => answers[step] == null) ??
+    QUESTION_STEPS[QUESTION_STEPS.length - 1]
+  );
+}

@@ -23,11 +23,17 @@ const STARS = [
 
 const layerClass = "absolute block size-full max-w-none";
 
+interface SpeechBubbleProps extends ComponentPropsWithRef<"div"> {
+  // 아래 띠에 쓰는 안내 문구.
+  hint?: string;
+}
+
 export const SpeechBubble = ({
   children,
+  hint,
   className = "",
   ...props
-}: ComponentPropsWithRef<"div">) => {
+}: SpeechBubbleProps) => {
   return (
     <div
       className={`h-[319.14px] w-[962.45px] drop-shadow-[7.235px_10.129px_10.925px_rgba(185,172,172,0.8)] ${className}`}
@@ -68,6 +74,11 @@ export const SpeechBubble = ({
             />
           </div>
         ))}
+        {hint && (
+          <p className="absolute left-0 top-[262px] w-[941px] text-center font-stardust text-[26px] font-bold leading-[49.2px] tracking-[-0.65px] text-candy">
+            {hint}
+          </p>
+        )}
       </div>
     </div>
   );
