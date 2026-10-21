@@ -17,6 +17,22 @@ export const EDITOR_TEXT =
 
 export const EDITOR_PACK_CHOICE = "이대로 포장할래!";
 
+// 창의 X와 지우개를 누르면 뜨는 확인 팝업. confirm은 실행하는 쪽, cancel은 돌아가는 쪽 선택지다.
+export const EDITOR_QUIT = {
+  label: "케이크 수정 그만두기",
+  message:
+    "케이크 수정을 그만둘까요?\n현재까지의 수정 내용은 저장되지 않습니다.",
+  confirm: "그만두기",
+  cancel: "계속하기",
+};
+
+export const EDITOR_ERASE = {
+  label: "장식 모두 지우기",
+  message: "현재의 장식 요소를 모두 제거할까요?",
+  confirm: "제거하기",
+  cancel: "취소",
+};
+
 // 목록의 순서가 탭 줄에 보이는 순서다.
 export const EDITOR_TABS = [
   { id: "size", label: "크기" },
@@ -295,6 +311,7 @@ export const DECORATION_PLACE_SCALES: Record<string, number> = {
 };
 
 export const LIST_CLOSE_IMAGE = editorImage("list-close.svg");
+export const ERASER_IMAGE = editorImage("eraser.svg");
 export const LIST_CLOSE_LABEL = "분류로 돌아가기";
 
 // 분류를 누른 뒤 고른 상태를 보여 주고 목록으로 넘어가기까지의 시간.
@@ -388,8 +405,8 @@ export function windowCakeLift(size: number): number {
 const browser = (name: string) => `/assets/ui/browser/${name}`;
 
 export const BROWSER_IMAGES = {
-  nav: browser("nav.svg"),
-  maximize: browser("maximize.svg"),
+  back: browser("back-off.svg"),
+  forward: browser("forward-off.svg"),
   close: browser("close.svg"),
   clear: browser("clear.svg"),
   face: browser("face.svg"),
@@ -403,6 +420,7 @@ export const EDITOR_IMAGES = [
     CAKE_COLORS.map((color) => cakeBaseImage(shape.id, color.id)),
   ),
   LIST_CLOSE_IMAGE,
+  ERASER_IMAGE,
   ...Object.values(CONTROL_IMAGES),
   ...Object.values(EDITOR_CATEGORIES).flatMap((categories) =>
     categories.map((category) => category.icon.src),

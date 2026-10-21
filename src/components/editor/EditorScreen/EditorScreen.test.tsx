@@ -19,7 +19,9 @@ import {
   DECORATION_CATEGORIES,
   DECORATION_SCALE,
   DECORATION_SETS,
+  EDITOR_ERASE,
   EDITOR_PACK_CHOICE,
+  EDITOR_QUIT,
   LETTERING_CATEGORIES,
   LIST_CLOSE_LABEL,
   SHAPE_ICONS,
@@ -232,6 +234,72 @@ describe("EditorScreen", () => {
     click("button", EDITOR_PACK_CHOICE);
 
     expect(useExperienceStore.getState().step).toBe("share");
+  });
+
+  // 장식이 있는 예시 케이크를 들고 수정 화면에 들어온다.
+  const enterWithPreset = () => {
+    const preset = CAKE_PRESETS.find(
+      (item) => item.cake.decorations.length > 0 && item.cake.size !== "mini",
+    );
+    if (!preset) throw new Error("장식이 있는 예시가 없다");
+    useExperienceStore.getState().setCake(preset.cake);
+    render(<EditorScreen />);
+    return preset.cake;
+  };
+
+  it("X를 눌러 그만두면 수정한 것을 버리고 결과 화면으로 간다", () => {
+    const start = enterWithPreset();
+    click("button", "SIZE 3 - mini");
+    expect(storedCake()?.size).toBe("mini");
+
+    click("button", EDITOR_QUIT.label);
+    expect(
+      screen.getByRole("alertdialog", { name: EDITOR_QUIT.message }),
+    ).toBeTruthy();
+    click("button", EDITOR_QUIT.confirm);
+
+    expect(useExperienceStore.getState().step).toBe("result");
+    expect(storedCake()).toEqual(start);
+  });
+
+  it("X를 누르고 계속하기를 고르면 팝업만 닫히고 수정한 것은 남는다", () => {
+    enterWithPreset();
+    click("button", "SIZE 3 - mini");
+
+    click("button", EDITOR_QUIT.label);
+    click("button", EDITOR_QUIT.cancel);
+
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(useExperienceStore.getState().step).toBe("editor");
+    expect(storedCake()?.size).toBe("mini");
+  });
+
+  it("지우개로 제거하면 장식만 모두 빠지고 크기, 모양, 색상은 남는다", () => {
+    const start = enterWithPreset();
+
+    click("button", EDITOR_ERASE.label);
+    expect(
+      screen.getByRole("alertdialog", { name: EDITOR_ERASE.message }),
+    ).toBeTruthy();
+    click("button", EDITOR_ERASE.confirm);
+
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(storedCake()).toEqual({
+      size: start.size,
+      shape: start.shape,
+      color: start.color,
+      decorations: [],
+    });
+  });
+
+  it("지우개를 누르고 취소하면 장식이 그대로 남는다", () => {
+    const start = enterWithPreset();
+
+    click("button", EDITOR_ERASE.label);
+    click("button", EDITOR_ERASE.cancel);
+
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(storedCake()).toEqual(start);
   });
 });
 

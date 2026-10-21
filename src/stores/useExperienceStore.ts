@@ -41,6 +41,8 @@ interface ExperienceState {
   // 직접 놓은 장식의 자리, 크기, 기울기를 고치거나 뺀다. index는 케이크의 장식 목록에서의 차례다.
   adjustDecoration: (index: number, change: DecorationChange) => void;
   removeDecoration: (index: number) => void;
+  // 레터링, 토핑, 장식을 모두 걷어 내고 크기, 모양, 색상만 남긴다.
+  clearDecorations: () => void;
   setOrderNumber: (orderNumber: number) => void;
   reset: () => void;
 }
@@ -92,6 +94,12 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
     set((state) =>
       state.cake ? { cake: removeDecoration(state.cake, index) } : {},
     ),
+  clearDecorations: () =>
+    set((state) => {
+      if (!state.cake) return {};
+      const { size, shape, color } = state.cake;
+      return { cake: { size, shape, color, decorations: [] } };
+    }),
   setOrderNumber: (orderNumber) => set({ orderNumber }),
   reset: () =>
     set({
