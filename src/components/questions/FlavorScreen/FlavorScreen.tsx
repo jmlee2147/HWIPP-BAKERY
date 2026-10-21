@@ -133,6 +133,7 @@ export const FlavorScreen = () => {
                   className={`absolute block max-w-none transition-opacity duration-300 motion-reduce:transition-none ${index === active ? "opacity-100" : "opacity-0"}`}
                   src={item.activeImage}
                   style={tile}
+                  onError={() => setImageFailed(true)}
                 />
               </div>
             );
