@@ -8,9 +8,9 @@ import {
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
-import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
+import { QuestionProgress } from "@/components/questions/QuestionProgress/QuestionProgress";
 import { ANALYSIS_IMAGES } from "@/data/analysis";
 import {
   FLAVOR_CARD_HEIGHT,
@@ -76,7 +76,7 @@ export const FlavorScreen = () => {
       <SpeechBubble className="absolute left-[51.55px] top-[149px]">
         <TypedText text={QUESTION} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
-      <ProgressBar step={4} className="absolute left-[75px] top-[58px]" />
+      <QuestionProgress step={4} className="absolute left-[75px] top-[58px]" />
       {/* 카드 목록은 이 칸 안에서 위아래로 움직인다. */}
       <div className="absolute inset-x-0 overflow-hidden" style={FLAVOR_VIEW}>
         <motion.div

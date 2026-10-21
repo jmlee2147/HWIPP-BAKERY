@@ -120,6 +120,26 @@ describe("ExperienceRoot", () => {
     expect(useExperienceStore.getState().relation).toBeNull();
   });
 
+  it("문답 화면에서는 답한 단계와 아직 답하지 않은 첫 단계 사이를 진행 바로 오간다", async () => {
+    useExperienceStore.setState({
+      step: "party",
+      relation: "friend",
+      style: "minimalist",
+    });
+    render(<ExperienceRoot />);
+
+    expect(
+      await screen.findByRole("button", { name: "1단계로 이동" }, WAIT),
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "4단계로 이동" })).toBeNull();
+
+    await click("1단계로 이동");
+    expect(useExperienceStore.getState().step).toBe("relation");
+    expect(
+      await screen.findByRole("button", { name: "3단계로 이동" }, WAIT),
+    ).toBeTruthy();
+  });
+
   it("아래쪽을 전체 폭 버튼이 차지하는 화면에는 처음으로 돌아가기 버튼이 없다", () => {
     useExperienceStore.setState({ step: "analysis" });
     render(<ExperienceRoot />);
