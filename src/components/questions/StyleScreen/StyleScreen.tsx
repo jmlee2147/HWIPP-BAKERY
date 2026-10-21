@@ -23,11 +23,12 @@ const SUMMARY_DELAY_MS = 600;
 // 선택하기를 누르면 요약 창을 한 번 더 보여 준 뒤 다음 단계로 넘어간다.
 const CONFIRM_SHOW_MS = 1400;
 
-// 폴더는 같은 간격으로 놓인다. 창은 고른 폴더 쪽에서 튀어나온다.
-const FOLDER_LEFT = 82;
-const FOLDER_GAP = 190.36;
+// 폴더는 같은 간격으로 놓이고 아래에 이름표가 붙는다. 창은 고른 폴더 쪽에서 튀어나온다.
+const FOLDER_LEFT = 69.67;
+const FOLDER_GAP = 197.33;
 const FOLDER_WIDTH = 143.29;
-const FOLDER_CENTER_Y = 583.86;
+const FOLDER_TOP = 507.65;
+const FOLDER_CENTER_Y = FOLDER_TOP + 106.35 / 2;
 const WINDOW_LEFT = 52;
 const WINDOW_TOP = 677;
 
@@ -95,7 +96,10 @@ export const StyleScreen = () => {
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#fffaf9]">
-      <SpeechBubble className="absolute left-[55px] top-[149px]">
+      <SpeechBubble
+        hint="폴더를 클릭해 확인해보세요"
+        className="absolute left-[55px] top-[149px]"
+      >
         <TypedText
           text={QUESTION}
           startDelayMs={TYPING_DELAY_MS}
@@ -110,8 +114,8 @@ export const StyleScreen = () => {
           type="button"
           aria-label={`${item.name} 폴더`}
           aria-pressed={index === active}
-          className="absolute top-[530.68px] h-[106.35px] w-[143.29px] transition-transform duration-100 active:scale-95"
-          style={{ left: FOLDER_LEFT + index * FOLDER_GAP }}
+          className="absolute h-[106.35px] w-[143.29px] transition-transform duration-100 active:scale-95"
+          style={{ left: FOLDER_LEFT + index * FOLDER_GAP, top: FOLDER_TOP }}
           onClick={() => show(item.id)}
         >
           <img
@@ -119,6 +123,11 @@ export const StyleScreen = () => {
             className="block size-full max-w-none"
             src={folderImage(item.folder, index === active)}
           />
+          <span
+            className={`absolute left-1/2 top-[106.35px] -translate-x-1/2 whitespace-nowrap font-pretendard text-[22px] leading-[49.2px] tracking-[-0.55px] ${index === active ? "font-semibold text-candy [text-shadow:2px_1px_1px_#ffcde8]" : "font-medium text-[#a9a9a9]"}`}
+          >
+            {item.folderLabel}
+          </span>
         </button>
       ))}
       <div

@@ -105,7 +105,7 @@ describe("ExperienceRoot", () => {
     await click("너무 단 건 극혐! 덜 달아야 해");
     await click("선택하기");
 
-    await screen.findByRole("button", { name: "응 ! 당장 구워 줘 !" }, WAIT);
+    await screen.findByRole("button", { name: "응! 당장 구워 줘!" }, WAIT);
     expect(useExperienceStore.getState().flavor).toBe("sweet");
   });
 
@@ -123,7 +123,7 @@ describe("ExperienceRoot", () => {
       useExperienceStore.setState({ step: "result" });
       render(<ExperienceRoot />);
 
-      act(() => vi.advanceTimersByTime(119_000));
+      act(() => vi.advanceTimersByTime(39_000));
       expect(useExperienceStore.getState().step).toBe("result");
 
       act(() => vi.advanceTimersByTime(1_000));
