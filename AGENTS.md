@@ -79,7 +79,7 @@ Skill 파일은 `.claude/skills/<skill-name>/SKILL.md`에 있습니다.
 ### 금지 패턴
 
 - 모든 규칙 파일을 기본으로 로드하지 않습니다. Tier 기준을 따릅니다.
-- Chromium 108에서 동작하지 않는 CSS/JS를 쓰지 않습니다.
+- Chromium 87에서 동작하지 않는 CSS/JS를 쓰지 않습니다.
 - Tailwind v4로 올리거나 v4 문법을 섞지 않습니다.
 - 화면 안에서 뷰포트 단위나 반응형 분기로 크기를 잡지 않습니다.
 - API 키나 LLM 호출을 클라이언트 코드에 두지 않습니다.

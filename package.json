@@ -35,8 +35,8 @@
   },
   "packageManager": "pnpm@12.5.1",
   "browserslist": [
-    "chrome 108",
-    "edge 108",
+    "chrome 87",
+    "edge 87",
     "firefox 111",
     "safari 16.4"
   ]

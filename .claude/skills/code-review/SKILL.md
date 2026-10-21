@@ -47,7 +47,7 @@ git diff --staged
 ## Review Focus
 
 - 실제 동작 버그 또는 회귀 가능성
-- 키오스크 기준선(Chromium 108)에서 동작하지 않는 CSS/JS 사용 (`project-constraints.md`)
+- 키오스크 기준선(Chromium 87)에서 동작하지 않는 CSS/JS 사용 (`project-constraints.md`)
 - 화면이 `Stage` 밖에서 뷰포트 단위나 반응형 분기로 크기를 잡는 경우
 - 체험이 막힐 수 있는 경로: 실패/지연 시 대체 경로가 없는 LLM 호출, 되돌아갈 수 없는 상태
 - API 키나 LLM 호출이 클라이언트 번들에 들어가는 경우
