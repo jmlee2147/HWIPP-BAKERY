@@ -3,7 +3,7 @@
 import type { ComponentPropsWithRef } from "react";
 import { playEffect } from "@/lib/sound";
 
-type ConfirmTone = "pink" | "brown" | "mint";
+type ConfirmTone = "pink" | "brown" | "mint" | "gray";
 
 const TONE_CLASS: Record<
   ConfirmTone,
@@ -27,15 +27,26 @@ const TONE_CLASS: Record<
     fill: "bg-mint",
     text: "text-[#5e3e23]",
   },
+  gray: {
+    plate: "bg-[#f2f2f2]",
+    frame: "opacity-70",
+    fill: "bg-mist",
+    text: "text-[#5e3e23]",
+  },
 };
+
+// 화면 아래 버튼은 full, 팝업 안에 두 개 나란히 놓는 버튼은 half.
+const SIZE_CLASS = { full: "w-[608px]", half: "w-[339px]" };
 
 interface ConfirmButtonProps extends ComponentPropsWithRef<"button"> {
   tone?: ConfirmTone;
+  size?: keyof typeof SIZE_CLASS;
 }
 
-// 문답 화면 아래에서 고른 답을 확정하는 버튼.
+// 문답 화면 아래에서 고른 답을 확정하는 버튼. 확인 팝업의 선택지로도 쓴다.
 export const ConfirmButton = ({
   tone = "pink",
+  size = "full",
   type = "button",
   className = "",
   children,
@@ -47,7 +58,7 @@ export const ConfirmButton = ({
   return (
     <button
       type={type}
-      className={`h-[87.16px] w-[608px] transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 ${className}`}
+      className={`h-[87.16px] ${SIZE_CLASS[size]} transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 ${className}`}
       onClick={(event) => {
         playEffect("choice");
         onClick?.(event);
@@ -59,7 +70,7 @@ export const ConfirmButton = ({
           className={`absolute inset-0 rounded-[6.48px] opacity-70 ${toneClass.plate} shadow-[-0.518px_0.777px_15.171px_0px_rgba(255,255,255,0.63)]`}
         />
         <span
-          className={`absolute left-[5.73px] top-[3.76px] h-[79.63px] w-[596.55px] rounded-[6.48px] border-[0.26px] border-[#909090] ${toneClass.frame}`}
+          className={`absolute inset-x-[0.94%] inset-y-[3.76px] rounded-[6.48px] border-[0.26px] border-[#909090] ${toneClass.frame}`}
         >
           <span
             className={`absolute inset-0 rounded-[6.48px] ${toneClass.fill}`}

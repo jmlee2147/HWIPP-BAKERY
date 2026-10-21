@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CarouselDots } from "@/components/questions/CarouselDots/CarouselDots";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { RelationCard } from "@/components/questions/RelationCard/RelationCard";
 import { CARD_SLOTS, RELATIONS, slotOffset } from "@/data/relations";
 import { STYLE_FONTS, STYLE_IMAGES } from "@/data/styles";

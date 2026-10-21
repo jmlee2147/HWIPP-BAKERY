@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { StyleWindow } from "@/components/questions/StyleWindow/StyleWindow";
 import { PARTY_IMAGES } from "@/data/parties";
 import { folderImage, STYLES, type StyleId } from "@/data/styles";

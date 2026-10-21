@@ -7,10 +7,10 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { ANALYSIS_IMAGES } from "@/data/analysis";
 import {
   FLAVOR_CARD_HEIGHT,

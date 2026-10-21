@@ -109,6 +109,26 @@ describe("ExperienceRoot", () => {
     expect(useExperienceStore.getState().flavor).toBe("sweet");
   });
 
+  it("문답 화면에서 처음으로 돌아가기를 누르고 팝업에서 처음으로를 고르면 오프닝으로 돌아간다", async () => {
+    useExperienceStore.setState({ step: "style", relation: "friend" });
+    render(<ExperienceRoot />);
+
+    await click("처음으로 돌아가기");
+    await click("처음으로");
+
+    expect(useExperienceStore.getState().step).toBe("opening");
+    expect(useExperienceStore.getState().relation).toBeNull();
+  });
+
+  it("아래쪽을 전체 폭 버튼이 차지하는 화면에는 처음으로 돌아가기 버튼이 없다", () => {
+    useExperienceStore.setState({ step: "analysis" });
+    render(<ExperienceRoot />);
+
+    expect(
+      screen.queryByRole("button", { name: "처음으로 돌아가기" }),
+    ).toBeNull();
+  });
+
   it("결과 화면에서 수정하기를 고르면 결과 수정 단계로 간다", async () => {
     useExperienceStore.setState({ step: "result" });
     render(<ExperienceRoot />);

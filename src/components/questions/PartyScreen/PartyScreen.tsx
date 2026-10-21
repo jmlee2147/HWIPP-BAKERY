@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ArrowButton } from "@/components/common/ArrowButton/ArrowButton";
+import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CarouselDots } from "@/components/questions/CarouselDots/CarouselDots";
 import { ConfettiBurst } from "@/components/questions/ConfettiBurst/ConfettiBurst";
-import { ConfirmButton } from "@/components/questions/ConfirmButton/ConfirmButton";
 import { PartyBoard } from "@/components/questions/PartyBoard/PartyBoard";
 import { FLAVOR_IMAGES } from "@/data/flavors";
 import { PARTIES, PARTY_PAPER } from "@/data/parties";
