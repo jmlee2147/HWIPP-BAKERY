@@ -33,7 +33,8 @@ export const ConfirmDialog = ({
           />
         ))}
         <span className="absolute left-[22px] top-[71.2px] h-[1.59px] w-[772px] bg-[#e4e4e4]" />
-        <p className="absolute inset-x-0 top-[130px] text-center font-stardust text-body font-bold leading-[49.2px] text-cocoa">
+        {/* 문구는 위쪽 띠와 선택지 사이의 가운데에 놓는다. 줄바꿈은 그대로 살린다. */}
+        <p className="absolute inset-x-0 top-[74px] flex h-[163px] items-center justify-center whitespace-pre-line text-center font-stardust text-body font-bold leading-[49.2px] text-cocoa">
           {message}
         </p>
         <div className="absolute left-[55px] top-[237px] flex gap-[30px]">

@@ -14,14 +14,14 @@ import {
 import { cakeLayers, cakeScale, type DecorationChange } from "@/lib/cake";
 import { playEffect } from "@/lib/sound";
 
-// 손잡이는 지름 18px의 원이고, 터치 영역만 88px로 넓힌다.
+// 손잡이는 지름 40px의 원이고, 터치 영역만 88px로 넓힌다.
 // 좁은 상자에서 손잡이끼리 겹치지 않도록 터치 영역은 상자 바깥쪽으로 치우쳐 있다.
 const HANDLE_TOUCH = 88;
 const HANDLE_INSIDE = 26;
+// 손잡이 원의 반지름. 원의 가운데가 상자의 모서리에 놓인다.
+const KNOB_RADIUS = 20;
 const HANDLE =
   "absolute flex touch-none items-center justify-center [-webkit-tap-highlight-color:transparent]";
-const KNOB =
-  "flex size-[18px] items-center justify-center rounded-full bg-[#ff8cc7]";
 
 type Mode = "move" | "scale" | "rotate";
 
@@ -205,7 +205,7 @@ export const DecorationControls = ({
                     height: HANDLE_TOUCH,
                     left: HANDLE_INSIDE - HANDLE_TOUCH,
                     top: HANDLE_INSIDE - HANDLE_TOUCH,
-                    padding: `${HANDLE_TOUCH - HANDLE_INSIDE - 9}px ${HANDLE_INSIDE - 9}px ${HANDLE_INSIDE - 9}px ${HANDLE_TOUCH - HANDLE_INSIDE - 9}px`,
+                    padding: `${HANDLE_TOUCH - HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_TOUCH - HANDLE_INSIDE - KNOB_RADIUS}px`,
                   }}
                   onClick={() => {
                     playEffect("choice");
@@ -216,7 +216,7 @@ export const DecorationControls = ({
                   <img
                     alt=""
                     draggable={false}
-                    className="block size-[18px] max-w-none"
+                    className="block size-[40px] max-w-none"
                     src={CONTROL_IMAGES.remove}
                   />
                 </button>
@@ -229,18 +229,16 @@ export const DecorationControls = ({
                     height: HANDLE_TOUCH,
                     right: HANDLE_INSIDE - HANDLE_TOUCH,
                     top: HANDLE_INSIDE - HANDLE_TOUCH,
-                    padding: `${HANDLE_TOUCH - HANDLE_INSIDE - 9}px ${HANDLE_TOUCH - HANDLE_INSIDE - 9}px ${HANDLE_INSIDE - 9}px ${HANDLE_INSIDE - 9}px`,
+                    padding: `${HANDLE_TOUCH - HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_TOUCH - HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_INSIDE - KNOB_RADIUS}px`,
                   }}
                   {...dragging(item, "scale")}
                 >
-                  <span className={KNOB}>
-                    <img
-                      alt=""
-                      draggable={false}
-                      className="block size-[12px] max-w-none"
-                      src={CONTROL_IMAGES.scale}
-                    />
-                  </span>
+                  <img
+                    alt=""
+                    draggable={false}
+                    className="block size-[40px] max-w-none"
+                    src={CONTROL_IMAGES.scale}
+                  />
                 </button>
                 <button
                   type="button"
@@ -251,18 +249,16 @@ export const DecorationControls = ({
                     height: HANDLE_TOUCH,
                     right: HANDLE_INSIDE - HANDLE_TOUCH,
                     bottom: HANDLE_INSIDE - HANDLE_TOUCH,
-                    padding: `${HANDLE_INSIDE - 9}px ${HANDLE_TOUCH - HANDLE_INSIDE - 9}px ${HANDLE_TOUCH - HANDLE_INSIDE - 9}px ${HANDLE_INSIDE - 9}px`,
+                    padding: `${HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_TOUCH - HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_TOUCH - HANDLE_INSIDE - KNOB_RADIUS}px ${HANDLE_INSIDE - KNOB_RADIUS}px`,
                   }}
                   {...dragging(item, "rotate")}
                 >
-                  <span className={KNOB}>
-                    <img
-                      alt=""
-                      draggable={false}
-                      className="block h-[9.63px] w-[9.62px] max-w-none"
-                      src={CONTROL_IMAGES.rotate}
-                    />
-                  </span>
+                  <img
+                    alt=""
+                    draggable={false}
+                    className="block size-[40px] max-w-none"
+                    src={CONTROL_IMAGES.rotate}
+                  />
                 </button>
               </>
             )}
