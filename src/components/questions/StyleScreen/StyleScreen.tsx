@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
@@ -31,6 +31,8 @@ const FOLDER_TOP = 507.65;
 const FOLDER_CENTER_Y = FOLDER_TOP + 106.35 / 2;
 const WINDOW_LEFT = 52;
 const WINDOW_TOP = 677;
+// 창을 이만큼(화면 px) 넘게 옆으로 밀면 옆 스타일로 넘어간다.
+const SWIPE_MIN_PX = 40;
 
 export const StyleScreen = () => {
   const setStyle = useExperienceStore((state) => state.setStyle);
@@ -92,6 +94,22 @@ export const StyleScreen = () => {
     setSummaryOpen(false);
   };
 
+  // 창을 좌우로 밀어 옆 스타일로 넘긴다. 끝에서 넘기면 반대쪽 끝으로 이어진다.
+  // 밀다가 손을 뗀 자리가 버튼이어도 그 버튼은 눌리지 않게 한다.
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  const swipe = (endX: number, endY: number) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start) return;
+    const dx = endX - start.x;
+    if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(endY - start.y))
+      return;
+    swiped.current = true;
+    const next = (active + (dx < 0 ? 1 : -1) + STYLES.length) % STYLES.length;
+    show(STYLES[next].id);
+  };
+
   const folderCenter = FOLDER_LEFT + active * FOLDER_GAP + FOLDER_WIDTH / 2;
 
   return (
@@ -132,9 +150,23 @@ export const StyleScreen = () => {
       ))}
       <div
         key={style.id}
-        className="absolute left-[52px] top-[677px] animate-window-pop motion-reduce:animate-none"
+        className="absolute left-[52px] top-[677px] animate-window-pop touch-none motion-reduce:animate-none"
         style={{
           transformOrigin: `${folderCenter - WINDOW_LEFT}px ${FOLDER_CENTER_Y - WINDOW_TOP}px`,
+        }}
+        onPointerDown={(event) => {
+          swiped.current = false;
+          swipeStart.current = { x: event.clientX, y: event.clientY };
+        }}
+        onPointerUp={(event) => swipe(event.clientX, event.clientY)}
+        onPointerCancel={() => {
+          swipeStart.current = null;
+        }}
+        onClickCapture={(event) => {
+          if (!swiped.current) return;
+          swiped.current = false;
+          event.preventDefault();
+          event.stopPropagation();
         }}
       >
         <StyleWindow

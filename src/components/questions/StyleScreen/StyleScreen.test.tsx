@@ -61,6 +61,47 @@ describe("StyleScreen", () => {
     expect(pressed("Subculture Digger 즐겨찾기")).toBe("true");
   });
 
+  it("창의 화살표로 옆 스타일로 넘어가고, 끝에서는 반대쪽 끝으로 이어진다", () => {
+    render(<StyleScreen />);
+
+    click("다음 스타일");
+    expect(pressed("Aesthetic Curator 폴더")).toBe("true");
+
+    click("이전 스타일");
+    click("이전 스타일");
+    expect(pressed("Subculture Digger 폴더")).toBe("true");
+  });
+
+  it("창을 왼쪽으로 밀면 다음, 오른쪽으로 밀면 이전 스타일로 넘어간다", () => {
+    render(<StyleScreen />);
+    const swipe = (from: number, to: number) => {
+      const target = screen.getByText("자주 하는 말");
+      fireEvent.pointerDown(target, { clientX: from, clientY: 500 });
+      fireEvent.pointerUp(target, { clientX: to, clientY: 510 });
+    };
+
+    swipe(600, 400);
+    expect(pressed("Aesthetic Curator 폴더")).toBe("true");
+
+    swipe(400, 600);
+    expect(pressed("Trendsetter 폴더")).toBe("true");
+
+    // 옆으로 조금만 움직인 것은 넘기지 않는다.
+    swipe(500, 480);
+    expect(pressed("Trendsetter 폴더")).toBe("true");
+  });
+
+  it("밀다가 손을 뗀 자리의 버튼은 눌리지 않는다", () => {
+    render(<StyleScreen />);
+    const thumb = button("Cute Collector 즐겨찾기");
+
+    fireEvent.pointerDown(thumb, { clientX: 600, clientY: 500 });
+    fireEvent.pointerUp(thumb, { clientX: 400, clientY: 500 });
+    fireEvent.click(button("Cute Collector 즐겨찾기"));
+
+    expect(pressed("Aesthetic Curator 폴더")).toBe("true");
+  });
+
   it("한 줄 요약 창은 말풍선의 말이 끝난 뒤에 한 번 보였다가 사라진다", () => {
     render(<StyleScreen />);
     advance(600);
