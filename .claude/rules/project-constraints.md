@@ -6,14 +6,15 @@
 
 - 1차 대상은 전시장의 세로 터치 키오스크(LG StanbyME 2, 2560x1440 패널을 세로로 사용)입니다.
 - 2차 대상은 관람객 개인 휴대폰 브라우저입니다. 같은 배포 주소로 접속합니다.
-- 키오스크 브라우저 기준선은 **Chromium 108**로 잡습니다. 근거는 `.claude/decisions/records/002-kiosk-browser-baseline.md`입니다.
-- 실기기의 실제 엔진 버전과 CSS 지원 범위는 배포 주소의 `/device` 화면으로 확인합니다.
+- 키오스크 브라우저 기준선은 **Chromium 87**입니다. 시험 기기인 1세대 StanbyME의 기본 브라우저 값이며, 근거는 `.claude/decisions/records/002-kiosk-browser-baseline.md`입니다.
+- 실기기의 실제 엔진 버전과 지원 범위는 배포 주소의 `/check.html`로 확인합니다. React 없이 동작해 사이트 JS가 멈춰도 보입니다.
 
 ## 브라우저 호환
 
-- Chromium 108에서 동작하지 않는 기능을 쓰지 않습니다. 대표적으로 `oklch()`, `color-mix()`, CSS nesting, `@starting-style`, View Transitions(문서 간), scroll-driven animations, `linear()` easing이 해당합니다.
+- Chromium 87에서 동작하지 않는 기능을 쓰지 않습니다. 대표적으로 `:where()`, `:is()`, `aspect-ratio`, CSS `rotate`/`scale` 속성, `Array.prototype.at`, `Object.hasOwn`, `structuredClone`, `oklch()`, `color-mix()`, CSS nesting, `@starting-style`, View Transitions, scroll-driven animations, `linear()` easing이 해당합니다.
 - `package.json`의 `browserslist`를 임의로 올리지 않습니다.
-- 새 CSS/JS 기능을 쓰기 전에 Chrome 108 지원 여부를 확인합니다.
+- 새 CSS/JS 기능을 쓰기 전에 Chrome 87 지원 여부를 확인합니다.
+- 라이브러리를 올리거나 새로 들이면 빌드 결과에 87이 못 읽는 문법(클래스 static 블록, `#x in obj` 등)이 남는지 확인합니다.
 
 ## 화면 크기
 
