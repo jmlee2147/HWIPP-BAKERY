@@ -3,7 +3,7 @@
 import type { ComponentPropsWithRef } from "react";
 import { playEffect } from "@/lib/sound";
 
-type ConfirmTone = "pink" | "brown";
+type ConfirmTone = "pink" | "brown" | "mint";
 
 const TONE_CLASS: Record<
   ConfirmTone,
@@ -20,6 +20,12 @@ const TONE_CLASS: Record<
     frame: "opacity-80",
     fill: "bg-chocolate",
     text: "text-petal",
+  },
+  mint: {
+    plate: "bg-[#e0ecf5]",
+    frame: "opacity-70",
+    fill: "bg-mint",
+    text: "text-[#5e3e23]",
   },
 };
 

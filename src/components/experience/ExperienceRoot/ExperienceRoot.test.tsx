@@ -98,12 +98,12 @@ describe("ExperienceRoot", () => {
     expect(useExperienceStore.getState().party).toBe("event");
   });
 
-  it("맛 화면에서 선택하기를 누르면 고른 조건을 저장하고 다음 단계로 간다", async () => {
+  it("맛 화면에서 다음을 누르면 고른 조건을 저장하고 다음 단계로 간다", async () => {
     useExperienceStore.setState({ step: "flavor" });
     render(<ExperienceRoot />);
 
     await click("너무 단 건 극혐! 덜 달아야 해");
-    await click("선택하기");
+    await click("다음");
 
     await screen.findByRole("button", { name: "응! 당장 구워 줘!" }, WAIT);
     expect(useExperienceStore.getState().flavor).toBe("sweet");
