@@ -34,6 +34,7 @@ import {
   SHAPE_MARKS,
   SIZE_ICON_SCALES,
 } from "@/data/editor";
+import { useCakeHistory } from "@/hooks/editor/useCakeHistory";
 import { heldLayers, lostInShape } from "@/lib/cake";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
@@ -77,6 +78,7 @@ export const EditorScreen = () => {
   const [startCake] = useState(() => useExperienceStore.getState().cake);
   // 띄운 확인 팝업.
   const [asking, setAsking] = useState<keyof typeof POPUP_ORIGIN | null>(null);
+  const history = useCakeHistory();
 
   useEffect(() => {
     if (!category || listOpen) return;
@@ -100,7 +102,7 @@ export const EditorScreen = () => {
   };
 
   const erase = () => {
-    clearDecorations();
+    history.track(clearDecorations);
     setSelected(null);
     setAsking(null);
   };
@@ -110,7 +112,7 @@ export const EditorScreen = () => {
 
   // 낱개 장식 하나를 더하면 그 장식에 바로 조절 상자를 두른다.
   const pickDecoration = (id: string) => {
-    addDecoration(id);
+    history.track(() => addDecoration(id));
     const added = useExperienceStore.getState().cake?.decorations ?? [];
     const one =
       added.length === cake.decorations.length + 1 &&
@@ -163,6 +165,18 @@ export const EditorScreen = () => {
         cake={cake}
         className="absolute left-[68px] top-[614px]"
         onClose={() => ask("quit")}
+        canUndo={history.canUndo}
+        canRedo={history.canRedo}
+        onUndo={() => {
+          playEffect("choice");
+          history.undo();
+          setSelected(null);
+        }}
+        onRedo={() => {
+          playEffect("choice");
+          history.redo();
+          setSelected(null);
+        }}
       >
         {categories && (
           <DecorationControls
@@ -170,7 +184,9 @@ export const EditorScreen = () => {
             selected={selected}
             onSelect={setSelected}
             onAdjust={adjustDecoration}
-            onRemove={removeDecoration}
+            onAdjustStart={history.startDrag}
+            onAdjustEnd={history.endDrag}
+            onRemove={(index) => history.track(() => removeDecoration(index))}
           />
         )}
         {/* 장식 조절 상자보다 위에 둔다. 보이는 지름은 78px이고, 터치 영역만 88px로 넓혔다. */}
@@ -220,7 +236,9 @@ export const EditorScreen = () => {
                 icon={SHAPE_ICONS[cake.shape]}
                 iconScale={SIZE_ICON_SCALES[item.id]}
                 selected={cake.size === item.id}
-                onClick={() => updateCake({ size: item.id })}
+                onClick={() =>
+                  history.track(() => updateCake({ size: item.id }))
+                }
               />
             ))}
           {tab === "shape" &&
@@ -230,7 +248,9 @@ export const EditorScreen = () => {
                 label={`${SHAPE_MARKS[item.id]} - ${item.label}`}
                 icon={SHAPE_ICONS[item.id]}
                 selected={cake.shape === item.id}
-                onClick={() => updateCake({ shape: item.id })}
+                onClick={() =>
+                  history.track(() => updateCake({ shape: item.id }))
+                }
               />
             ))}
           {tab === "color" &&
@@ -241,7 +261,9 @@ export const EditorScreen = () => {
                 icon={SHAPE_ICONS.round}
                 tint={COLOR_TINTS[item.id]}
                 selected={cake.color === item.id}
-                onClick={() => updateCake({ color: item.id })}
+                onClick={() =>
+                  history.track(() => updateCake({ color: item.id }))
+                }
               />
             ))}
         </div>

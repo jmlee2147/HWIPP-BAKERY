@@ -26,6 +26,8 @@ export const EDITOR_QUIT = {
   cancel: "계속하기",
 };
 
+export const EDITOR_HISTORY_LABELS = { undo: "실행 취소", redo: "다시 실행" };
+
 export const EDITOR_ERASE = {
   label: "장식 모두 지우기",
   message: "현재의 장식 요소를 모두 제거할까요?",
@@ -405,8 +407,10 @@ export function windowCakeLift(size: number): number {
 const browser = (name: string) => `/assets/ui/browser/${name}`;
 
 export const BROWSER_IMAGES = {
-  back: browser("back-off.svg"),
-  forward: browser("forward-off.svg"),
+  backOn: browser("back-on.svg"),
+  backOff: browser("back-off.svg"),
+  forwardOn: browser("forward-on.svg"),
+  forwardOff: browser("forward-off.svg"),
   close: browser("close.svg"),
   clear: browser("clear.svg"),
   face: browser("face.svg"),

@@ -44,6 +44,9 @@ interface DecorationControlsProps {
   selected: number | null;
   onSelect: (index: number | null) => void;
   onAdjust: (index: number, change: DecorationChange) => void;
+  // 장식을 끌기 시작할 때와 손을 뗄 때.
+  onAdjustStart: () => void;
+  onAdjustEnd: () => void;
   onRemove: (index: number) => void;
 }
 
@@ -54,6 +57,8 @@ export const DecorationControls = ({
   selected,
   onSelect,
   onAdjust,
+  onAdjustStart,
+  onAdjustEnd,
   onRemove,
 }: DecorationControlsProps) => {
   const root = useRef<HTMLDivElement>(null);
@@ -102,12 +107,15 @@ export const DecorationControls = ({
       scale: item.scale,
       rotate: item.rotate,
     };
+    onAdjustStart();
     onSelect(item.index);
   };
 
   const move = (event: PointerEvent<HTMLButtonElement>) => {
     const now = drag.current;
     if (!now || now.pointerId !== event.pointerId) return;
+    // 손가락이 움직이지 않았으면 고칠 것이 없다. 다시 계산하며 생기는 작은 오차가 이력에 남지 않게 한다.
+    if (event.clientX === now.from.x && event.clientY === now.from.y) return;
     if (now.mode === "move") {
       const clamp = (value: number, low: number, high: number) =>
         Math.min(high, Math.max(low, value));
@@ -152,7 +160,9 @@ export const DecorationControls = ({
   };
 
   const end = (event: PointerEvent<HTMLButtonElement>) => {
-    if (drag.current?.pointerId === event.pointerId) drag.current = null;
+    if (drag.current?.pointerId !== event.pointerId) return;
+    drag.current = null;
+    onAdjustEnd();
   };
 
   const dragging = (item: (typeof items)[number], mode: Mode) => ({

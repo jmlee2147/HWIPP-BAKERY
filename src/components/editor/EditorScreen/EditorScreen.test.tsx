@@ -20,6 +20,7 @@ import {
   DECORATION_SCALE,
   DECORATION_SETS,
   EDITOR_ERASE,
+  EDITOR_HISTORY_LABELS,
   EDITOR_PACK_CHOICE,
   EDITOR_QUIT,
   LETTERING_CATEGORIES,
@@ -630,6 +631,90 @@ describe("EditorScreen 장식 탭", () => {
     const after = storedCake()?.decorations[0];
     expect(after?.x).toBeCloseTo((before?.x ?? 0) + 100);
     expect(after?.y).toBeCloseTo(before?.y ?? 0);
+  });
+
+  const undoButton = () => control(EDITOR_HISTORY_LABELS.undo);
+  const redoButton = () => control(EDITOR_HISTORY_LABELS.redo);
+  const disabled = (button: HTMLElement) =>
+    (button as HTMLButtonElement).disabled;
+
+  it("처음에는 실행 취소와 다시 실행을 누를 수 없다", () => {
+    render(<EditorScreen />);
+
+    expect(disabled(undoButton())).toBe(true);
+    expect(disabled(redoButton())).toBe(true);
+  });
+
+  it("바꾼 것을 한 단계씩 되돌리고, 되돌린 것을 순서대로 다시 적용한다", () => {
+    render(<EditorScreen />);
+    click("button", "SIZE 3 - mini");
+    click("tab", "색상");
+    click("button", "PINK");
+
+    fireEvent.click(undoButton());
+    expect(storedCake()?.color).toBe("white");
+    expect(storedCake()?.size).toBe("mini");
+    fireEvent.click(undoButton());
+    expect(storedCake()?.size).toBe("large");
+    expect(disabled(undoButton())).toBe(true);
+
+    fireEvent.click(redoButton());
+    expect(storedCake()?.size).toBe("mini");
+    fireEvent.click(redoButton());
+    expect(storedCake()?.color).toBe("pink");
+    expect(disabled(redoButton())).toBe(true);
+  });
+
+  it("되돌린 뒤 새로 바꾸면 다시 실행할 것이 사라진다", () => {
+    render(<EditorScreen />);
+    click("button", "SIZE 3 - mini");
+    fireEvent.click(undoButton());
+    expect(disabled(redoButton())).toBe(false);
+
+    click("button", "SIZE 2 - 12cm");
+
+    expect(disabled(redoButton())).toBe(true);
+    expect(disabled(undoButton())).toBe(false);
+  });
+
+  it("이미 고른 것을 다시 누르면 이력에 쌓지 않는다", () => {
+    render(<EditorScreen />);
+
+    click("button", "SIZE 1 - 15cm");
+
+    expect(disabled(undoButton())).toBe(true);
+  });
+
+  it("장식을 한 번 끌어 옮긴 것은 한 단계로 되돌리고, 누르기만 한 것은 쌓지 않는다", () => {
+    render(<EditorScreen />);
+    openList("CANDLE");
+    click("button", "candle-pink");
+    const placed = storedCake()?.decorations[0];
+
+    drag(control(CONTROL_LABELS.move), { x: 300, y: 500 }, { x: 300, y: 500 });
+    drag(control(CONTROL_LABELS.move), { x: 300, y: 500 }, { x: 367, y: 433 });
+    expect(storedCake()?.decorations[0]).not.toEqual(placed);
+
+    fireEvent.click(undoButton());
+    expect(storedCake()?.decorations[0]).toEqual(placed);
+    fireEvent.click(undoButton());
+    expect(storedCake()?.decorations).toEqual([]);
+  });
+
+  it("지우개로 지운 장식을 되돌릴 수 있다", () => {
+    const preset = CAKE_PRESETS.find(
+      (item) => item.cake.decorations.length > 0,
+    );
+    if (!preset) throw new Error("장식이 있는 예시가 없다");
+    useExperienceStore.getState().setCake(preset.cake);
+    render(<EditorScreen />);
+
+    click("button", EDITOR_ERASE.label);
+    click("button", EDITOR_ERASE.confirm);
+    expect(storedCake()?.decorations).toEqual([]);
+
+    fireEvent.click(undoButton());
+    expect(storedCake()).toEqual(preset.cake);
   });
 });
 
