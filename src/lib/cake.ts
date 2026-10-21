@@ -17,7 +17,10 @@ import {
   type CakeTop,
   cakeBaseImage,
   DEFAULT_CAKE,
+  SURFACE_LAYERS,
   stickerOf,
+  UNDERLAY_LAYERS,
+  UNDERLAY_PARTS,
 } from "@/data/cake";
 
 export interface CakeLayer extends CakeBox {
@@ -25,7 +28,7 @@ export interface CakeLayer extends CakeBox {
   src: string;
   rotate?: number;
   flip?: boolean;
-  // 관람객이 직접 놓은 장식이면, 케이크 구성의 장식 목록에서의 차례.
+  // 수정 화면에서 고를 수 있는 장식이면, 케이크 구성의 장식 목록에서의 차례.
   index?: number;
 }
 
@@ -830,7 +833,7 @@ function borrow(
 }
 
 // 케이크 구성을 아래에서 위로 겹칠 그림 목록으로 바꾼다.
-// 바탕이 맨 아래다. 자리가 정해진 장식끼리는 층 순서를 지키고, 위치를 직접 준 윗면 장식은 목록에 적힌 순서 그대로
+// 바탕이 맨 아래다. 리본 두르기, 스프링클, 물방울은 겉면(코팅 등) 바로 위, 다른 장식들보다 아래에 깐다. 자리가 정해진 장식끼리는 층 순서를 지키고, 위치를 직접 준 윗면 장식은 목록에 적힌 순서 그대로
 // 그 사이에 낀다. 그래서 코팅보다 먼저 적힌 별은 코팅 아래에 깔린다. 빈 자리에 놓이는 장식은 맨 위에, 뒤쪽 자리부터 겹친다.
 // 장식의 위치를 잡은 모양과 지금 모양이 다르면, 위치를 직접 준 장식을 지금 모양의 같은 자리로 옮겨 그린다.
 export function cakeLayers(
@@ -878,6 +881,12 @@ export function cakeLayers(
   };
 
   const fixed = new Map<CakeLayerId, CakeLayer[]>();
+  // 겉면 바로 위에 까는 장식. 자리가 정해진 것은 층별로, 물방울은 적힌 순서대로 모은다.
+  const underlaid = new Map<CakeLayerId, CakeLayer[]>();
+  const underlay: CakeLayer[] = [];
+  const laidUnder = (layer: CakeLayerId) =>
+    layer === UNDERLAY_LAYERS.belowParts ||
+    layer === UNDERLAY_LAYERS.aboveParts;
   const inSpots: (CakeLayer & { spotY: number })[] = [];
   // 목록에 적힌 순서. 자리가 정해진 장식이 들어갈 칸은 null로 비워 두었다가 층 순서대로 채운다.
   const sequence: (CakeLayer | null)[] = [];
@@ -1530,41 +1539,40 @@ export function cakeLayers(
 
     if (item.placement === "fixed") {
       // 같은 층에는 먼저 고른 것 하나만 놓는다. 코팅 두 가지를 한꺼번에 얹을 수는 없다.
-      if (fixed.has(item.layer)) return;
-      const part = item.shapes[shape.id];
-      if (part) {
-        // 직접 준 위치는 원래 모양의 그림에 맞춘 것이다. 모양이 바뀌면 새 그림의 정해진 자리를 쓴다.
-        const box =
-          hasPosition && layoutShape === shape.id
-            ? around(part.width, part.height)
-            : part;
-        fixed.set(item.layer, [{ key, src: part.src, ...turn, ...box }]);
-        sequence.push(null);
-        return;
-      }
-      const ring = item.rings?.[shape.id];
-      if (ring) {
-        fixed.set(
-          item.layer,
-          ringOf(ring, CAKE_TOPS[shape.id], decorations).map((box, order) => ({
-            key: `${key}-${order}`,
-            ...box,
-          })),
+      if (fixed.has(item.layer) || underlaid.has(item.layer)) return;
+      const drawn = ((): CakeLayer[] | undefined => {
+        const part = item.shapes[shape.id];
+        if (part) {
+          // 직접 준 위치는 원래 모양의 그림에 맞춘 것이다. 모양이 바뀌면 새 그림의 정해진 자리를 쓴다.
+          const box =
+            hasPosition && layoutShape === shape.id
+              ? around(part.width, part.height)
+              : part;
+          return [{ key, index, src: part.src, ...turn, ...box }];
+        }
+        const ring = item.rings?.[shape.id];
+        if (ring) {
+          return ringOf(ring, CAKE_TOPS[shape.id], decorations).map(
+            (box, order) => ({ key: `${key}-${order}`, index, ...box }),
+          );
+        }
+        // 케이크 모양을 따라 그린 장식은 다른 모양에 얹을 수 없다. 글자만 다른 모양의 그림을 빌려 쓴다.
+        if (item.layer !== "lettering") return undefined;
+        const borrowed = borrow(
+          item.shapes,
+          layoutShape,
+          shape.id,
+          carry,
+          gather * onWide(item.shapes[layoutShape]),
         );
-        sequence.push(null);
+        return borrowed && [{ key, index, ...turn, ...borrowed }];
+      })();
+      if (!drawn) return;
+      if (laidUnder(item.layer)) {
+        underlaid.set(item.layer, drawn);
         return;
       }
-      // 케이크 모양을 따라 그린 장식은 다른 모양에 얹을 수 없다. 글자만 다른 모양의 그림을 빌려 쓴다.
-      if (item.layer !== "lettering") return;
-      const borrowed = borrow(
-        item.shapes,
-        layoutShape,
-        shape.id,
-        carry,
-        gather * onWide(item.shapes[layoutShape]),
-      );
-      if (!borrowed) return;
-      fixed.set(item.layer, [{ key, ...turn, ...borrowed }]);
+      fixed.set(item.layer, drawn);
       sequence.push(null);
       return;
     }
@@ -1595,10 +1603,15 @@ export function cakeLayers(
     if (hasPosition) {
       const layer = {
         key,
+        index,
         src: item.src,
         ...turn,
         ...around(item.width, item.height, item.anchor === "bottom"),
       };
+      if (UNDERLAY_PARTS.includes(item.id)) {
+        underlay.push(layer);
+        return;
+      }
       // 아래에 깔도록 적어 둔 장식은 다른 윗면 장식들보다 먼저 그린다. 코팅 같은 자리가 정해진 장식보다는 위다.
       const first = sequence.findIndex((entry) => entry !== null);
       if (pinned?.under && first >= 0) {
@@ -1637,14 +1650,27 @@ export function cakeLayers(
   const ordered = sequence.flatMap(
     (layer) => layer ?? fixedInOrder.shift() ?? [],
   );
+  // 겉면 층 가운데 가장 위의 것 바로 다음 자리. 겉면이 없으면 바탕 바로 위다.
+  const surfaceKeys = new Set(
+    SURFACE_LAYERS.flatMap((layer) =>
+      (fixed.get(layer) ?? []).map((one) => one.key),
+    ),
+  );
+  const aboveSurface =
+    ordered.reduce(
+      (last, layer, order) => (surfaceKeys.has(layer.key) ? order : last),
+      -1,
+    ) + 1;
 
   // 직접 놓은 장식은 놓은 순서대로 맨 위에 그린다. 놓은 모양에서는 놓은 자리 그대로, 다른 모양에서는 같은 자리로 옮겨 그린다.
-  const placedByHand = config.decorations.flatMap((chosen, index) => {
+  const placedByHand: CakeLayer[] = [];
+  const underlayByHand: CakeLayer[] = [];
+  config.decorations.forEach((chosen, index) => {
     const item = stickerOf(
       decorations.find((one) => one.id === chosen.id),
       shape.id,
     );
-    if (!item || !byHand(chosen)) return [];
+    if (!item || !byHand(chosen)) return;
     const standing = item.anchor === "bottom";
     const pinned = layoutShape === shape.id ? undefined : chosen.at?.[shape.id];
     const spot = pinned
@@ -1656,24 +1682,30 @@ export function cakeLayers(
         );
     const width = item.width * (chosen.scale ?? 1);
     const height = item.height * (chosen.scale ?? 1);
-    return [
-      {
-        key: `${chosen.id}-manual-${index}`,
-        index,
-        src: item.src,
-        rotate: chosen.rotate || undefined,
-        flip: chosen.flip || undefined,
-        left: spot.x - width / 2,
-        top: spot.y - height / (standing ? 1 : 2),
-        width,
-        height,
-      },
-    ];
+    const layer = {
+      key: `${chosen.id}-manual-${index}`,
+      index,
+      src: item.src,
+      rotate: chosen.rotate || undefined,
+      flip: chosen.flip || undefined,
+      left: spot.x - width / 2,
+      top: spot.y - height / (standing ? 1 : 2),
+      width,
+      height,
+    };
+    (UNDERLAY_PARTS.includes(chosen.id) ? underlayByHand : placedByHand).push(
+      layer,
+    );
   });
 
   return [
     base,
-    ...ordered,
+    ...ordered.slice(0, aboveSurface),
+    ...(underlaid.get(UNDERLAY_LAYERS.belowParts) ?? []),
+    ...underlay,
+    ...underlayByHand,
+    ...(underlaid.get(UNDERLAY_LAYERS.aboveParts) ?? []),
+    ...ordered.slice(aboveSurface),
     ...onTopOfAll,
     ...floorLine,
     ...inSpots.map(({ spotY: _spotY, ...layer }) => layer),
@@ -1681,18 +1713,18 @@ export function cakeLayers(
   ];
 }
 
-// 직접 놓은 낱개 장식이면 그 장식의 정보를, 아니면 undefined를 돌려준다. 예시에 처음부터 있던 장식은 고칠 수 없다.
-function handPlaced(
+// 자리를 옮기고 크기와 기울기를 고칠 수 있는 낱개 장식이면 그 장식의 정보를, 아니면 undefined를 돌려준다.
+// 예시에 처음부터 있던 윗면 장식도 고칠 수 있다. 케이크 모양을 따라 그린 장식은 직접 놓은 글자만 고칠 수 있다.
+function looseSticker(
   cake: CakeConfig,
   index: number,
   decorations: CakeDecoration[],
 ) {
   const chosen = cake.decorations[index];
-  const item = stickerOf(
-    decorations.find((one) => one.id === chosen?.id),
-    cake.shape,
-  );
-  if (!chosen?.manual || !item) return undefined;
+  const found = decorations.find((one) => one.id === chosen?.id);
+  const item = stickerOf(found, cake.shape);
+  if (!chosen || !item) return undefined;
+  if (found?.placement === "fixed" && !chosen.manual) return undefined;
   if (chosen.x === undefined || chosen.y === undefined) return undefined;
   return { chosen, item };
 }
@@ -1705,7 +1737,7 @@ export interface DecorationChange {
   rotate?: number;
 }
 
-// 직접 놓은 장식의 자리, 크기, 기울기를 고친 새 구성을 돌려준다.
+// 낱개 장식의 자리, 크기, 기울기를 고친 새 구성을 돌려준다.
 // 자리는 지금 모양에서의 것을 받아, 장식의 위치를 잡은 모양 기준으로 되돌려 저장한다.
 export function adjustDecoration(
   cake: CakeConfig,
@@ -1713,7 +1745,7 @@ export function adjustDecoration(
   change: DecorationChange,
   decorations: CakeDecoration[] = CAKE_DECORATIONS,
 ): CakeConfig {
-  const found = handPlaced(cake, index, decorations);
+  const found = looseSticker(cake, index, decorations);
   if (!found) return cake;
   const { chosen, item } = found;
   const layoutShape = cake.layoutShape ?? cake.shape;
@@ -1746,17 +1778,118 @@ export function adjustDecoration(
   };
 }
 
-// 직접 놓은 장식을 뺀 새 구성을 돌려준다.
-export function removeDecoration(
+// 여러 낱개 장식을 한꺼번에 옮긴 새 구성을 돌려준다. 자리는 지금 모양에서 그림의 가운데다.
+export function moveDecorations(
   cake: CakeConfig,
-  index: number,
+  moves: { index: number; x: number; y: number }[],
   decorations: CakeDecoration[] = CAKE_DECORATIONS,
 ): CakeConfig {
-  if (!handPlaced(cake, index, decorations)) return cake;
+  return moves.reduce(
+    (next, { index, ...spot }) =>
+      adjustDecoration(next, index, spot, decorations),
+    cake,
+  );
+}
+
+// 주어진 차례의 장식들을 뺀 새 구성을 돌려준다. 예시에 처음부터 있던 장식도 뺄 수 있다.
+export function removeDecorations(
+  cake: CakeConfig,
+  indices: number[],
+): CakeConfig {
+  const gone = new Set(
+    indices.filter((index) => index >= 0 && index < cake.decorations.length),
+  );
+  if (gone.size === 0) return cake;
   return {
     ...cake,
-    decorations: cake.decorations.filter((_, order) => order !== index),
+    decorations: cake.decorations.filter((_, order) => !gone.has(order)),
   };
+}
+
+// 수정 화면에서 장식 하나 또는 한 묶음을 고르는 상자.
+// free는 옮기고 크기와 기울기를 고치고 지울 수 있고, group(물방울 묶음)은 옮기고 지울 수 있고,
+// fixed(케이크 모양을 따라 그린 장식)는 지울 수만 있다.
+export interface DecorationHandle {
+  key: string;
+  mode: "free" | "group" | "fixed";
+  // 이 상자로 고치는 장식들의 차례와, 지금 모양의 판에서 그 그림의 가운데와 크기.
+  members: {
+    index: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }[];
+  // 판 위에서 돌리기 전 상자의 자리와 크기. 묶음은 그림들을 모두 감싼다.
+  box: CakeBox;
+  scale: number;
+  rotate: number;
+}
+
+// 낱개 장식 하나를 고르는 상자의 열쇠.
+export const looseHandleKey = (index: number) => `free-${index}`;
+
+// 케이크에서 고를 수 있는 장식을 상자 단위로 묶어, 아래에 그려지는 것부터 돌려준다.
+// 예시에 처음부터 있던 물방울은 한 묶음으로, 목록에서 놓은 물방울은 놓은 묶음별로 묶는다.
+export function decorationHandles(
+  cake: CakeConfig,
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): DecorationHandle[] {
+  const handles = new Map<string, DecorationHandle>();
+  for (const layer of cakeLayers(cake, decorations)) {
+    if (layer.index === undefined) continue;
+    const { index } = layer;
+    const chosen = cake.decorations[index];
+    const loose = looseSticker(cake, index, decorations);
+    const grouped = loose && UNDERLAY_PARTS.includes(chosen.id);
+    const mode = !loose ? "fixed" : grouped ? "group" : "free";
+    const key =
+      mode === "fixed"
+        ? `fixed-${index}`
+        : mode === "group"
+          ? `group-${chosen.group ?? (chosen.manual ? index : "preset")}`
+          : looseHandleKey(index);
+    const center = {
+      x: layer.left + layer.width / 2,
+      y: layer.top + layer.height / 2,
+      width: layer.width,
+      height: layer.height,
+    };
+    const found = handles.get(key);
+    if (!found) {
+      handles.set(key, {
+        key,
+        mode,
+        members: [{ index, ...center }],
+        box: {
+          left: layer.left,
+          top: layer.top,
+          width: layer.width,
+          height: layer.height,
+        },
+        scale: mode === "free" ? (chosen.scale ?? 1) : 1,
+        rotate: mode === "free" ? (layer.rotate ?? 0) : 0,
+      });
+      continue;
+    }
+    // 낱개 장식을 둘러 그린 장식은 그림이 여러 장이어도 장식은 하나다.
+    if (!found.members.some((member) => member.index === index)) {
+      found.members.push({ index, ...center });
+    }
+    const left = Math.min(found.box.left, layer.left);
+    const top = Math.min(found.box.top, layer.top);
+    found.box = {
+      left,
+      top,
+      width:
+        Math.max(found.box.left + found.box.width, layer.left + layer.width) -
+        left,
+      height:
+        Math.max(found.box.top + found.box.height, layer.top + layer.height) -
+        top,
+    };
+  }
+  return [...handles.values()];
 }
 
 // 장식 묶음을 한꺼번에 놓은 새 구성을 돌려준다. 자리는 지금 모양의 케이크에서의 것이다.
@@ -1788,10 +1921,21 @@ export function placeSet(
     ...cake,
     decorations: cake.decorations.filter((chosen) => !taken(chosen)),
   };
-  return parts.reduce(
+  const placed = parts.reduce(
     (next, part) => placeAt(next, part, decorations),
     cleared,
   );
+  // 같은 묶음을 여러 번 놓아도 서로 다른 묶음이 되도록, 쓰지 않은 이름을 붙인다.
+  const used = new Set(placed.decorations.map((chosen) => chosen.group));
+  let count = 0;
+  while (used.has(`set-${count}`)) count += 1;
+  const group = `set-${count}`;
+  return {
+    ...placed,
+    decorations: placed.decorations.map((chosen, order) =>
+      order < cleared.decorations.length ? chosen : { ...chosen, group },
+    ),
+  };
 }
 
 // 새로 놓는 장식의 자리. 케이크 왼쪽의 빈 곳에, 바탕 그림에서 이만큼 띄워 놓는다.

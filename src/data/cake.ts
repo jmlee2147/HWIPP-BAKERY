@@ -71,6 +71,8 @@ export interface CakeDecorationItem {
   >;
   // 관람객이 수정 화면에서 직접 놓은 장식. 예시의 배치와 한 묶음으로 옮기지 않고, 다른 장식들 위에 따로 그린다.
   manual?: boolean;
+  // 한꺼번에 놓은 묶음(물방울)의 이름. 같은 이름의 장식은 수정 화면에서 함께 옮기고 함께 지운다.
+  group?: string;
 }
 
 export interface CakeConfig {
@@ -127,6 +129,26 @@ export const CAKE_LAYERS = [
 ] as const;
 
 export type CakeLayerId = (typeof CAKE_LAYERS)[number];
+
+// 케이크 겉면을 덮는 층. 다른 장식은 모두 이 위에 놓인다.
+export const SURFACE_LAYERS: CakeLayerId[] = [
+  "frosting",
+  "coating",
+  "cream-top",
+];
+
+// 겉면 바로 위, 다른 장식들보다 아래에 까는 장식. 자리가 정해진 장식은 층으로, 낱개 장식(물방울)은 id로 적는다.
+// 아래에서 위로 스프링클, 물방울, 감싸는 리본 순서다. 리본은 물방울 위로 지나간다.
+export const UNDERLAY_LAYERS = {
+  belowParts: "sprinkle",
+  aboveParts: "wrap",
+} as const;
+export const UNDERLAY_PARTS = [
+  "drop-black-oval",
+  "drop-black-round",
+  "drop-white-oval",
+  "drop-white-round",
+];
 
 // 윗면의 빈 자리에 차례로 놓는 부품. bottom은 자리 위에 세우고(초), center는 자리 가운데에 얹는다(꽃, 매듭).
 interface TopDecoration {

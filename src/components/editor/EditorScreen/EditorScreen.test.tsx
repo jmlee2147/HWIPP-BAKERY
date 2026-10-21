@@ -565,15 +565,73 @@ describe("EditorScreen 장식 탭", () => {
     ).toBeNull();
   });
 
-  it("예시에 처음부터 있던 장식에는 조절 상자가 생기지 않는다", () => {
-    useExperienceStore.setState({ cake: CAKE_PRESETS[0].cake });
+  // 리본 두르기, 예시의 물방울 두 개, 예시의 꽃 하나를 얹은 케이크.
+  // 누르는 자리는 아래에 그려지는 것부터 물방울 둘(한 묶음), 리본, 꽃이다.
+  const enterWithPresetParts = () => {
+    useExperienceStore.setState({
+      cake: {
+        size: "large",
+        shape: "round",
+        color: "white",
+        decorations: [
+          { id: "ribbon-wrap" },
+          { id: "drop-black-round", x: 200, y: 400 },
+          { id: "drop-black-oval", x: 260, y: 420 },
+          { id: "flower-rose", x: 330, y: 330 },
+        ],
+      },
+    });
     render(<EditorScreen />);
-
     click("tab", "장식");
+    return screen.getAllByRole("button", { name: CONTROL_LABELS.move });
+  };
 
+  it("예시에 처음부터 있던 낱개 장식도 고르면 옮기고 크기와 기울기를 고칠 수 있다", () => {
+    const [, , , flower] = enterWithPresetParts();
+
+    fireEvent.pointerDown(flower, { pointerId: 1, clientX: 0, clientY: 0 });
+    fireEvent.pointerUp(flower, { pointerId: 1, clientX: 0, clientY: 0 });
+
+    expect(flower.getAttribute("aria-pressed")).toBe("true");
+    expect(control(CONTROL_LABELS.scale)).toBeTruthy();
+    expect(control(CONTROL_LABELS.rotate)).toBeTruthy();
+    drag(flower, { x: 300, y: 500 }, { x: 367, y: 500 });
+    expect(storedCake()?.decorations[3].x).toBeCloseTo(430);
+  });
+
+  it("케이크 모양을 따라 그린 장식은 고르면 지우기만 할 수 있다", () => {
+    const [, , ribbon] = enterWithPresetParts();
+
+    fireEvent.pointerDown(ribbon, { pointerId: 1, clientX: 0, clientY: 0 });
+
+    expect(ribbon.getAttribute("aria-pressed")).toBe("true");
     expect(
-      screen.queryByRole("button", { name: CONTROL_LABELS.move }),
+      screen.queryByRole("button", { name: CONTROL_LABELS.scale }),
     ).toBeNull();
+    click("button", CONTROL_LABELS.remove);
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "drop-black-round",
+      "drop-black-oval",
+      "flower-rose",
+    ]);
+  });
+
+  it("예시의 물방울은 한 묶음으로 함께 옮기고 함께 지운다", () => {
+    const [drop, other] = enterWithPresetParts();
+
+    drag(drop, { x: 300, y: 500 }, { x: 367, y: 433 });
+    expect(other.getAttribute("aria-pressed")).toBe("true");
+    expect(storedCake()?.decorations[1]).toMatchObject({ x: 300, y: 300 });
+    expect(storedCake()?.decorations[2]).toMatchObject({ x: 360, y: 320 });
+    expect(
+      screen.queryByRole("button", { name: CONTROL_LABELS.scale }),
+    ).toBeNull();
+
+    click("button", CONTROL_LABELS.remove);
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "ribbon-wrap",
+      "flower-rose",
+    ]);
   });
 
   it("목록에는 분류에 정해 둔 장식만 정해 둔 순서로 나온다", () => {
@@ -591,7 +649,7 @@ describe("EditorScreen 장식 탭", () => {
     ).toBeNull();
   });
 
-  it("물방울 묶음을 누르면 지금 모양의 배치대로 한꺼번에 놓이고 조절 상자는 생기지 않는다", () => {
+  it("물방울 묶음을 누르면 지금 모양의 배치대로 한꺼번에 놓이고, 묶음 하나로 고른다", () => {
     useExperienceStore.setState({
       cake: { size: "large", shape: "heart", color: "white", decorations: [] },
     });
@@ -786,7 +844,7 @@ describe("EditorScreen 레터링 탭", () => {
     expect(control(CONTROL_LABELS.remove)).toBeTruthy();
   });
 
-  it("예시에 글자가 있는 케이크에도 글자를 더 놓고, 놓은 글자만 지울 수 있다", () => {
+  it("예시에 글자가 있는 케이크에도 글자를 더 놓고, 놓은 글자를 바로 고른다", () => {
     const preset = CAKE_PRESETS.find(({ cake }) =>
       cake.decorations.some((item) => item.id === "lettering-hbd-pink"),
     );
@@ -797,7 +855,9 @@ describe("EditorScreen 레터링 탭", () => {
 
     click("button", "lettering-ouen-pink");
     expect(
-      screen.getAllByRole("button", { name: CONTROL_LABELS.move }),
+      screen
+        .getAllByRole("button", { name: CONTROL_LABELS.move })
+        .filter((button) => button.getAttribute("aria-pressed") === "true"),
     ).toHaveLength(1);
 
     click("button", CONTROL_LABELS.remove);

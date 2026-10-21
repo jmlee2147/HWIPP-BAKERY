@@ -16,13 +16,17 @@ import {
   type CakeLayer,
   cakeLayers,
   cakeScale,
+  decorationHandles,
   lineFloor,
   lineLoop,
   lineRim,
+  looseHandleKey,
   lostInShape,
+  moveDecorations,
   moveToShape,
   placeDecoration,
-  removeDecoration,
+  placeSet,
+  removeDecorations,
   resizeForShape,
   shrinkForWall,
 } from "./cake";
@@ -110,12 +114,12 @@ describe("cakeLayers", () => {
     );
   });
 
-  it("자리가 정해진 장식은 고른 순서와 상관없이 정해진 겹침 순서로 바탕 위에 놓인다", () => {
+  it("자리가 정해진 장식은 고른 순서와 상관없이 정해진 겹침 순서로 바탕 위에 놓이고, 감싸는 리본은 맨 아래에 깔린다", () => {
     const layers = cakeLayers(
-      { shape: "round", color: "pink", decorations: pick("wrap", "garland") },
+      { shape: "round", color: "pink", decorations: pick("garland", "wrap") },
       DECORATIONS,
     );
-    expect(ids(layers)).toEqual(["base", "garland", "wrap"]);
+    expect(ids(layers)).toEqual(["base", "wrap", "garland"]);
   });
 
   it("같은 층의 장식을 여러 개 고르면 먼저 고른 것 하나만 그린다", () => {
@@ -232,13 +236,61 @@ describe("cakeLayers", () => {
       },
       DECORATIONS,
     );
-    // 자리가 정해진 장식끼리는 적힌 순서와 상관없이 층 순서(가랜드, 감싸는 리본)를 지킨다.
+    // 자리가 정해진 장식끼리는 적힌 순서와 상관없이 층 순서를 지킨다. 감싸는 리본은 다른 장식보다 아래다.
     expect(ids(layers)).toEqual([
       "base",
+      "wrap",
+      "flower",
       "flower",
       "garland",
-      "flower",
-      "wrap",
+    ]);
+  });
+
+  it("스프링클, 물방울, 감싸는 리본은 겉면 바로 위, 다른 장식들보다 아래에 차례로 깔린다", () => {
+    const layers = cakeLayers({
+      shape: "round",
+      color: "white",
+      decorations: [
+        { id: "ribbon-wrap" },
+        { id: "coating-pink" },
+        { id: "flower-rose", x: 300, y: 350 },
+        { id: "drop-black-round", x: 250, y: 400 },
+        { id: "sprinkle" },
+        { id: "candle-pink", x: 330, y: 300, manual: true },
+        { id: "drop-white-oval", x: 350, y: 420, manual: true, group: "a" },
+      ],
+    });
+    const order = layers.map((layer) => layer.src.split("/").pop());
+
+    expect(order).toEqual([
+      "base-white-round.webp",
+      "coating-pink-round.webp",
+      "sprinkle-round.webp",
+      "drop-black-round.webp",
+      "drop-white-oval.webp",
+      "ribbon-wrap-round.webp",
+      "flower-rose.webp",
+      "candle-pink.webp",
+    ]);
+  });
+
+  it("수정 화면에서 고를 수 있는 장식의 그림에는 장식 목록에서의 차례가 붙는다", () => {
+    const layers = cakeLayers({
+      shape: "round",
+      color: "white",
+      decorations: [
+        { id: "flower-rose", x: 300, y: 350 },
+        { id: "coating-pink" },
+        { id: "candle-pink" },
+      ],
+    });
+
+    // 코팅보다 먼저 적힌 꽃은 코팅 아래에 깔린다. 자리를 주지 않은 초는 고를 수 없다.
+    expect(layers.map((layer) => layer.index)).toEqual([
+      undefined,
+      0,
+      1,
+      undefined,
     ]);
   });
 
@@ -1105,36 +1157,139 @@ describe("adjustDecoration", () => {
     expect(Object.keys(inSquare.decorations[0].at ?? {})).toEqual(["square"]);
   });
 
-  it("예시에 처음부터 있던 장식은 고치거나 빼지 않는다", () => {
+  it("예시에 처음부터 있던 윗면 장식도 고칠 수 있고, 자리가 정해진 장식과 없는 차례는 고치지 않는다", () => {
     const cake: CakeConfig = {
       ...plain,
-      decorations: [{ id: "star-pink", x: 300, y: 300 }],
+      decorations: [{ id: "star-pink", x: 300, y: 300 }, { id: "ribbon-wrap" }],
     };
 
-    expect(adjustDecoration(cake, 0, { x: 10, y: 10 })).toBe(cake);
-    expect(removeDecoration(cake, 0)).toBe(cake);
+    expect(
+      adjustDecoration(cake, 0, { x: 310, y: 320 }).decorations[0],
+    ).toMatchObject({
+      id: "star-pink",
+      x: 310,
+      y: 320,
+    });
+    expect(adjustDecoration(cake, 1, { x: 10, y: 10 })).toBe(cake);
     expect(adjustDecoration(cake, 5, { scale: 2 })).toBe(cake);
+  });
+
+  it("예시 장식은 고친 뒤에도 원래 겹침 순서를 지킨다", () => {
+    const cake: CakeConfig = {
+      ...plain,
+      decorations: [
+        { id: "flower-rose", x: 300, y: 350 },
+        { id: "star-pink", x: 320, y: 360 },
+      ],
+    };
+    const srcs = (one: CakeConfig) =>
+      cakeLayers(one).map((layer) => layer.src.split("/").pop());
+
+    const moved = adjustDecoration(cake, 0, { x: 200, y: 300, scale: 1.3 });
+
+    expect(srcs(moved)).toEqual(srcs(cake));
   });
 });
 
-describe("removeDecoration", () => {
-  it("직접 놓은 장식만 빼고 받은 구성은 고치지 않는다", () => {
+describe("moveDecorations", () => {
+  it("여러 장식을 한꺼번에 옮긴다", () => {
+    const cake: CakeConfig = {
+      ...DEFAULT_CAKE,
+      decorations: [
+        { id: "drop-black-round", x: 200, y: 400 },
+        { id: "drop-black-oval", x: 260, y: 420, rotate: 10 },
+      ],
+    };
+
+    const moved = moveDecorations(cake, [
+      { index: 0, x: 220, y: 380 },
+      { index: 1, x: 280, y: 400 },
+    ]);
+
+    expect(moved.decorations).toMatchObject([
+      { x: 220, y: 380 },
+      { x: 280, y: 400, rotate: 10 },
+    ]);
+  });
+});
+
+describe("removeDecorations", () => {
+  it("주어진 차례의 장식을 모두 빼고 받은 구성은 고치지 않는다. 예시에 있던 장식도 뺄 수 있다", () => {
     const cake = placeDecoration(
       placeDecoration(
-        { ...DEFAULT_CAKE, decorations: [{ id: "pearl", x: 300, y: 300 }] },
+        {
+          ...DEFAULT_CAKE,
+          decorations: [{ id: "pearl", x: 300, y: 300 }, { id: "ribbon-wrap" }],
+        },
         "candle-pink",
       ),
       "star-pink",
     );
     const before = structuredClone(cake);
 
-    const removed = removeDecoration(cake, 1);
+    const removed = removeDecorations(cake, [1, 2]);
 
     expect(cake).toEqual(before);
     expect(removed.decorations.map((item) => item.id)).toEqual([
       "pearl",
       "star-pink",
     ]);
+    expect(removeDecorations(cake, [9])).toBe(cake);
+  });
+});
+
+describe("decorationHandles", () => {
+  it("낱개 장식, 물방울 묶음, 케이크 모양을 따라 그린 장식을 각각 고르는 상자로 묶는다", () => {
+    const cake: CakeConfig = {
+      ...DEFAULT_CAKE,
+      decorations: [
+        { id: "ribbon-wrap" },
+        { id: "drop-black-round", x: 200, y: 400 },
+        { id: "drop-black-oval", x: 260, y: 420 },
+        { id: "flower-rose", x: 300, y: 350, scale: 1.2 },
+      ],
+    };
+
+    const handles = decorationHandles(cake);
+
+    expect(
+      handles.map((handle) => [
+        handle.mode,
+        handle.members.map((member) => member.index),
+      ]),
+    ).toEqual([
+      ["group", [1, 2]],
+      ["fixed", [0]],
+      ["free", [3]],
+    ]);
+    expect(handles[2]).toMatchObject({ key: looseHandleKey(3), scale: 1.2 });
+    // 묶음의 상자는 그림을 모두 감싼다.
+    const [group] = handles;
+    for (const member of group.members) {
+      expect(member.x).toBeGreaterThan(group.box.left);
+      expect(member.x).toBeLessThan(group.box.left + group.box.width);
+    }
+  });
+
+  it("목록에서 놓은 물방울 묶음은 놓은 묶음마다 따로 고른다", () => {
+    const parts = [
+      { id: "drop-black-round", x: 200, y: 400 },
+      { id: "drop-black-oval", x: 260, y: 420 },
+    ];
+    const twice = placeSet(
+      moveDecorations(placeSet(DEFAULT_CAKE, parts), [
+        { index: 0, x: 150, y: 380 },
+        { index: 1, x: 210, y: 400 },
+      ]),
+      parts,
+    );
+
+    const groups = decorationHandles(twice).filter(
+      (handle) => handle.mode === "group",
+    );
+
+    expect(groups.map((handle) => handle.members.length)).toEqual([2, 2]);
+    expect(new Set(twice.decorations.map((item) => item.group)).size).toBe(2);
   });
 });
 
@@ -1204,7 +1359,7 @@ describe("글자를 스티커로 놓기", () => {
       rotate: 10,
     });
     expect(last(moved).width).toBeCloseTo(356.5 / 2);
-    expect(removeDecoration(moved, 0).decorations).toEqual([]);
+    expect(removeDecorations(moved, [0]).decorations).toEqual([]);
   });
 
   it("모양을 바꾼 케이크에 놓은 글자는 놓은 자리에 그려진다", () => {
