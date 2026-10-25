@@ -31,7 +31,7 @@ export const DecorationList = ({
       <div className="relative size-full">
         <ul className="flex size-full items-center overflow-x-auto overflow-y-hidden rounded-[5.75px] border-2 border-[#8b4b5e] bg-[linear-gradient(107.18deg,rgba(255,255,255,0.56)_43.69%,rgba(255,255,255,0.14)_101.04%)] px-[13px] [touch-action:pan-x] [&::-webkit-scrollbar]:hidden">
           {choices.map((choice) => (
-            <li key={choice.id} className="h-full shrink-0">
+            <li key={choice.id} className="relative h-full shrink-0">
               <button
                 type="button"
                 aria-label={choice.id}
@@ -50,6 +50,11 @@ export const DecorationList = ({
                   style={{ width: choice.width, height: choice.height }}
                 />
               </button>
+              {choice.caption && (
+                <p className="pointer-events-none absolute inset-x-0 top-[199px] text-center font-dinaru text-[22px] leading-[35px] text-[#8b4b5e]">
+                  {choice.caption}
+                </p>
+              )}
             </li>
           ))}
         </ul>

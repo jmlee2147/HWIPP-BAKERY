@@ -127,7 +127,7 @@ describe("cakeLayers", () => {
       id,
       category: "cream",
       placement: "fixed",
-      layer: "coating",
+      layer: "frosting",
       shapes: { round: { src: `/${id}.png`, ...box } },
     }));
     const layers = cakeLayers(
@@ -1071,10 +1071,29 @@ describe("placeDecoration", () => {
     expect(placeDecoration(worn, "ribbon-wrap").decorations).toEqual([]);
   });
 
+  it("프로스팅과 코팅은 겉면 하나로 보고, 다른 것을 고르면 바꾼다", () => {
+    const frosted = placeDecoration(plain, "frosting-cream");
+    const coated = placeDecoration(frosted, "coating-choco");
+
+    expect(coated.decorations.map((item) => item.id)).toEqual([
+      "coating-choco",
+    ]);
+  });
+
+  it("예시에 프로스팅이 있으면 코팅도 얹지 않는다", () => {
+    const cake: CakeConfig = {
+      ...plain,
+      decorations: [{ id: "frosting-green" }],
+    };
+
+    expect(placeDecoration(cake, "coating-pink")).toBe(cake);
+  });
+
   it("지금 모양의 그림이 없는 장식은 얹지 않는다", () => {
     const cake = { ...plain, shape: "square" as const };
 
-    expect(placeDecoration(cake, "frosting-cream")).toBe(cake);
+    // 아래쪽 크림 테두리는 하트의 그림만 있다.
+    expect(placeDecoration(cake, "cream-border")).toBe(cake);
   });
 
   it("예시에 처음부터 있던 장식은 빼거나 바꾸지 않는다", () => {
