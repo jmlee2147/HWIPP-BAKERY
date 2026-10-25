@@ -6,41 +6,41 @@ import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
-import { OrderCard } from "@/components/result/OrderCard/OrderCard";
+import { CakeBox } from "@/components/result/CakeBox/CakeBox";
+import { KeywordTag } from "@/components/result/KeywordTag/KeywordTag";
 import { DEFAULT_CAKE } from "@/data/cake";
 import { EDITOR_IMAGES } from "@/data/editor";
 import {
+  FLAVOR_KEYWORDS,
+  PARTY_KEYWORDS,
+  RELATION_KEYWORDS,
+  RESULT_BOX_POSITION,
   RESULT_CHOICES,
+  RESULT_FLAVOR_SUFFIX,
+  RESULT_GLOW_IMAGE,
+  RESULT_KEYWORD_TAGS,
   RESULT_TEXT,
-  SHOWCASE,
-  SHOWCASE_IMAGE,
+  STYLE_KEYWORDS,
 } from "@/data/result";
 import { formatOrderDate, formatOrderNumber } from "@/lib/order";
 import { preloadImages } from "@/lib/preload";
-import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
 // 화면이 나타난 뒤 말을 시작하기까지의 뜸.
 const TYPING_DELAY_MS = 500;
 
-// 카드는 화면이 바뀐 뒤 뒷면에서 앞면으로 뒤집히며 나타난다.
-const FLIP_DELAY_SECONDS = 0.5;
-const FLIP_SECONDS = 0.9;
-const FLIP = {
-  initial: { rotateY: -180, scale: 0.8 },
-  animate: { rotateY: 0, scale: 1 },
-  transition: {
-    duration: FLIP_SECONDS,
-    delay: FLIP_DELAY_SECONDS,
-    ease: "easeOut",
-  },
-} as const;
-const FACE = "[backface-visibility:hidden]";
+// 상자는 화면이 바뀐 뒤 살짝 커지며 나타나고, 키워드는 그 뒤에 붙는다.
+const BOX_DELAY_SECONDS = 0.5;
+const TAGS_DELAY_SECONDS = 1;
 
 export const ResultScreen = () => {
   // 단계를 건너뛰어 케이크나 순번이 없는 채로 들어와도 기본 케이크와 첫 번호로 화면을 채운다.
   const cake = useExperienceStore((state) => state.cake) ?? DEFAULT_CAKE;
   const orderNumber = useExperienceStore((state) => state.orderNumber) ?? 1;
+  const party = useExperienceStore((state) => state.party);
+  const style = useExperienceStore((state) => state.style);
+  const relation = useExperienceStore((state) => state.relation);
+  const flavor = useExperienceStore((state) => state.flavor);
   const goTo = useExperienceStore((state) => state.goTo);
   const [date] = useState(() => formatOrderDate(new Date()));
 
@@ -48,56 +48,76 @@ export const ResultScreen = () => {
     preloadImages(EDITOR_IMAGES);
   }, []);
 
-  useEffect(() => {
-    const timer = window.setTimeout(
-      () => playEffect("cardFlip"),
-      FLIP_DELAY_SECONDS * 1000,
-    );
-    return () => window.clearTimeout(timer);
-  }, []);
+  // 답하지 않은 문답의 키워드는 건너뛴다.
+  const keywords = {
+    party: party && PARTY_KEYWORDS[party],
+    style: style && STYLE_KEYWORDS[style],
+    relation: relation && RELATION_KEYWORDS[relation],
+    flavor: flavor && `${FLAVOR_KEYWORDS[flavor]}${RESULT_FLAVOR_SUFFIX}`,
+  };
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#ffeff3]">
       <img
         alt=""
-        className="absolute max-w-none opacity-[0.45]"
-        src={SHOWCASE_IMAGE}
-        style={SHOWCASE}
+        className="absolute inset-0 block size-full max-w-none"
+        src={RESULT_GLOW_IMAGE}
       />
+      <motion.div
+        className="absolute"
+        style={RESULT_BOX_POSITION}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.6,
+          delay: BOX_DELAY_SECONDS,
+          ease: "easeOut",
+        }}
+      >
+        <CakeBox
+          cake={cake}
+          date={date}
+          orderNumber={formatOrderNumber(orderNumber)}
+        />
+      </motion.div>
+      <motion.div
+        className="absolute inset-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: TAGS_DELAY_SECONDS }}
+      >
+        {RESULT_KEYWORD_TAGS.map((tag) => {
+          const text = keywords[tag.answer];
+          if (!text) return null;
+          return (
+            <KeywordTag
+              key={tag.answer}
+              tone={tag.tone}
+              className="absolute"
+              style={{ left: tag.left, top: tag.top }}
+            >
+              {text}
+            </KeywordTag>
+          );
+        })}
+      </motion.div>
       <SpeechBubble className="absolute left-[51.55px] top-[149px]">
         <TypedText text={RESULT_TEXT} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
       <ProgressBar step={4} className="absolute left-[75px] top-[58px]" />
-      {/* 투명도를 뒤집히는 요소에 직접 주면 앞뒷면이 한 장으로 합쳐져 뒷면이 비친다. 바깥에서 따로 준다. */}
-      <motion.div
-        className="absolute left-[175px] top-[511px] [perspective:2400px]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2, delay: FLIP_DELAY_SECONDS }}
+      {/* 메뉴판 화면이 생기기 전까지는 자리만 차지하고 눌러도 반응하지 않는다. */}
+      <ChoiceButton
+        tone="mint"
+        size="half"
+        disabled
+        className="absolute left-[62px] top-[1579px] disabled:!opacity-100"
       >
-        <motion.div
-          className="relative [transform-style:preserve-3d]"
-          initial={FLIP.initial}
-          animate={FLIP.animate}
-          transition={FLIP.transition}
-        >
-          <OrderCard
-            className={FACE}
-            cake={cake}
-            date={date}
-            orderNumber={formatOrderNumber(orderNumber)}
-          />
-          <div
-            aria-hidden
-            className={`absolute inset-0 bg-mist shadow-[4px_7px_8px_0px_rgba(0,0,0,0.15)] [transform:rotateY(180deg)] ${FACE}`}
-          >
-            <div className="absolute inset-x-[27px] bottom-[31px] top-[24px] border-[0.73px] border-[#c2c2c2] bg-[#fdfcf9]" />
-          </div>
-        </motion.div>
-      </motion.div>
+        {RESULT_CHOICES.menu}
+      </ChoiceButton>
       <ChoiceButton
         tone="pink"
-        className="absolute left-[62px] top-[1579px]"
+        size="half"
+        className="absolute left-[546px] top-[1579px]"
         onClick={() => goTo("editor")}
       >
         {RESULT_CHOICES.edit}

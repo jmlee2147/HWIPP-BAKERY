@@ -19,10 +19,15 @@ export const ResultPreview = ({ presetId, size }: ResultPreviewProps) => {
     const preset = CAKE_PRESETS.find((item) => item.id === presetId);
     const chosen = CAKE_SIZES.find((item) => item.id === size);
     // 예시를 찾지 못하면 앞서 넣어 둔 케이크가 남지 않도록 비운다.
+    // 키워드 태그가 보이도록 문답 답변도 하나씩 채운다.
     useExperienceStore.setState({
       cake: preset
         ? { ...preset.cake, size: chosen?.id ?? preset.cake.size }
         : null,
+      party: "event",
+      style: "trendsetter",
+      relation: "friend",
+      flavor: "sweet",
     });
     setReady(true);
   }, [presetId, size]);
