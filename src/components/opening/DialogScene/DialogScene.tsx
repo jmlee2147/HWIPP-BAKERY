@@ -81,7 +81,7 @@ export const DialogScene = ({
         <button
           type="button"
           aria-label="다음"
-          className="absolute inset-0"
+          className="absolute inset-0 size-full"
           onClick={handleTap}
         />
       )}

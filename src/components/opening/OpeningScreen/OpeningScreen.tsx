@@ -117,7 +117,7 @@ export const OpeningScreen = ({
           <button
             type="button"
             aria-label="가게에 들어가기"
-            className="absolute inset-0"
+            className="absolute inset-0 size-full"
             disabled={doorOpen}
             onClick={() => {
               playEffect("doorBell");
