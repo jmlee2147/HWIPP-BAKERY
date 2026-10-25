@@ -194,7 +194,7 @@ export const DecorationControls = ({
         <button
           type="button"
           aria-label={CONTROL_LABELS.release}
-          className="absolute inset-0 cursor-default"
+          className="absolute inset-0 size-full cursor-default"
           onClick={() => onSelect(null)}
         />
       )}
@@ -244,7 +244,7 @@ export const DecorationControls = ({
                 type="button"
                 aria-label={CONTROL_LABELS.move}
                 aria-pressed={chosen}
-                className={`absolute inset-0 touch-none [-webkit-tap-highlight-color:transparent] ${chosen ? "border-2 border-[#ff8cc7]" : ""}`}
+                className={`absolute inset-0 size-full touch-none [-webkit-tap-highlight-color:transparent] ${chosen ? "border-2 border-[#ff8cc7]" : ""}`}
                 {...dragging(item, "move")}
               />
             )}
