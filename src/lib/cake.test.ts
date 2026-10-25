@@ -1074,7 +1074,7 @@ describe("placeDecoration", () => {
   it("지금 모양의 그림이 없는 장식은 얹지 않는다", () => {
     const cake = { ...plain, shape: "square" as const };
 
-    expect(placeDecoration(cake, "coating-pink")).toBe(cake);
+    expect(placeDecoration(cake, "frosting-cream")).toBe(cake);
   });
 
   it("예시에 처음부터 있던 장식은 빼거나 바꾸지 않는다", () => {

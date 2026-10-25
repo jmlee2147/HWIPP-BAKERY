@@ -150,13 +150,13 @@ describe("EditorScreen", () => {
   });
 
   it("바꾸면 장식이 빠지는 모양은 선택지에 보여 주지 않는다", () => {
-    // 분홍 코팅은 원형과 하트의 그림만 있다.
+    // 크림 프로스팅은 원형과 하트의 그림만 있다.
     useExperienceStore.setState({
       cake: {
         size: "large",
         shape: "heart",
         color: "sky",
-        decorations: [{ id: "coating-pink" }],
+        decorations: [{ id: "frosting-cream" }],
       },
     });
     render(<EditorScreen />);
@@ -169,13 +169,13 @@ describe("EditorScreen", () => {
   });
 
   it("고를 모양이 지금 모양뿐이면 모양 탭을 보여 주지 않는다", () => {
-    // 프로스팅은 원형의 그림만 있다.
+    // 네모 윗면 크림은 사각형의 그림만 있다.
     useExperienceStore.setState({
       cake: {
         size: "large",
-        shape: "round",
+        shape: "square",
         color: "white",
-        decorations: [{ id: "frosting-cream" }],
+        decorations: [{ id: "cream-top-square" }],
       },
     });
     render(<EditorScreen />);
