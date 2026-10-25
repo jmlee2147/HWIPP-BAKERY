@@ -12,6 +12,7 @@ import { PartyScreen } from "@/components/questions/PartyScreen/PartyScreen";
 import { RelationScreen } from "@/components/questions/RelationScreen/RelationScreen";
 import { StyleScreen } from "@/components/questions/StyleScreen/StyleScreen";
 import { ResultScreen } from "@/components/result/ResultScreen/ResultScreen";
+import { ShareScreen } from "@/components/share/ShareScreen/ShareScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
 import { FIRST_STEP, type Step } from "@/lib/steps";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
@@ -29,6 +30,7 @@ const SCREENS: Partial<Record<Step, ComponentType>> = {
   analysis: AnalysisScreen,
   result: ResultScreen,
   editor: EditorScreen,
+  share: ShareScreen,
 };
 
 // 처음으로 버튼을 두는 단계. 아래쪽을 전체 폭 버튼이 차지하는 화면에는 두지 않는다.

@@ -79,6 +79,23 @@ const config: Config = {
           "0%, 49.99%": { opacity: "0" },
           "50%, 100%": { opacity: "1" },
         },
+        "glow-drift": {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "25%": { transform: "translate(150px, -110px) scale(1.08)" },
+          "50%": { transform: "translate(40px, 120px) scale(0.94)" },
+          "75%": { transform: "translate(-140px, 30px) scale(1.05)" },
+        },
+        // 화면 밖에서 기운 채로 천천히 고개를 내민다. 중간에 멈추지 않고 한 번에 이어서 움직인다.
+        "peek-in": {
+          from: { transform: "translateX(-380px) rotate(16deg)" },
+          to: { transform: "translateX(0) rotate(0deg)" },
+        },
+        // 제자리(0도)에서 시작해 좌우로 살짝 갸웃거린다. 앞 움직임이 끝난 자리에서 튀지 않는다.
+        sway: {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(2.5deg)" },
+          "75%": { transform: "rotate(-2.5deg)" },
+        },
       },
       animation: {
         "pop-in": "pop-in 0.45s ease-out both",
@@ -93,6 +110,9 @@ const config: Config = {
         shimmer: "shimmer 2.4s ease-in-out infinite alternate",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",
+        "glow-drift": "glow-drift 14s ease-in-out infinite",
+        "peek-in": "peek-in 3s cubic-bezier(0.3, 0, 0.2, 1) 0.8s both",
+        sway: "sway 3.2s ease-in-out infinite",
       },
       dropShadow: {
         window: "3px 9px 15px rgba(0, 0, 0, 0.15)",

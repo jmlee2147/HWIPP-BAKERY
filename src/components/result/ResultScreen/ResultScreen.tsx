@@ -3,25 +3,23 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import { GlowBackground } from "@/components/common/GlowBackground/GlowBackground";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CakeBox } from "@/components/result/CakeBox/CakeBox";
-import { KeywordTag } from "@/components/result/KeywordTag/KeywordTag";
+import { KeywordTags } from "@/components/result/KeywordTags/KeywordTags";
 import { DEFAULT_CAKE } from "@/data/cake";
 import { EDITOR_IMAGES } from "@/data/editor";
 import {
-  FLAVOR_KEYWORDS,
-  PARTY_KEYWORDS,
-  RELATION_KEYWORDS,
   RESULT_BOX_POSITION,
   RESULT_CHOICES,
   RESULT_FLAVOR_SUFFIX,
-  RESULT_GLOW_IMAGE,
+  RESULT_GLOWS,
   RESULT_KEYWORD_TAGS,
   RESULT_TEXT,
-  STYLE_KEYWORDS,
 } from "@/data/result";
+import { SHARE_IMAGES } from "@/data/share";
 import { formatOrderDate, formatOrderNumber } from "@/lib/order";
 import { preloadImages } from "@/lib/preload";
 import { useExperienceStore } from "@/stores/useExperienceStore";
@@ -45,24 +43,12 @@ export const ResultScreen = () => {
   const [date] = useState(() => formatOrderDate(new Date()));
 
   useEffect(() => {
-    preloadImages(EDITOR_IMAGES);
+    preloadImages([...EDITOR_IMAGES, ...SHARE_IMAGES]);
   }, []);
-
-  // 답하지 않은 문답의 키워드는 건너뛴다.
-  const keywords = {
-    party: party && PARTY_KEYWORDS[party],
-    style: style && STYLE_KEYWORDS[style],
-    relation: relation && RELATION_KEYWORDS[relation],
-    flavor: flavor && `${FLAVOR_KEYWORDS[flavor]}${RESULT_FLAVOR_SUFFIX}`,
-  };
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#ffeff3]">
-      <img
-        alt=""
-        className="absolute inset-0 block size-full max-w-none"
-        src={RESULT_GLOW_IMAGE}
-      />
+      <GlowBackground glows={RESULT_GLOWS} />
       <motion.div
         className="absolute"
         style={RESULT_BOX_POSITION}
@@ -86,20 +72,11 @@ export const ResultScreen = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: TAGS_DELAY_SECONDS }}
       >
-        {RESULT_KEYWORD_TAGS.map((tag) => {
-          const text = keywords[tag.answer];
-          if (!text) return null;
-          return (
-            <KeywordTag
-              key={tag.answer}
-              tone={tag.tone}
-              className="absolute"
-              style={{ left: tag.left, top: tag.top }}
-            >
-              {text}
-            </KeywordTag>
-          );
-        })}
+        <KeywordTags
+          answers={{ party, style, relation, flavor }}
+          flavorSuffix={RESULT_FLAVOR_SUFFIX}
+          slots={RESULT_KEYWORD_TAGS}
+        />
       </motion.div>
       <SpeechBubble className="absolute left-[51.55px] top-[149px]">
         <TypedText text={RESULT_TEXT} startDelayMs={TYPING_DELAY_MS} sound />
