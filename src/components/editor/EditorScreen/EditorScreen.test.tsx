@@ -170,6 +170,23 @@ describe("EditorScreen", () => {
     ]);
   });
 
+  it("예시에 겉면 크림이 있으면 토핑 탭에 COATING 분류가 나오지 않는다", () => {
+    useExperienceStore.setState({
+      cake: {
+        size: "large",
+        shape: "round",
+        color: "white",
+        decorations: [{ id: "frosting-cream" }],
+      },
+    });
+    render(<EditorScreen />);
+
+    click("tab", "토핑");
+
+    expect(tile(/CREAM/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /COATING/ })).toBeNull();
+  });
+
   it("예시 케이크를 고쳐도 예시의 원본은 바뀌지 않는다", () => {
     const preset = CAKE_PRESETS[0];
     const before = structuredClone(preset.cake);

@@ -116,9 +116,9 @@ export type CakeDecorationCategory =
   | "others";
 
 // 자리가 정해진 장식이 겹치는 순서. 뒤에 있을수록 위에 놓인다. 같은 층에서는 먼저 고른 것 하나만 그린다.
+// 프로스팅과 코팅은 둘 다 케이크 겉면을 통째로 덮어서, 같은 층(frosting)에 두고 하나만 얹는다.
 export const CAKE_LAYERS = [
   "frosting",
-  "coating",
   "cream-top",
   "cream-border",
   "cream-piping",
@@ -131,11 +131,7 @@ export const CAKE_LAYERS = [
 export type CakeLayerId = (typeof CAKE_LAYERS)[number];
 
 // 케이크 겉면을 덮는 층. 다른 장식은 모두 이 위에 놓인다.
-export const SURFACE_LAYERS: CakeLayerId[] = [
-  "frosting",
-  "coating",
-  "cream-top",
-];
+export const SURFACE_LAYERS: CakeLayerId[] = ["frosting", "cream-top"];
 
 // 겉면 바로 위, 다른 장식들보다 아래에 까는 장식. 자리가 정해진 장식은 층으로, 낱개 장식(물방울)은 id로 적는다.
 // 아래에서 위로 스프링클, 물방울, 감싸는 리본 순서다. 리본은 물방울 위로 지나간다.
@@ -246,17 +242,17 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
     heart: ["frosting-pinktop-heart", 52.1, 163.5, 541, 584.1],
     square: ["frosting-pinktop-square", -26.9, 100.2, 699, 710.6],
   }),
-  fixed("coating-pink", "cream", "coating", {
+  fixed("coating-pink", "cream", "frosting", {
     round: ["coating-pink-round", 29, 142, 586, 500.2],
     heart: ["coating-pink-heart", 60, 160.6, 551.9, 487.1],
     square: ["coating-pink-square", -17.1, 73.1, 704.3, 607.9],
   }),
-  fixed("coating-choco", "cream", "coating", {
+  fixed("coating-choco", "cream", "frosting", {
     round: ["coating-choco-round", 30, 151, 586, 500.2],
     heart: ["coating-choco-heart", 63, 172.5, 525, 463],
     square: ["coating-choco-square", -19.2, 98.9, 695.2, 600.2],
   }),
-  fixed("coating-sky", "cream", "coating", {
+  fixed("coating-sky", "cream", "frosting", {
     round: ["coating-sky-round", 31, 144, 586, 499.2],
     heart: ["coating-sky-heart", 64.6, 145.6, 550.4, 504.9],
     square: ["coating-sky-square", -19.2, 97.5, 708.7, 611.8],

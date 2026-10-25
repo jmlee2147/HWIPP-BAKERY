@@ -109,7 +109,10 @@ export const EditorScreen = () => {
   };
 
   // 레터링과 장식 탭에서는 분류를 먼저 고른다.
-  const categories = EDITOR_CATEGORIES[tab];
+  // 고를 장식이 하나도 없는 분류(예시의 겉면이 차지한 COATING 등)는 타일을 보여 주지 않는다.
+  const categories = EDITOR_CATEGORIES[tab]?.filter(
+    (item) => decorationChoices(item, cake.shape, heldLayers(cake)).length > 0,
+  );
 
   // 낱개 장식 하나를 더하면 그 장식에 바로 조절 상자를 두른다.
   const pickDecoration = (id: string) => {
