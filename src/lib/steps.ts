@@ -6,6 +6,8 @@ export const STEPS = [
   "flavor",
   "analysis",
   "result",
+  // 결과 화면에서 메뉴판 버튼으로만 들어간다. 결과 화면에서 다음 단계로 넘기는 곳은 없다.
+  "menu",
   "editor",
   "share",
 ] as const;
@@ -22,6 +24,7 @@ export const STEP_LABELS: Record<Step, string> = {
   flavor: "맛 선택",
   analysis: "분석 및 로딩",
   result: "결과",
+  menu: "메뉴판",
   editor: "결과 수정",
   share: "소장 및 공유",
 };

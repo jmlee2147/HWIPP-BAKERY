@@ -23,6 +23,7 @@ const PROGRESS: Record<Step, ProgressStep | null> = {
   flavor: 4,
   analysis: 5,
   result: "complete",
+  menu: "complete",
   editor: "complete",
   share: "complete",
 };

@@ -11,6 +11,7 @@ import { FlavorScreen } from "@/components/questions/FlavorScreen/FlavorScreen";
 import { PartyScreen } from "@/components/questions/PartyScreen/PartyScreen";
 import { RelationScreen } from "@/components/questions/RelationScreen/RelationScreen";
 import { StyleScreen } from "@/components/questions/StyleScreen/StyleScreen";
+import { MenuScreen } from "@/components/result/MenuScreen/MenuScreen";
 import { ResultScreen } from "@/components/result/ResultScreen/ResultScreen";
 import { ShareScreen } from "@/components/share/ShareScreen/ShareScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
@@ -29,6 +30,7 @@ const SCREENS: Partial<Record<Step, ComponentType>> = {
   flavor: FlavorScreen,
   analysis: AnalysisScreen,
   result: ResultScreen,
+  menu: MenuScreen,
   editor: EditorScreen,
   share: ShareScreen,
 };

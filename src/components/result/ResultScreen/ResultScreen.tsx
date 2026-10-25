@@ -11,6 +11,7 @@ import { CakeBox } from "@/components/result/CakeBox/CakeBox";
 import { KeywordTags } from "@/components/result/KeywordTags/KeywordTags";
 import { DEFAULT_CAKE } from "@/data/cake";
 import { EDITOR_IMAGES } from "@/data/editor";
+import { MENU_PRELOAD } from "@/data/menu";
 import {
   RESULT_BOX_POSITION,
   RESULT_CHOICES,
@@ -43,7 +44,7 @@ export const ResultScreen = () => {
   const [date] = useState(() => formatOrderDate(new Date()));
 
   useEffect(() => {
-    preloadImages([...EDITOR_IMAGES, ...SHARE_IMAGES]);
+    preloadImages([...EDITOR_IMAGES, ...SHARE_IMAGES, ...MENU_PRELOAD]);
   }, []);
 
   return (
@@ -82,12 +83,11 @@ export const ResultScreen = () => {
         <TypedText text={RESULT_TEXT} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
       <ProgressBar step={4} className="absolute left-[75px] top-[58px]" />
-      {/* 메뉴판 화면이 생기기 전까지는 자리만 차지하고 눌러도 반응하지 않는다. */}
       <ChoiceButton
         tone="mint"
         size="half"
-        disabled
-        className="absolute left-[62px] top-[1579px] disabled:!opacity-100"
+        className="absolute left-[62px] top-[1579px]"
+        onClick={() => goTo("menu")}
       >
         {RESULT_CHOICES.menu}
       </ChoiceButton>
