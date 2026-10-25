@@ -2218,7 +2218,7 @@ export const CAKE_PRESETS: CakePreset[] = [
       decorations: [
         { id: "cream-ball-pink", x: 621.7, y: 459, scale: 1.2 },
         { id: "cream-ball-pink", x: 34.2, y: 606, scale: 1.4 },
-        { id: "cream-top-square-plain" },
+        { id: "cream-top" },
         { id: "lettering-thankyou-color", x: 305.1, y: 320, rotate: 9.1 },
         { id: "cream-ball-pink", x: 48.5, y: 629.7, scale: 1.4 },
         { id: "cream-ball-pink", x: 102.6, y: 641.1, scale: 1.4 },

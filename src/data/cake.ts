@@ -239,6 +239,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("frosting-cream", "cream", "frosting", {
     round: ["frosting-cream-round", 32, 130, 599, 625],
     heart: ["frosting-cream-heart", 52.1, 171, 541, 569.1],
+    square: ["frosting-cream-square", -26.9, 107.4, 699, 696.1],
   }),
   fixed("frosting-pinktop", "cream", "frosting", {
     round: ["frosting-pinktop-round", 13.1, 143, 618.9, 625],
@@ -261,15 +262,13 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
     square: ["coating-sky-square", -19.2, 97.5, 708.7, 611.8],
   }),
   fixed("cream-top", "cream", "cream-top", {
+    round: ["cream-top-round", 48, 143, 564, 403.7],
     heart: ["cream-top-heart", 87, 171.5, 488, 386.3],
+    square: ["cream-top-square-plain", -21.1, 123.6, 687.1, 423.2],
   }),
   // 네모 윗면을 덮는 크림. 다른 모양에는 얹을 수 없다.
   fixed("cream-top-square", "cream", "cream-top", {
     square: ["cream-top-square", 29.4, 154.6, 599.7, 361.4],
-  }),
-  // 무늬 없이 네모 윗면을 덮는 크림.
-  fixed("cream-top-square-plain", "cream", "cream-top", {
-    square: ["cream-top-square-plain", -21.1, 123.6, 687.1, 423.2],
   }),
   fixed("cream-border", "cream", "cream-border", {
     heart: ["cream-border-heart", 57, 497.9, 538.9, 258.5],
@@ -297,6 +296,11 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("fruit-strawberry-pile", "fruit", 321, 283, "center"),
   top("fruit-strawberry", "fruit", 92, 107, "bottom"),
   top("fruit-cherry", "fruit", 94.8, 152, "bottom"),
+  // 크림 위에 얹은 과일. 크림 방울은 cream-dollop과, 장미 크림은 cream-rosette와 같은 크기다.
+  top("fruit-strawberry-dollop", "fruit", 117, 151, "bottom"),
+  top("fruit-strawberry-rosette", "fruit", 129, 105.5, "bottom"),
+  top("fruit-cherry-dollop", "fruit", 118, 179, "bottom"),
+  top("fruit-cherry-rosette", "fruit", 115.5, 101.5, "bottom"),
   top("candle-pink", "candle", 21.9, 203.1, "bottom"),
   top("candle-mint", "candle", 21.9, 203.1, "bottom"),
   top("candle-black", "candle", 21.9, 203.1, "bottom"),
@@ -317,6 +321,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("flower-lily-white", "flower", 244.6, 229.6, "center"),
   top("flower-gerbera-pink", "flower", 152.5, 135, "center"),
   top("petal-pink", "flower", 60.4, 53.9, "center"),
+  top("petal-lilac", "flower", 60.4, 53.9, "center"),
   top("flower-gerbera-red", "flower", 155.3, 163.1, "center"),
   top("petal-red", "flower", 60.4, 53.9, "center"),
   top("flower-gerbera-blue", "flower", 152.5, 135, "center"),
@@ -430,8 +435,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("sprinkle", "others", "sprinkle", {
     round: ["sprinkle-round", 82.4, 242.5, 508.4, 238.4],
     heart: ["sprinkle-heart", 113.9, 212.5, 443.1, 303],
-    // 사각형 전용 그림은 없다. 하트용 그림을 같은 비율로 줄여 쓴다.
-    square: ["sprinkle-heart", 124.3, 226.8, 394.4, 269.7],
+    square: ["sprinkle-square", 81, 212.8, 481, 297.8],
   }),
   top("topper-baker-face", "others", 203, 183, "bottom"),
   top("topper-bears", "others", 99.5, 66, "bottom"),
@@ -471,10 +475,15 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("lettering-gomawo-black", "lettering", 471.7, 231.5, "center"),
   top("lettering-happy-birthday-brown", "lettering", 110.4, 34.9, "center"),
   top("lettering-gomawo-pink", "lettering", 372.3, 196.9, "center"),
+  top("lettering-gomawo-sky", "lettering", 372.3, 189.5, "center"),
   top("lettering-thankyou-color", "lettering", 463.1, 310.4, "center"),
+  top("lettering-thankyou-sky", "lettering", 427.5, 286.5, "center"),
+  top("lettering-thx-star-black", "lettering", 274, 114.9, "center"),
+  top("lettering-thx-star-white", "lettering", 274, 114.5, "center"),
   top("topper-paw", "others", 38, 30.5, "center"),
   top("topper-wing", "others", 63.2, 68.9, "center"),
   top("plate-omedetou", "others", 181.2, 55.5, "bottom"),
+  top("plate-congratulations", "others", 181.2, 67.4, "bottom"),
   top("plate-chukahae", "others", 218.7, 66.2, "bottom"),
   top("star-yellow", "others", 85.7, 72.5, "center"),
   top("drop-black-oval", "others", 55.3, 46.8, "center"),

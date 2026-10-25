@@ -138,7 +138,17 @@ export const LETTERING_CATEGORIES: EditorCategory[] = [
     id: "thanks",
     label: "THANKS",
     icon: letteringIcon("thanks"),
-    items: ["lettering-thankyou", "lettering-always-grateful"],
+    items: [
+      "lettering-thankyou",
+      "lettering-thankyou-sky",
+      "lettering-thankyou-color",
+      "lettering-gomawo-black",
+      "lettering-gomawo-pink",
+      "lettering-gomawo-sky",
+      "lettering-always-grateful",
+      "lettering-thx-star-black",
+      "lettering-thx-star-white",
+    ],
   },
   {
     id: "daily",
@@ -180,7 +190,14 @@ export const TOPPING_CATEGORIES: EditorCategory[] = [
       height: 109,
       centerY: 122.9,
     },
-    items: ["fruit-strawberry", "fruit-cherry"],
+    items: [
+      "fruit-strawberry",
+      "fruit-strawberry-dollop",
+      "fruit-strawberry-rosette",
+      "fruit-cherry",
+      "fruit-cherry-dollop",
+      "fruit-cherry-rosette",
+    ],
   },
   {
     id: "cream",
@@ -212,7 +229,13 @@ export const TOPPING_CATEGORIES: EditorCategory[] = [
       height: 122,
       centerY: 119,
     },
-    items: ["plate-pink", "plate-choco", "plate-chukahae", "plate-omedetou"],
+    items: [
+      "plate-pink",
+      "plate-choco",
+      "plate-chukahae",
+      "plate-congratulations",
+      "plate-omedetou",
+    ],
   },
   {
     id: "sweets",
@@ -223,7 +246,14 @@ export const TOPPING_CATEGORIES: EditorCategory[] = [
       height: 115,
       centerY: 117.5,
     },
-    items: ["sprinkle", "topper-cat-pudding"],
+    items: [
+      "sprinkle",
+      "sweet-cookie-cat",
+      "sweet-biscuit",
+      "sweet-pepero",
+      "sweet-wafer",
+      "topper-cat-pudding",
+    ],
   },
   {
     id: "coating",
@@ -283,11 +313,14 @@ export const DECORATION_CATEGORIES: EditorCategory[] = [
       centerY: 111.6,
     },
     items: [
+      "flower-lily-white",
       "flower-lily-pink",
       "flower-lily-silver",
       "flower-lily-rose",
       "flower-gerbera-pink",
       "petal-pink",
+      "flower-gerbera-lilac",
+      "petal-lilac",
       "flower-gerbera-red",
       "petal-red",
       "flower-gerbera-blue",
@@ -405,7 +438,16 @@ export interface DecorationChoice {
   src: string;
   width: number;
   height: number;
+  caption?: string;
 }
+
+// 목록에서 일본어 글자 아래에 붙이는 한국어 뜻.
+export const DECORATION_CAPTIONS: Record<string, string> = {
+  "plate-yellow-happiness": "행복하세요",
+  "lettering-ouen-pink": "항상 응원할게",
+  "lettering-ouen-black": "항상 응원할게",
+  "lettering-ouen-sky": "항상 응원할게",
+};
 
 // 분류를 고르는 탭과 그 탭의 분류.
 export const EDITOR_CATEGORIES: Partial<Record<EditorTabId, EditorCategory[]>> =
@@ -439,12 +481,14 @@ export function decorationChoices(
       CHOICE_MAX.width / part.width,
       CHOICE_MAX.height / part.height,
     );
+    const caption = DECORATION_CAPTIONS[id];
     return [
       {
         id,
         src: part.src,
         width: part.width * scale,
         height: part.height * scale,
+        ...(caption ? { caption } : {}),
       },
     ];
   });

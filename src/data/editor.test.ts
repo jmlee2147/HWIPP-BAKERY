@@ -88,4 +88,27 @@ describe("decorationChoices", () => {
       expect(ids).toEqual(category.items);
     }
   });
+
+  it("일본어 글자에만 한국어 뜻이 붙는다", () => {
+    const japanese = LETTERING_CATEGORIES.find(
+      (category) => category.id === "japanese",
+    );
+    const captions = Object.fromEntries(
+      LETTERING_CATEGORIES.flatMap((category) =>
+        decorationChoices(category, "round"),
+      )
+        .filter((choice) => choice.caption)
+        .map((choice) => [choice.id, choice.caption]),
+    );
+
+    expect(captions).toEqual({
+      "plate-yellow-happiness": "행복하세요",
+      "lettering-ouen-pink": "항상 응원할게",
+      "lettering-ouen-black": "항상 응원할게",
+      "lettering-ouen-sky": "항상 응원할게",
+    });
+    expect(
+      Object.keys(captions).every((id) => japanese?.items.includes(id)),
+    ).toBe(true);
+  });
 });
