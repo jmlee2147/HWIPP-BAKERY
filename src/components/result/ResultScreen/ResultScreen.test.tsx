@@ -42,14 +42,12 @@ describe("ResultScreen", () => {
     expect(useExperienceStore.getState().step).toBe("share");
   });
 
-  it("갈 곳이 없는 메뉴판 버튼은 눌러도 단계가 바뀌지 않는다", () => {
+  it("메뉴판 버튼을 누르면 메뉴판으로 간다", () => {
     render(<ResultScreen />);
-    const menu = screen.getByRole("button", { name: RESULT_CHOICES.menu });
 
-    fireEvent.click(menu);
+    click(RESULT_CHOICES.menu);
 
-    expect((menu as HTMLButtonElement).disabled).toBe(true);
-    expect(useExperienceStore.getState().step).toBe("result");
+    expect(useExperienceStore.getState().step).toBe("menu");
   });
 
   it("답변마다 키워드를 하나씩 붙이고, 맛 키워드 뒤에 완성 문구를 단다", () => {
