@@ -26,6 +26,7 @@ export const CakeBox = ({
   date,
   orderNumber,
   className = "",
+  style,
   ...props
 }: CakeBoxProps) => {
   const stamps = [
@@ -36,7 +37,8 @@ export const CakeBox = ({
   return (
     <div
       className={className}
-      style={{ width: CAKE_BOX.width, height: CAKE_BOX.height }}
+      // 바깥에서 자리를 style로 넘겨도 상자의 크기는 지킨다.
+      style={{ ...style, width: CAKE_BOX.width, height: CAKE_BOX.height }}
       {...props}
     >
       <div className="relative size-full">

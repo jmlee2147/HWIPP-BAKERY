@@ -79,6 +79,11 @@ const config: Config = {
           "0%, 49.99%": { opacity: "0" },
           "50%, 100%": { opacity: "1" },
         },
+        "glow-drift": {
+          "0%, 100%": { transform: "translate(0, 0)" },
+          "33%": { transform: "translate(60px, -45px)" },
+          "66%": { transform: "translate(-45px, 40px)" },
+        },
       },
       animation: {
         "pop-in": "pop-in 0.45s ease-out both",
@@ -93,6 +98,7 @@ const config: Config = {
         shimmer: "shimmer 2.4s ease-in-out infinite alternate",
         "frame-first": "frame-first 2.4s steps(1) infinite",
         "frame-second": "frame-second 2.4s steps(1) infinite",
+        "glow-drift": "glow-drift 14s ease-in-out infinite",
       },
       dropShadow: {
         window: "3px 9px 15px rgba(0, 0, 0, 0.15)",
