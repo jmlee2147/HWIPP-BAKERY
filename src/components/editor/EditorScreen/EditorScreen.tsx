@@ -35,7 +35,7 @@ import {
   SIZE_ICON_SCALES,
 } from "@/data/editor";
 import { useCakeHistory } from "@/hooks/editor/useCakeHistory";
-import { heldLayers, lostInShape } from "@/lib/cake";
+import { heldLayers, looseHandleKey, lostInShape } from "@/lib/cake";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -60,8 +60,9 @@ export const EditorScreen = () => {
   const adjustDecoration = useExperienceStore(
     (state) => state.adjustDecoration,
   );
-  const removeDecoration = useExperienceStore(
-    (state) => state.removeDecoration,
+  const moveDecorations = useExperienceStore((state) => state.moveDecorations);
+  const removeDecorations = useExperienceStore(
+    (state) => state.removeDecorations,
   );
   const clearDecorations = useExperienceStore(
     (state) => state.clearDecorations,
@@ -72,8 +73,8 @@ export const EditorScreen = () => {
   // 장식 탭에서 고른 분류와, 그 분류의 목록이 열렸는지. 분류를 누르면 고른 상태를 잠깐 보여 준 뒤 목록을 연다.
   const [category, setCategory] = useState<EditorCategory | null>(null);
   const [listOpen, setListOpen] = useState(false);
-  // 조절 상자를 두른 장식의, 케이크 장식 목록에서의 차례.
-  const [selected, setSelected] = useState<number | null>(null);
+  // 조절 상자를 두른 장식(묶음)의 열쇠.
+  const [selected, setSelected] = useState<string | null>(null);
   // 그만두면 되돌아갈, 수정 화면에 들어올 때의 케이크.
   const [startCake] = useState(() => useExperienceStore.getState().cake);
   // 띄운 확인 팝업.
@@ -108,7 +109,10 @@ export const EditorScreen = () => {
   };
 
   // 레터링과 장식 탭에서는 분류를 먼저 고른다.
-  const categories = EDITOR_CATEGORIES[tab];
+  // 고를 장식이 하나도 없는 분류(예시의 겉면이 차지한 COATING 등)는 타일을 보여 주지 않는다.
+  const categories = EDITOR_CATEGORIES[tab]?.filter(
+    (item) => decorationChoices(item, cake.shape, heldLayers(cake)).length > 0,
+  );
 
   // 낱개 장식 하나를 더하면 그 장식에 바로 조절 상자를 두른다.
   const pickDecoration = (id: string) => {
@@ -117,7 +121,7 @@ export const EditorScreen = () => {
     const one =
       added.length === cake.decorations.length + 1 &&
       added[added.length - 1].x !== undefined;
-    setSelected(one ? added.length - 1 : null);
+    setSelected(one ? looseHandleKey(added.length - 1) : null);
   };
 
   // 바꾸면 코팅 같은 장식이 빠지는 모양은 고르지 못하게 한다. 그 모양의 그림이 생기면 저절로 다시 보인다.
@@ -186,7 +190,10 @@ export const EditorScreen = () => {
             onAdjust={adjustDecoration}
             onAdjustStart={history.startDrag}
             onAdjustEnd={history.endDrag}
-            onRemove={(index) => history.track(() => removeDecoration(index))}
+            onMove={moveDecorations}
+            onRemove={(indices) =>
+              history.track(() => removeDecorations(indices))
+            }
           />
         )}
         {/* 장식 조절 상자보다 위에 둔다. 보이는 지름은 78px이고, 터치 영역만 88px로 넓혔다. */}

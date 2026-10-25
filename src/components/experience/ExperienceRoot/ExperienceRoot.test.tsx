@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EDITOR_PACK_CHOICE } from "@/data/editor";
-import { STEP_LABELS } from "@/lib/steps";
+import { BYE_CHOICES, FINAL_CHOICES } from "@/data/share";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { ExperienceRoot } from "./ExperienceRoot";
 
@@ -179,15 +179,16 @@ describe("ExperienceRoot", () => {
 
     await click(EDITOR_PACK_CHOICE);
 
-    await screen.findByRole("heading", { name: STEP_LABELS.share }, WAIT);
+    await screen.findByRole("button", { name: FINAL_CHOICES.qr }, WAIT);
     expect(useExperienceStore.getState().step).toBe("share");
   });
 
-  it("마지막 단계에서 처음으로를 누르면 오프닝으로 돌아간다", async () => {
+  it("마지막 단계에서 처음으로를 누르고 끝인사에 답하면 오프닝으로 돌아간다", async () => {
     useExperienceStore.setState({ step: "share" });
     render(<ExperienceRoot />);
 
-    await click("처음으로");
+    await click(FINAL_CHOICES.home);
+    await click(BYE_CHOICES.leave);
 
     await screen.findByRole("button", { name: "START!" });
   });

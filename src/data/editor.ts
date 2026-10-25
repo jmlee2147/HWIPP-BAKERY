@@ -39,6 +39,7 @@ export const EDITOR_ERASE = {
 export const EDITOR_TABS = [
   { id: "size", label: "크기" },
   { id: "shape", label: "모양" },
+  { id: "topping", label: "토핑" },
   { id: "lettering", label: "레터링" },
   { id: "decoration", label: "장식" },
   { id: "color", label: "색상" },
@@ -137,7 +138,17 @@ export const LETTERING_CATEGORIES: EditorCategory[] = [
     id: "thanks",
     label: "THANKS",
     icon: letteringIcon("thanks"),
-    items: ["lettering-thankyou", "lettering-always-grateful"],
+    items: [
+      "lettering-thankyou",
+      "lettering-thankyou-sky",
+      "lettering-thankyou-color",
+      "lettering-gomawo-black",
+      "lettering-gomawo-pink",
+      "lettering-gomawo-sky",
+      "lettering-always-grateful",
+      "lettering-thx-star-black",
+      "lettering-thx-star-white",
+    ],
   },
   {
     id: "daily",
@@ -167,6 +178,103 @@ export const LETTERING_CATEGORIES: EditorCategory[] = [
   },
 ];
 
+// 토핑 탭의 분류. 목록의 순서가 타일 줄에 보이는 순서다.
+// centerY는 타일(270x275) 안에서 그림의 가운데가 놓이는 높이다.
+export const TOPPING_CATEGORIES: EditorCategory[] = [
+  {
+    id: "fruit",
+    label: "FRUIT",
+    icon: {
+      src: editorImage("category-fruit.svg"),
+      width: 105,
+      height: 109,
+      centerY: 122.9,
+    },
+    items: [
+      "fruit-strawberry",
+      "fruit-strawberry-dollop",
+      "fruit-strawberry-rosette",
+      "fruit-cherry",
+      "fruit-cherry-dollop",
+      "fruit-cherry-rosette",
+    ],
+  },
+  {
+    id: "cream",
+    label: "CREAM",
+    icon: {
+      src: editorImage("category-cream.svg"),
+      width: 91,
+      height: 91,
+      centerY: 127,
+    },
+    items: [
+      "cream-top",
+      "cream-piping",
+      "cream-dollop",
+      "cream-rosette",
+      "cream-cloud-sky",
+      "cream-ball-pink",
+      "cream-ball-white",
+      "cream-ball-yellow",
+      "cream-ball-sky",
+    ],
+  },
+  {
+    id: "chocolate",
+    label: "CHOCOLATE",
+    icon: {
+      src: editorImage("category-chocolate.svg"),
+      width: 122,
+      height: 122,
+      centerY: 119,
+    },
+    items: [
+      "plate-pink",
+      "plate-choco",
+      "plate-chukahae",
+      "plate-congratulations",
+      "plate-omedetou",
+    ],
+  },
+  {
+    id: "sweets",
+    label: "SWEETS",
+    icon: {
+      src: editorImage("category-sweets.svg"),
+      width: 115,
+      height: 115,
+      centerY: 117.5,
+    },
+    items: [
+      "sprinkle",
+      "sweet-cookie-cat",
+      "sweet-biscuit",
+      "sweet-pepero",
+      "sweet-wafer",
+      "topper-cat-pudding",
+    ],
+  },
+  {
+    id: "coating",
+    label: "COATING",
+    icon: {
+      src: editorImage("category-coating.svg"),
+      width: 108,
+      height: 119,
+      centerY: 111.1,
+    },
+    items: [
+      "frosting-cream",
+      "frosting-green",
+      "frosting-pinktop",
+      "coating-choco",
+      "coating-pink",
+      "coating-sky",
+    ],
+  },
+];
+
 // 장식 탭의 분류. 목록의 순서가 타일 줄에 보이는 순서다.
 export const DECORATION_CATEGORIES: EditorCategory[] = [
   {
@@ -191,6 +299,8 @@ export const DECORATION_CATEGORIES: EditorCategory[] = [
       "candle-heart-red",
       "candle-heart-pink",
       "candle-heart-blue",
+      "candle-wavy",
+      "candle-wavy-tall",
     ],
   },
   {
@@ -203,11 +313,14 @@ export const DECORATION_CATEGORIES: EditorCategory[] = [
       centerY: 111.6,
     },
     items: [
+      "flower-lily-white",
       "flower-lily-pink",
       "flower-lily-silver",
       "flower-lily-rose",
       "flower-gerbera-pink",
       "petal-pink",
+      "flower-gerbera-lilac",
+      "petal-lilac",
       "flower-gerbera-red",
       "petal-red",
       "flower-gerbera-blue",
@@ -249,7 +362,6 @@ export const DECORATION_CATEGORIES: EditorCategory[] = [
       centerY: 115.2,
     },
     items: [
-      "sprinkle",
       "topper-wing",
       "topper-bears",
       "pearl-gray",
@@ -261,10 +373,9 @@ export const DECORATION_CATEGORIES: EditorCategory[] = [
       "topper-cat",
       "topper-cat-snowball",
       "topper-paws",
-      "cream-ball-pink",
-      "cream-ball-white",
-      "cream-ball-yellow",
-      "cream-ball-sky",
+      "splat-red-1",
+      "splat-red-2",
+      "splat-red-3",
       "drops-black",
       "drops-white",
     ],
@@ -327,11 +438,21 @@ export interface DecorationChoice {
   src: string;
   width: number;
   height: number;
+  caption?: string;
 }
+
+// 목록에서 일본어 글자 아래에 붙이는 한국어 뜻.
+export const DECORATION_CAPTIONS: Record<string, string> = {
+  "plate-yellow-happiness": "행복하세요",
+  "lettering-ouen-pink": "항상 응원할게",
+  "lettering-ouen-black": "항상 응원할게",
+  "lettering-ouen-sky": "항상 응원할게",
+};
 
 // 분류를 고르는 탭과 그 탭의 분류.
 export const EDITOR_CATEGORIES: Partial<Record<EditorTabId, EditorCategory[]>> =
   {
+    topping: TOPPING_CATEGORIES,
     lettering: LETTERING_CATEGORIES,
     decoration: DECORATION_CATEGORIES,
   };
@@ -360,12 +481,14 @@ export function decorationChoices(
       CHOICE_MAX.width / part.width,
       CHOICE_MAX.height / part.height,
     );
+    const caption = DECORATION_CAPTIONS[id];
     return [
       {
         id,
         src: part.src,
         width: part.width * scale,
         height: part.height * scale,
+        ...(caption ? { caption } : {}),
       },
     ];
   });

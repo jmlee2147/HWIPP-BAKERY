@@ -17,3 +17,39 @@ export function preloadImages(sources: string[]) {
     kept.push(image);
   }
 }
+
+// 이미지를 모두 받아 그릴 준비가 될 때까지 기다린다. 못 받는 그림이 있어도 화면이 멈추지 않도록
+// timeoutMs가 지나면 기다리지 않는다. 제때 모두 준비되었는지를 돌려준다.
+export function loadImages(
+  sources: string[],
+  timeoutMs: number,
+): Promise<boolean> {
+  if (typeof Image === "undefined") return Promise.resolve(true);
+  const loads = sources.map(
+    (src) =>
+      new Promise<void>((resolve) => {
+        const known = kept.find((image) => image.getAttribute("src") === src);
+        if (known?.complete) {
+          resolve();
+          return;
+        }
+        const image = new Image();
+        image.onload = () => {
+          // 받은 뒤에도 그림을 푸는 데 시간이 걸린다. 다 풀린 뒤에 보여 주어야 조각이 차례로 뜨지 않는다.
+          if (typeof image.decode === "function") {
+            image.decode().then(resolve, resolve);
+          } else resolve();
+        };
+        image.onerror = () => resolve();
+        image.src = src;
+        kept.push(image);
+      }),
+  );
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), timeoutMs);
+    void Promise.all(loads).then(() => {
+      clearTimeout(timer);
+      resolve(true);
+    });
+  });
+}

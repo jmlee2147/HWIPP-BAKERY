@@ -53,6 +53,7 @@ describe("EditorScreen", () => {
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
       "크기",
       "모양",
+      "토핑",
       "레터링",
       "장식",
       "색상",
@@ -148,27 +149,28 @@ describe("EditorScreen", () => {
     expect(placed()).toEqual(before);
   });
 
-  it("바꾸면 장식이 빠지는 모양은 선택지에 보여 주지 않는다", () => {
-    // 분홍 코팅은 원형과 하트의 그림만 있다.
+  it("고를 모양이 지금 모양뿐이면 모양 탭을 보여 주지 않는다", () => {
+    // 네모 윗면 크림은 사각형의 그림만 있다.
     useExperienceStore.setState({
       cake: {
         size: "large",
-        shape: "heart",
-        color: "sky",
-        decorations: [{ id: "coating-pink" }],
+        shape: "square",
+        color: "white",
+        decorations: [{ id: "cream-top-square" }],
       },
     });
     render(<EditorScreen />);
 
-    click("tab", "모양");
-
-    expect(tile(/CIRCLE/)).toBeTruthy();
-    expect(tile(/HEART/)).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /SQUARE/ })).toBeNull();
+    expect(screen.getAllByRole("tab").map((item) => item.textContent)).toEqual([
+      "크기",
+      "토핑",
+      "레터링",
+      "장식",
+      "색상",
+    ]);
   });
 
-  it("고를 모양이 지금 모양뿐이면 모양 탭을 보여 주지 않는다", () => {
-    // 프로스팅은 원형의 그림만 있다.
+  it("예시에 겉면 크림이 있으면 토핑 탭에 COATING 분류가 나오지 않는다", () => {
     useExperienceStore.setState({
       cake: {
         size: "large",
@@ -179,12 +181,10 @@ describe("EditorScreen", () => {
     });
     render(<EditorScreen />);
 
-    expect(screen.getAllByRole("tab").map((item) => item.textContent)).toEqual([
-      "크기",
-      "레터링",
-      "장식",
-      "색상",
-    ]);
+    click("tab", "토핑");
+
+    expect(tile(/CREAM/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /COATING/ })).toBeNull();
   });
 
   it("예시 케이크를 고쳐도 예시의 원본은 바뀌지 않는다", () => {
@@ -325,6 +325,24 @@ describe("EditorScreen 장식 탭", () => {
       vi.advanceTimersByTime(CATEGORY_HOLD_MS);
     });
   };
+
+  it("토핑 탭에는 토핑 분류가 나오고, 분류를 누르면 그 분류의 토핑을 케이크에 얹는다", () => {
+    render(<EditorScreen />);
+    click("tab", "토핑");
+
+    for (const label of ["FRUIT", "CREAM", "CHOCOLATE", "SWEETS", "COATING"]) {
+      expect(tile(label)).toBeTruthy();
+    }
+    click("button", "FRUIT");
+    act(() => {
+      vi.advanceTimersByTime(CATEGORY_HOLD_MS);
+    });
+    click("button", "fruit-cherry");
+
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "fruit-cherry",
+    ]);
+  });
 
   it("장식 탭에는 분류 타일이 나온다", () => {
     render(<EditorScreen />);
@@ -565,15 +583,73 @@ describe("EditorScreen 장식 탭", () => {
     ).toBeNull();
   });
 
-  it("예시에 처음부터 있던 장식에는 조절 상자가 생기지 않는다", () => {
-    useExperienceStore.setState({ cake: CAKE_PRESETS[0].cake });
+  // 리본 두르기, 예시의 물방울 두 개, 예시의 꽃 하나를 얹은 케이크.
+  // 누르는 자리는 아래에 그려지는 것부터 물방울 둘(한 묶음), 리본, 꽃이다.
+  const enterWithPresetParts = () => {
+    useExperienceStore.setState({
+      cake: {
+        size: "large",
+        shape: "round",
+        color: "white",
+        decorations: [
+          { id: "ribbon-wrap" },
+          { id: "drop-black-round", x: 200, y: 400 },
+          { id: "drop-black-oval", x: 260, y: 420 },
+          { id: "flower-rose", x: 330, y: 330 },
+        ],
+      },
+    });
     render(<EditorScreen />);
-
     click("tab", "장식");
+    return screen.getAllByRole("button", { name: CONTROL_LABELS.move });
+  };
 
+  it("예시에 처음부터 있던 낱개 장식도 고르면 옮기고 크기와 기울기를 고칠 수 있다", () => {
+    const [, , , flower] = enterWithPresetParts();
+
+    fireEvent.pointerDown(flower, { pointerId: 1, clientX: 0, clientY: 0 });
+    fireEvent.pointerUp(flower, { pointerId: 1, clientX: 0, clientY: 0 });
+
+    expect(flower.getAttribute("aria-pressed")).toBe("true");
+    expect(control(CONTROL_LABELS.scale)).toBeTruthy();
+    expect(control(CONTROL_LABELS.rotate)).toBeTruthy();
+    drag(flower, { x: 300, y: 500 }, { x: 367, y: 500 });
+    expect(storedCake()?.decorations[3].x).toBeCloseTo(430);
+  });
+
+  it("케이크 모양을 따라 그린 장식은 고르면 지우기만 할 수 있다", () => {
+    const [, , ribbon] = enterWithPresetParts();
+
+    fireEvent.pointerDown(ribbon, { pointerId: 1, clientX: 0, clientY: 0 });
+
+    expect(ribbon.getAttribute("aria-pressed")).toBe("true");
     expect(
-      screen.queryByRole("button", { name: CONTROL_LABELS.move }),
+      screen.queryByRole("button", { name: CONTROL_LABELS.scale }),
     ).toBeNull();
+    click("button", CONTROL_LABELS.remove);
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "drop-black-round",
+      "drop-black-oval",
+      "flower-rose",
+    ]);
+  });
+
+  it("예시의 물방울은 한 묶음으로 함께 옮기고 함께 지운다", () => {
+    const [drop, other] = enterWithPresetParts();
+
+    drag(drop, { x: 300, y: 500 }, { x: 367, y: 433 });
+    expect(other.getAttribute("aria-pressed")).toBe("true");
+    expect(storedCake()?.decorations[1]).toMatchObject({ x: 300, y: 300 });
+    expect(storedCake()?.decorations[2]).toMatchObject({ x: 360, y: 320 });
+    expect(
+      screen.queryByRole("button", { name: CONTROL_LABELS.scale }),
+    ).toBeNull();
+
+    click("button", CONTROL_LABELS.remove);
+    expect(storedCake()?.decorations.map((item) => item.id)).toEqual([
+      "ribbon-wrap",
+      "flower-rose",
+    ]);
   });
 
   it("목록에는 분류에 정해 둔 장식만 정해 둔 순서로 나온다", () => {
@@ -591,7 +667,7 @@ describe("EditorScreen 장식 탭", () => {
     ).toBeNull();
   });
 
-  it("물방울 묶음을 누르면 지금 모양의 배치대로 한꺼번에 놓이고 조절 상자는 생기지 않는다", () => {
+  it("물방울 묶음을 누르면 지금 모양의 배치대로 한꺼번에 놓이고, 묶음 하나로 고른다", () => {
     useExperienceStore.setState({
       cake: { size: "large", shape: "heart", color: "white", decorations: [] },
     });
@@ -786,7 +862,7 @@ describe("EditorScreen 레터링 탭", () => {
     expect(control(CONTROL_LABELS.remove)).toBeTruthy();
   });
 
-  it("예시에 글자가 있는 케이크에도 글자를 더 놓고, 놓은 글자만 지울 수 있다", () => {
+  it("예시에 글자가 있는 케이크에도 글자를 더 놓고, 놓은 글자를 바로 고른다", () => {
     const preset = CAKE_PRESETS.find(({ cake }) =>
       cake.decorations.some((item) => item.id === "lettering-hbd-pink"),
     );
@@ -797,7 +873,9 @@ describe("EditorScreen 레터링 탭", () => {
 
     click("button", "lettering-ouen-pink");
     expect(
-      screen.getAllByRole("button", { name: CONTROL_LABELS.move }),
+      screen
+        .getAllByRole("button", { name: CONTROL_LABELS.move })
+        .filter((button) => button.getAttribute("aria-pressed") === "true"),
     ).toHaveLength(1);
 
     click("button", CONTROL_LABELS.remove);

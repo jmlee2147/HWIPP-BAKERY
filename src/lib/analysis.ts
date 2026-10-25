@@ -13,7 +13,7 @@ import { CAKE_PRESETS, type CakePreset } from "@/data/cakePresets";
 import { FLAVORS, type FlavorId } from "@/data/flavors";
 import type { PartyId } from "@/data/parties";
 import { RELATIONS, type RelationId } from "@/data/relations";
-import type { StyleId } from "@/data/styles";
+import { STYLES, type StyleId } from "@/data/styles";
 
 export interface AnalysisAnswers {
   relation: RelationId;
@@ -108,6 +108,8 @@ export function presetScore(
     score += THEME_WEIGHT;
   }
 
+  // 바탕색 점수는 취향의 장식이 하나라도 얹힌 케이크에만 준다. 색만 맞는 케이크가 취향의 케이크와 섞이지 않게 한다.
+  let fitsTaste = true;
   if (taste.sparse) {
     score += Math.round(
       STYLE_WEIGHT * (1 - Math.min(count, SPARSE_LIMIT) / SPARSE_LIMIT),
@@ -115,8 +117,9 @@ export function presetScore(
   } else if (count > 0) {
     const fitting = used.filter((id) => startsWithAny(id, taste.decorations));
     score += Math.round((fitting.length / count) * STYLE_WEIGHT);
+    fitsTaste = fitting.length > 0;
   }
-  if (taste.colors.includes(preset.cake.color)) score += 2;
+  if (fitsTaste && taste.colors.includes(preset.cake.color)) score += 2;
 
   if (loving && CLOSE_RELATIONS.includes(answers.relation)) score += 2;
 
@@ -143,14 +146,60 @@ export function cakeCandidates(answers: AnalysisAnswers): CakePreset[] {
     .map((one) => one.preset);
 }
 
+const comboKey = ({ style, relation, flavor }: AnalysisAnswers) =>
+  `${style}/${relation}/${flavor}`;
+
+// 한 테마의 답변 조합마다 고를 예시. 조합마다 후보 중 하나씩, 되도록 서로 다른 예시를 짝지어 둔다.
+// 차례대로 돌려 고르면 후보가 겹치는 조합끼리 같은 예시만 고르고, 몇몇 예시는 어느 답변에서도 나오지 않는다.
+function assignPresets(party: PartyId): Map<string, CakePreset> {
+  const combos = STYLES.flatMap((style) =>
+    RELATIONS.flatMap((relation) =>
+      FLAVORS.map((flavor) => ({
+        party,
+        style: style.id,
+        relation: relation.id,
+        flavor: flavor.id,
+      })),
+    ),
+  );
+  const candidates = combos.map(cakeCandidates);
+  // 예시마다 짝지은 조합의 순번. 이미 짝이 있는 예시면 그 조합을 다른 후보로 옮길 수 있을 때 넘겨받는다.
+  const owner = new Map<CakePreset, number>();
+  const match = (combo: number, seen: Set<CakePreset>): boolean => {
+    for (const preset of candidates[combo]) {
+      if (seen.has(preset)) continue;
+      seen.add(preset);
+      const other = owner.get(preset);
+      if (other === undefined || match(other, seen)) {
+        owner.set(preset, combo);
+        return true;
+      }
+    }
+    return false;
+  };
+  for (let combo = 0; combo < combos.length; combo++) match(combo, new Set());
+
+  const matched = new Map<number, CakePreset>();
+  for (const [preset, combo] of owner) matched.set(combo, preset);
+  // 예시보다 조합이 많아 짝이 없는 조합은 후보를 차례대로 돌려 고른다.
+  return new Map(
+    combos.map((answers, combo) => [
+      comboKey(answers),
+      matched.get(combo) ?? candidates[combo][combo % candidates[combo].length],
+    ]),
+  );
+}
+
+const assigned = new Map<PartyId, Map<string, CakePreset>>();
+
 // 문답 답변으로 완성 케이크 예시 중 하나를 골라 케이크 구성을 만든다. 크기는 파티 테마에 정해 둔 것을 쓴다.
 // 어울리는 예시가 여럿이면 관계와 맛 답변에 따라 그중 하나를 골라, 답변이 다르면 케이크도 달라지게 한다.
 export function pickCake(answers: AnalysisAnswers): CakeConfig {
-  const candidates = cakeCandidates(answers);
-  const turn =
-    RELATIONS.findIndex((item) => item.id === answers.relation) *
-      FLAVORS.length +
-    FLAVORS.findIndex((item) => item.id === answers.flavor);
-  const preset = candidates[turn % candidates.length];
+  let table = assigned.get(answers.party);
+  if (!table) {
+    table = assignPresets(answers.party);
+    assigned.set(answers.party, table);
+  }
+  const preset = table.get(comboKey(answers)) ?? cakeCandidates(answers)[0];
   return { ...preset.cake, size: PARTY_RULES[answers.party].size };
 }
