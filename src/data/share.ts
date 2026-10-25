@@ -1,12 +1,25 @@
 import type { SceneBox } from "./opening";
+import {
+  GLOW_IMAGES,
+  type Glow,
+  type KeywordSlot,
+  RESULT_KEYWORD_TAGS,
+} from "./result";
+
+const { mint: MINT, blush: BLUSH, pink: PINK, gray: GRAY } = GLOW_IMAGES;
 
 export const FINAL_TEXT = "손님의 의견이 반영된 최종 케이크가 완성되었어요!";
 export const FINAL_FLAVOR_SUFFIX = " 함께 완성했어요!";
 export const FINAL_CHOICES = { home: "처음으로", qr: "QR 다운로드" };
 
-// 최종 완성 화면의 상자와 키워드는 결과 화면보다 조금 아래에 놓인다.
+// 최종 완성 화면의 상자와 키워드는 결과 화면보다 조금 아래에 놓인다. 맛 태그는 끝이 조금 더 오른쪽이다.
 export const FINAL_BOX_POSITION = { left: 55, top: 507.88 };
-export const FINAL_TAGS_OFFSET = 7.88;
+export const FINAL_KEYWORD_TAGS: KeywordSlot[] = RESULT_KEYWORD_TAGS.map(
+  (slot) =>
+    slot.answer === "flavor"
+      ? { ...slot, top: slot.top + 7.88, rightEdge: 1037.21 }
+      : { ...slot, top: slot.top + 7.88 },
+);
 
 export const QR_TEXT =
   "스마트폰 카메라로 큐알코드를 촬영하면\n내가 만든 케이크를 저장할 수 있어요!";
@@ -46,20 +59,6 @@ export const SHARE_BROKEN_TEXT =
 export const BYE_MESSAGE = "감사합니다! 다음에 또 오세요 ♥";
 export const BYE_CHOICES = { stay: "아직 안 가요", leave: "네 ^^" };
 
-export interface Glow {
-  src: string;
-  left: number;
-  top: number;
-  size: number;
-}
-
-const glow = (name: string) => `/assets/backgrounds/glow-${name}.webp`;
-const MINT = glow("mint");
-const BLUSH = glow("blush");
-const PINK = glow("pink");
-const GRAY = glow("gray");
-
-// 흐린 원은 작게 그려 둔 그림을 크게 늘려 놓는다. 흐린 그림이라 늘려도 티가 나지 않는다.
 export const FINAL_GLOWS: Glow[] = [
   { src: MINT, left: -546, top: 429, size: 1384 },
   { src: PINK, left: 259, top: 503, size: 1150 },
@@ -73,11 +72,4 @@ export const QR_GLOWS: Glow[] = [
   { src: GRAY, left: 236, top: 775, size: 1150 },
 ];
 
-export const SHARE_IMAGES = [
-  MINT,
-  BLUSH,
-  PINK,
-  GRAY,
-  TIP_BUBBLE_IMAGE,
-  PEEK_BAKER.src,
-];
+export const SHARE_IMAGES = [BLUSH, TIP_BUBBLE_IMAGE, PEEK_BAKER.src];

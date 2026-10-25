@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import { GlowBackground } from "@/components/common/GlowBackground/GlowBackground";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { CakeBox } from "@/components/result/CakeBox/CakeBox";
 import { KeywordTags } from "@/components/result/KeywordTags/KeywordTags";
-import { GlowBackground } from "@/components/share/GlowBackground/GlowBackground";
 import {
   FINAL_BOX_POSITION,
   FINAL_FLAVOR_SUFFIX,
   FINAL_GLOWS,
-  FINAL_TAGS_OFFSET,
+  FINAL_KEYWORD_TAGS,
   FINAL_TEXT,
   SAVE_CHOICE,
   SAVE_FILE_NAME,
@@ -71,7 +71,7 @@ export const SharedCakeView = () => {
           <KeywordTags
             answers={view.shared.answers}
             flavorSuffix={FINAL_FLAVOR_SUFFIX}
-            offsetY={FINAL_TAGS_OFFSET}
+            slots={FINAL_KEYWORD_TAGS}
           />
           <ChoiceButton
             tone="cocoa"

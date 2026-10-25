@@ -13,8 +13,27 @@ export const RESULT_CHOICES = {
   keep: "맘에 들어 ! 이대로 줘",
 };
 
-// 배경색 위에 흐린 원 세 개를 겹친 그림. 흐림 효과를 실행 중에 걸지 않도록 미리 그려 두었다.
-export const RESULT_GLOW_IMAGE = "/assets/backgrounds/result-glow.webp";
+// 연분홍 바탕 위에 떠다니는 흐린 원. 흐림 효과를 실행 중에 걸지 않도록 작게 그려 둔 그림을 크게 늘려 놓는다.
+export interface Glow {
+  src: string;
+  left: number;
+  top: number;
+  size: number;
+}
+
+const glow = (name: string) => `/assets/backgrounds/glow-${name}.webp`;
+export const GLOW_IMAGES = {
+  mint: glow("mint"),
+  blush: glow("blush"),
+  pink: glow("pink"),
+  gray: glow("gray"),
+};
+
+export const RESULT_GLOWS: Glow[] = [
+  { src: GLOW_IMAGES.mint, left: -431, top: 380, size: 1384 },
+  { src: GLOW_IMAGES.pink, left: 208, top: 314, size: 1150 },
+  { src: GLOW_IMAGES.gray, left: 291, top: 794, size: 1150 },
+];
 
 // 뚜껑이 열린 케이크 상자. 로고와 HAVE A GOOD DAY!까지 그려져 있고 케이크, 날짜, 순번은 비어 있다.
 export const CAKE_BOX_IMAGE = "/assets/result/cake-box.webp";
@@ -46,22 +65,21 @@ export const RESULT_BOX_POSITION = { left: 55, top: 500 };
 
 export type KeywordTone = "mint" | "lime" | "white" | "cocoa";
 
-// 답변별 키워드. 디자인에는 예시 한 벌(이벤트에 쓰일 / 트렌디한 걸 좋아하는 / 친구에게 전해주고 싶은 / 달지 않은 케이크)만 있어,
-// 나머지는 같은 말투로 채웠다. 태그가 화면 오른쪽 끝을 넘지 않도록 짧게 쓴다.
+// 답변별 키워드. 디자이너가 정한 문구표를 따른다.
 export const PARTY_KEYWORDS: Record<PartyId, string> = {
-  birthday: "생일을 축하할",
+  birthday: "생일 축하에 쓰일",
   event: "이벤트에 쓰일",
-  comfort: "위로와 응원을 전할",
-  daily: "오늘을 기념할",
-  wedding: "결혼을 축하할",
+  comfort: "위로와 응원의 마음을 담아",
+  daily: "더 기쁜 일상을 위한",
+  wedding: "약혼을 기념할",
 };
 
 export const STYLE_KEYWORDS: Record<StyleId, string> = {
   trendsetter: "트렌디한 걸 좋아하는",
-  "aesthetic-curator": "감성 있는 걸 좋아하는",
-  "cute-collector": "귀여운 걸 좋아하는",
-  minimalist: "심플한 걸 좋아하는",
-  "subculture-digger": "독특한 걸 좋아하는",
+  "aesthetic-curator": "미감 좋은",
+  "cute-collector": "귀여운 걸 사랑하는",
+  minimalist: "심플한 게 취향인",
+  "subculture-digger": "독특한 취향을 가진",
 };
 
 export const RELATION_KEYWORDS: Record<RelationId, string> = {
@@ -73,26 +91,33 @@ export const RELATION_KEYWORDS: Record<RelationId, string> = {
 };
 
 export const FLAVOR_KEYWORDS: Record<FlavorId, string> = {
-  rich: "담백한 케이크",
+  rich: "초코 또는 치즈가 빠진 케이크",
   sweet: "달지 않은 케이크",
-  allergy: "걱정 없는 케이크",
-  fruit: "과일 듬뿍 케이크",
-  anything: "취향 저격 케이크",
+  allergy: "알레르기 걱정 없는 케이크",
+  fruit: "과일올린 케이크",
+  anything: "하나뿐인 케이크",
 };
 
-export const RESULT_FLAVOR_SUFFIX = " 완성되었습니다!";
+export const RESULT_FLAVOR_SUFFIX = ", 완성되었습니다!";
 
-// 키워드 태그 네 개의 자리. 왼쪽 끝을 맞추고 길이는 글자를 따라 늘어난다.
-export const RESULT_KEYWORD_TAGS: {
+// 키워드 태그 네 개의 자리. 위의 셋은 왼쪽 끝을 맞추고, 길이가 크게 달라지는 맛 태그는
+// 화면 밖으로 나가지 않도록 오른쪽 끝을 맞춘다. 길이는 글자를 따라 늘어난다.
+export type KeywordSlot = {
   answer: "party" | "style" | "relation" | "flavor";
   tone: KeywordTone;
-  left: number;
   top: number;
-}[] = [
+} & ({ left: number } | { rightEdge: number });
+
+export const RESULT_KEYWORD_TAGS: KeywordSlot[] = [
   { answer: "party", tone: "mint", left: 692.63, top: 660.23 },
   { answer: "style", tone: "lime", left: 752.25, top: 729.23 },
   { answer: "relation", tone: "white", left: 692.63, top: 798.23 },
-  { answer: "flavor", tone: "cocoa", left: 657.21, top: 867.12 },
+  { answer: "flavor", tone: "cocoa", rightEdge: 1026.21, top: 867.12 },
 ];
 
-export const RESULT_IMAGES = [RESULT_GLOW_IMAGE, CAKE_BOX_IMAGE];
+export const RESULT_IMAGES = [
+  GLOW_IMAGES.mint,
+  GLOW_IMAGES.pink,
+  GLOW_IMAGES.gray,
+  CAKE_BOX_IMAGE,
+];

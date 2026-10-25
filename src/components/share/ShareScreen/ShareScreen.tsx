@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
 import { ConfirmButton } from "@/components/common/ConfirmButton/ConfirmButton";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog/ConfirmDialog";
+import { GlowBackground } from "@/components/common/GlowBackground/GlowBackground";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CakeBox } from "@/components/result/CakeBox/CakeBox";
 import { KeywordTags } from "@/components/result/KeywordTags/KeywordTags";
-import { GlowBackground } from "@/components/share/GlowBackground/GlowBackground";
 import { QrCode } from "@/components/share/QrCode/QrCode";
 import { DEFAULT_CAKE } from "@/data/cake";
 import {
@@ -20,7 +20,7 @@ import {
   FINAL_CHOICES,
   FINAL_FLAVOR_SUFFIX,
   FINAL_GLOWS,
-  FINAL_TAGS_OFFSET,
+  FINAL_KEYWORD_TAGS,
   FINAL_TEXT,
   PEEK_BAKER,
   QR_CODE,
@@ -45,8 +45,6 @@ export type ShareScene = "final" | "qr";
 
 // 화면이 나타난 뒤 말을 시작하기까지의 뜸.
 const TYPING_DELAY_MS = 500;
-// 캐릭터는 QR 화면이 덮인 뒤 화면 밖에서 고개를 내민다.
-const PEEK_DELAY_SECONDS = 0.8;
 
 interface ShareScreenProps {
   initialScene?: ShareScene;
@@ -112,7 +110,7 @@ export const ShareScreen = ({ initialScene = "final" }: ShareScreenProps) => {
           <KeywordTags
             answers={shared.answers}
             flavorSuffix={FINAL_FLAVOR_SUFFIX}
-            offsetY={FINAL_TAGS_OFFSET}
+            slots={FINAL_KEYWORD_TAGS}
           />
           <SpeechBubble className="absolute left-[51.55px] top-[149px]">
             <TypedText text={FINAL_TEXT} startDelayMs={TYPING_DELAY_MS} sound />
@@ -166,39 +164,36 @@ export const ShareScreen = ({ initialScene = "final" }: ShareScreenProps) => {
             }}
           />
         )}
-        <img
-          alt=""
-          className="absolute block max-w-none"
-          src={TIP_BUBBLE_IMAGE}
-          style={TIP_BUBBLE}
-        />
-        <p
-          className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-stardust text-[24px] font-bold leading-[31.122px] tracking-[-0.6px] text-cocoa"
-          style={{ left: TIP_TEXT_CENTER.x, top: TIP_TEXT_CENTER.y }}
-        >
-          {QR_TIP}
-        </p>
-        {/* 미끄러지는 움직임과 기울기를 나눠 건다. 기울기는 바뀌지 않으므로 그림에 직접 준다. */}
-        <motion.div
+        {/* 바깥은 들어오는 움직임, 가운데는 들어온 뒤 갸웃거림, 안쪽 그림은 고정된 기울기를 맡는다. */}
+        <div
           aria-hidden
-          className="absolute"
+          className="absolute animate-peek-in motion-reduce:animate-none"
           style={PEEK_BAKER.box}
-          initial={{ x: -320 }}
-          animate={{ x: [-320, -57, 0] }}
-          transition={{
-            duration: 1.2,
-            delay: PEEK_DELAY_SECONDS,
-            times: [0, 0.6, 1],
-            ease: "easeOut",
-          }}
         >
+          <div className="size-full animate-sway [animation-delay:3.8s] motion-reduce:animate-none">
+            <img
+              alt=""
+              className="block size-full max-w-none"
+              src={PEEK_BAKER.src}
+              style={{ transform: `rotate(${PEEK_BAKER.rotate}deg)` }}
+            />
+          </div>
+        </div>
+        {/* 캐릭터가 다 나온 뒤에 말풍선이 꼬리 쪽에서부터 튀어나온다. */}
+        <div className="absolute inset-0 origin-[258px_1480px] animate-pop-in [animation-delay:3.8s] motion-reduce:animate-none">
           <img
             alt=""
-            className="block size-full max-w-none"
-            src={PEEK_BAKER.src}
-            style={{ transform: `rotate(${PEEK_BAKER.rotate}deg)` }}
+            className="absolute block max-w-none"
+            src={TIP_BUBBLE_IMAGE}
+            style={TIP_BUBBLE}
           />
-        </motion.div>
+          <p
+            className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-stardust text-[24px] font-bold leading-[31.122px] tracking-[-0.6px] text-cocoa"
+            style={{ left: TIP_TEXT_CENTER.x, top: TIP_TEXT_CENTER.y }}
+          >
+            {QR_TIP}
+          </p>
+        </div>
         <SpeechBubble
           hint={QR_HINT}
           className="absolute left-[51.55px] top-[149px]"

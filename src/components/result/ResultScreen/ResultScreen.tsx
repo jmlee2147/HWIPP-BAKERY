@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
+import { GlowBackground } from "@/components/common/GlowBackground/GlowBackground";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { TypedText } from "@/components/common/TypedText/TypedText";
@@ -14,7 +15,8 @@ import {
   RESULT_BOX_POSITION,
   RESULT_CHOICES,
   RESULT_FLAVOR_SUFFIX,
-  RESULT_GLOW_IMAGE,
+  RESULT_GLOWS,
+  RESULT_KEYWORD_TAGS,
   RESULT_TEXT,
 } from "@/data/result";
 import { SHARE_IMAGES } from "@/data/share";
@@ -46,11 +48,7 @@ export const ResultScreen = () => {
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#ffeff3]">
-      <img
-        alt=""
-        className="absolute inset-0 block size-full max-w-none"
-        src={RESULT_GLOW_IMAGE}
-      />
+      <GlowBackground glows={RESULT_GLOWS} />
       <motion.div
         className="absolute"
         style={RESULT_BOX_POSITION}
@@ -77,6 +75,7 @@ export const ResultScreen = () => {
         <KeywordTags
           answers={{ party, style, relation, flavor }}
           flavorSuffix={RESULT_FLAVOR_SUFFIX}
+          slots={RESULT_KEYWORD_TAGS}
         />
       </motion.div>
       <SpeechBubble className="absolute left-[51.55px] top-[149px]">
