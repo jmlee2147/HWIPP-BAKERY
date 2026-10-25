@@ -233,23 +233,32 @@ function fixed(
 export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("frosting-green", "cream", "frosting", {
     round: ["frosting-green-round", 13.1, 143, 618.9, 625],
+    heart: ["frosting-green-heart", 52.1, 163.5, 541, 584.1],
+    square: ["frosting-green-square", -26.9, 107.4, 699, 696.1],
   }),
   fixed("frosting-cream", "cream", "frosting", {
     round: ["frosting-cream-round", 32, 130, 599, 625],
+    heart: ["frosting-cream-heart", 52.1, 171, 541, 569.1],
   }),
   fixed("frosting-pinktop", "cream", "frosting", {
     round: ["frosting-pinktop-round", 13.1, 143, 618.9, 625],
+    heart: ["frosting-pinktop-heart", 52.1, 163.5, 541, 584.1],
+    square: ["frosting-pinktop-square", -26.9, 100.2, 699, 710.6],
   }),
   fixed("coating-pink", "cream", "coating", {
     round: ["coating-pink-round", 29, 142, 586, 500.2],
     heart: ["coating-pink-heart", 60, 160.6, 551.9, 487.1],
+    square: ["coating-pink-square", -17.1, 73.1, 704.3, 607.9],
   }),
   fixed("coating-choco", "cream", "coating", {
     round: ["coating-choco-round", 30, 151, 586, 500.2],
     heart: ["coating-choco-heart", 63, 172.5, 525, 463],
+    square: ["coating-choco-square", -19.2, 98.9, 695.2, 600.2],
   }),
   fixed("coating-sky", "cream", "coating", {
     round: ["coating-sky-round", 31, 144, 586, 499.2],
+    heart: ["coating-sky-heart", 64.6, 145.6, 550.4, 504.9],
+    square: ["coating-sky-square", -19.2, 97.5, 708.7, 611.8],
   }),
   fixed("cream-top", "cream", "cream-top", {
     heart: ["cream-top-heart", 87, 171.5, 488, 386.3],
@@ -257,6 +266,10 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   // 네모 윗면을 덮는 크림. 다른 모양에는 얹을 수 없다.
   fixed("cream-top-square", "cream", "cream-top", {
     square: ["cream-top-square", 29.4, 154.6, 599.7, 361.4],
+  }),
+  // 무늬 없이 네모 윗면을 덮는 크림.
+  fixed("cream-top-square-plain", "cream", "cream-top", {
+    square: ["cream-top-square-plain", -21.1, 123.6, 687.1, 423.2],
   }),
   fixed("cream-border", "cream", "cream-border", {
     heart: ["cream-border-heart", 57, 497.9, 538.9, 258.5],
@@ -301,6 +314,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("flower-lily-pink", "flower", 159.5, 146, "center"),
   top("flower-lily-silver", "flower", 167.2, 157.5, "center"),
   top("flower-lily-rose", "flower", 215.4, 163.5, "center"),
+  top("flower-lily-white", "flower", 244.6, 229.6, "center"),
   top("flower-gerbera-pink", "flower", 152.5, 135, "center"),
   top("petal-pink", "flower", 60.4, 53.9, "center"),
   top("flower-gerbera-red", "flower", 155.3, 163.1, "center"),
@@ -308,6 +322,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("flower-gerbera-blue", "flower", 152.5, 135, "center"),
   top("petal-blue", "flower", 60.4, 53.9, "center"),
   top("flower-gerbera-purple", "flower", 192.9, 144.2, "center"),
+  top("flower-gerbera-lilac", "flower", 247, 215.5, "center"),
   top("petal-purple", "flower", 100.9, 74.6, "center"),
   top("flower-rose", "flower", 140.2, 133.4, "center"),
   top("petal-rose", "flower", 46.1, 45.1, "center"),
@@ -316,6 +331,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("flower-sprig", "flower", 105, 140, "center"),
   top("ribbon-bow-silver", "ribbon", 123.5, 131.2, "center"),
   top("ribbon-bow-pink", "ribbon", 116, 73.7, "center"),
+  top("ribbon-knot-pink", "ribbon", 30.2, 24.7, "center"),
   top("ribbon-bow-black", "ribbon", 116, 73.7, "center"),
   top("ribbon-bow-white", "ribbon", 116, 73.7, "center"),
   top("ribbon-bow-wide", "ribbon", 200, 165.4, "center"),
@@ -346,6 +362,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("lettering-happy-birthday", "lettering", "lettering", {
     round: ["lettering-happy-birthday-round", 191.9, 276.9, 289.6, 137.7],
+    square: ["lettering-happy-birthday-round", 250.6, 306, 273, 159.8],
   }),
   fixed("lettering-hbd-dot-black", "lettering", "lettering", {
     heart: ["lettering-hbd-dot-black", 203.3, 271.9, 327.6, 181],
@@ -370,6 +387,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("lettering-job-congrats", "lettering", "lettering", {
     square: ["lettering-job-congrats", 223.1, 328, 204.8, 58.9],
+    round: ["lettering-job-congrats", 87.5, 237.6, 484.3, 212.6],
   }),
   fixed("lettering-like-you", "lettering", "lettering", {
     square: ["lettering-like-you", 189.5, 231.9, 271.6, 224.1],
@@ -379,6 +397,8 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("lettering-i-love-u", "lettering", "lettering", {
     round: ["lettering-i-love-u", 161.4, 285.2, 339.7, 103.5],
+    heart: ["lettering-i-love-u", 267.1, 362.5, 259.4, 114],
+    square: ["lettering-i-love-u", 167.4, 262.4, 319.7, 140.2],
   }),
   fixed("lettering-i-heart", "lettering", "lettering", {
     round: ["lettering-i-heart", 135.8, 242.1, 376.9, 239.4],
@@ -419,6 +439,12 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("topper-cat", "others", 132.4, 107.6, "bottom"),
   top("topper-cat-snowball", "others", 162.1, 108.1, "bottom"),
   top("topper-paws", "others", 86.5, 83, "center"),
+  top("sweet-biscuit", "others", 197.5, 190.6, "center"),
+  top("sweet-cookie-cat", "others", 223.7, 215.9, "center"),
+  top("sweet-pepero", "others", 138.7, 226, "center"),
+  top("sweet-wafer", "others", 133, 216.7, "center"),
+  top("topper-bear-groom", "others", 114.5, 147.8, "bottom"),
+  top("topper-bear-bride", "others", 109.3, 141.1, "bottom"),
   top("plate-choco", "others", 146, 99, "bottom"),
   top("plate-pink", "others", 157, 109, "bottom"),
   top("star-pink", "others", 102, 102, "center"),
@@ -442,6 +468,10 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("lettering-ouen-pink", "lettering", 292, 165.8, "center"),
   top("lettering-ouen-black", "lettering", 292, 165.8, "center"),
   top("lettering-ouen-sky", "lettering", 292, 165.8, "center"),
+  top("lettering-gomawo-black", "lettering", 471.7, 231.5, "center"),
+  top("lettering-happy-birthday-brown", "lettering", 110.4, 34.9, "center"),
+  top("lettering-gomawo-pink", "lettering", 372.3, 196.9, "center"),
+  top("lettering-thankyou-color", "lettering", 463.1, 310.4, "center"),
   top("topper-paw", "others", 38, 30.5, "center"),
   top("topper-wing", "others", 63.2, 68.9, "center"),
   top("plate-omedetou", "others", 181.2, 55.5, "bottom"),

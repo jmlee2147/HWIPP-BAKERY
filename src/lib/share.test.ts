@@ -7,6 +7,23 @@ import {
   shareUrl,
 } from "./share";
 
+// 주소에는 좌표와 기울기를 정수로 줄여 담는다.
+const rounded = (cake: SharedCake["cake"]): SharedCake["cake"] => ({
+  ...cake,
+  decorations: cake.decorations.map((item) =>
+    item.x === undefined || item.only || item.at
+      ? item
+      : {
+          ...item,
+          x: Math.round(item.x),
+          y: Math.round(item.y ?? 0),
+          ...(item.rotate === undefined
+            ? {}
+            : { rotate: Math.round(item.rotate) }),
+        },
+  ),
+});
+
 const shared: SharedCake = {
   cake: CAKE_PRESETS[0].cake,
   answers: {
@@ -20,10 +37,13 @@ const shared: SharedCake = {
 };
 
 describe("공유 주소", () => {
-  it("케이크와 답변을 담았다가 그대로 되돌린다", async () => {
+  it("케이크와 답변을 담았다가 되돌린다. 좌표와 기울기는 정수로 반올림된다", async () => {
     const hash = await encodeSharedCake(shared);
 
-    expect(await decodeSharedCake(`#${hash}`)).toEqual(shared);
+    expect(await decodeSharedCake(`#${hash}`)).toEqual({
+      ...shared,
+      cake: rounded(shared.cake),
+    });
   });
 
   it("주소에 그대로 쓸 수 있는 글자만 쓴다", async () => {
@@ -63,6 +83,6 @@ describe("공유 주소", () => {
 
     const decoded = await decodeSharedCake(hash);
 
-    expect(decoded?.cake.decorations).toEqual(shared.cake.decorations);
+    expect(decoded?.cake.decorations).toEqual(rounded(shared.cake).decorations);
   });
 });
