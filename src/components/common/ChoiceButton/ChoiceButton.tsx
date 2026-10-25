@@ -13,20 +13,28 @@ const TONES: Record<ChoiceTone, { fill: string; face: string; text: string }> =
     cocoa: { fill: "bg-cocoa", face: "opacity-80", text: "text-[#ffd8ed]" },
   };
 
-// 별은 좌우에 두 개씩 놓인다.
-const STARS = [
-  "left-[38.47px]",
-  "left-[80.29px]",
-  "right-[36.75px]",
-  "right-[78.57px]",
-];
+// 전체 너비 버튼은 별이 좌우에 두 개씩, 둘이 나란히 놓이는 반 너비 버튼은 하나씩 놓인다.
+const SIZES = {
+  full: {
+    width: "w-[957px]",
+    stars: [
+      "left-[38.47px]",
+      "left-[80.29px]",
+      "right-[36.75px]",
+      "right-[78.57px]",
+    ],
+  },
+  half: { width: "w-[473px]", stars: ["left-[38.4px]", "right-[37.8px]"] },
+};
 
 interface ChoiceButtonProps extends ComponentPropsWithRef<"button"> {
   tone?: ChoiceTone;
+  size?: keyof typeof SIZES;
 }
 
 export const ChoiceButton = ({
   tone = "pink",
+  size = "full",
   type = "button",
   className = "",
   children,
@@ -34,11 +42,12 @@ export const ChoiceButton = ({
   ...props
 }: ChoiceButtonProps) => {
   const { fill, face, text } = TONES[tone];
+  const { width, stars } = SIZES[size];
 
   return (
     <button
       type={type}
-      className={`h-[133.15px] w-[957px] transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 ${className}`}
+      className={`h-[133.15px] ${width} transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 ${className}`}
       onClick={(event) => {
         playEffect("choice");
         onClick?.(event);
@@ -53,7 +62,7 @@ export const ChoiceButton = ({
           <span className={`absolute inset-0 rounded-[8.52px] ${fill}`} />
           <span className="absolute inset-0 rounded-[inherit] shadow-[inset_3.749px_-2.979px_21.297px_0px_rgba(255,255,255,0.47)]" />
         </span>
-        {STARS.map((position) => (
+        {stars.map((position) => (
           <span
             key={position}
             className={`absolute top-[50.46px] h-[32.22px] w-[32.16px] ${position}`}
