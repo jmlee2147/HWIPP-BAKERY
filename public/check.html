@@ -114,5 +114,145 @@
   };
   request.send();
 </script>
+<h2>소리</h2>
+<div id="sound"></div>
+<div id="sound-buttons"></div>
+<div id="sound-log"></div>
+<script>
+  // 배경음악이 안 나올 때 원인을 가르는 점검. 브라우저는 터치 이후에만 소리를 내므로 버튼으로 시작한다.
+  var soundOut = document.getElementById("sound");
+  var soundLog = document.getElementById("sound-log");
+  var startedAt = Date.now();
+  function soundLine(target, text, tone) {
+    var row = document.createElement("div");
+    row.className = "row" + (tone ? " " + tone : "");
+    row.appendChild(document.createTextNode(text));
+    target.appendChild(row);
+  }
+  function log(text, tone) {
+    soundLine(soundLog, ((Date.now() - startedAt) / 1000).toFixed(1) + "s " + text, tone);
+  }
+
+  var probe = document.createElement("audio");
+  var types = [
+    ["m4a(AAC)", 'audio/mp4; codecs="mp4a.40.2"'],
+    ["mp3", "audio/mpeg"],
+    ["wav", "audio/wav"]
+  ];
+  for (var t = 0; t < types.length; t++) {
+    var answer = probe.canPlayType ? probe.canPlayType(types[t][1]) : "";
+    soundLine(soundOut, types[t][0] + ": " + (answer || "미지원"), answer ? "good" : "bad");
+  }
+  var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  soundLine(soundOut, "AudioContext: " + (AudioContextClass ? "있음" : "없음"), AudioContextClass ? "good" : "bad");
+
+  var EVENTS = ["loadedmetadata", "canplay", "canplaythrough", "playing", "pause", "waiting", "stalled", "suspend", "ended", "error"];
+  var players = [];
+  var sources = [];
+
+  // 재생 이벤트와 3초 뒤 재생 위치를 적는다. 위치가 0이면 소리가 나지 않은 것이다.
+  function watch(audio, name) {
+    for (var e = 0; e < EVENTS.length; e++) {
+      (function (type) {
+        audio.addEventListener(type, function () {
+          var detail = type === "error" && audio.error ? " code=" + audio.error.code + " " + (audio.error.message || "") : "";
+          log(name + " " + type + detail, type === "error" ? "bad" : "");
+        });
+      })(EVENTS[e]);
+    }
+    setTimeout(function () {
+      log(name + " 3초 뒤 위치 " + audio.currentTime.toFixed(2) + "s, paused=" + audio.paused, audio.currentTime > 0 && !audio.paused ? "good" : "bad");
+    }, 3000);
+  }
+  function playElement(src, name, loop) {
+    var audio = new Audio(src);
+    audio.preload = "auto";
+    audio.loop = !!loop;
+    players.push(audio);
+    watch(audio, name);
+    try {
+      var result = audio.play();
+      if (result && result.then) {
+        result.then(function () {
+          log(name + " play() 성공", "good");
+        }, function (error) {
+          log(name + " play() 거부 " + error.name + " " + error.message, "bad");
+        });
+      }
+    } catch (error) {
+      log(name + " play() 예외 " + error, "bad");
+    }
+    return audio;
+  }
+  function stopAll() {
+    for (var p = 0; p < players.length; p++) players[p].pause();
+    for (var s = 0; s < sources.length; s++) sources[s].stop(0);
+    players = [];
+    sources = [];
+    log("모두 정지");
+  }
+
+  var context = null;
+  function playWebAudio(src, name) {
+    if (!AudioContextClass) return log(name + " AudioContext 없음", "bad");
+    if (!context) context = new AudioContextClass();
+    if (context.resume) context.resume();
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", src, true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function () {
+      log(name + " 받음 " + xhr.response.byteLength + "B, 디코딩 시작");
+      context.decodeAudioData(xhr.response, function (buffer) {
+        log(name + " 디코딩 성공 " + buffer.duration.toFixed(1) + "s " + buffer.numberOfChannels + "ch " + buffer.sampleRate + "Hz", "good");
+        var source = context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(context.destination);
+        source.start(0);
+        sources.push(source);
+        log(name + " 재생 시작, context=" + context.state);
+      }, function (error) {
+        log(name + " 디코딩 실패 " + error, "bad");
+      });
+    };
+    xhr.onerror = function () {
+      log(name + " 받기 실패", "bad");
+    };
+    xhr.send();
+  }
+
+  var BGM = "/assets/sounds/bgm.m4a";
+  var tests = [
+    ["배경음악 (Audio)", function () { playElement(BGM, "bgm", true); }],
+    ["효과음 m4a", function () { playElement("/assets/sounds/door-bell.m4a", "door-bell.m4a"); }],
+    ["효과음 mp3", function () { playElement("/assets/sounds/choice.mp3", "choice.mp3"); }],
+    // 사이트는 첫 화면에서 소리 11개를 미리 만들어 둔다. 동시에 둘 수 있는 미디어 수가 모자란지 본다.
+    ["11개 미리 만든 뒤 배경음악", function () {
+      var names = ["door-bell.m4a", "door-open.mp3", "choice.mp3", "card-slide.m4a", "card-flip.m4a", "pop-up.m4a", "talk.wav", "talk.wav", "talk.wav", "talk.wav"];
+      for (var n = 0; n < names.length; n++) {
+        var extra = new Audio("/assets/sounds/" + names[n]);
+        extra.preload = "auto";
+        players.push(extra);
+      }
+      log("미리 만든 소리 " + names.length + "개");
+      playElement(BGM, "bgm(11개 중)", true);
+    }],
+    // START를 누르면 효과음과 배경음악이 함께 시작된다. 효과음이 배경음악을 멈추게 하는지 본다.
+    ["효과음과 배경음악 동시", function () {
+      playElement("/assets/sounds/choice.mp3", "choice.mp3");
+      playElement(BGM, "bgm(동시)", true);
+    }],
+    ["배경음악 (Web Audio)", function () { playWebAudio(BGM, "bgm(WebAudio)"); }],
+    ["모두 정지", stopAll]
+  ];
+  var buttons = document.getElementById("sound-buttons");
+  for (var b = 0; b < tests.length; b++) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.style.cssText = "font: inherit; margin: 8px 8px 0 0; padding: 16px 20px;";
+    button.appendChild(document.createTextNode(tests[b][0]));
+    button.onclick = tests[b][1];
+    buttons.appendChild(button);
+  }
+</script>
 </body>
 </html>
