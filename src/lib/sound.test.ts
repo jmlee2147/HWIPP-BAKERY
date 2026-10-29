@@ -99,16 +99,18 @@ describe("sound", () => {
   it.each([
     "suspended",
     "interrupted",
-  ])("context가 %s 상태면 깨우고, 깨어나기 전의 효과음은 오디오 요소로 낸다", async (state) => {
+  ])("context가 %s 상태면 터치 때 깨우고, 깨어나기 전의 효과음은 오디오 요소로 낸다", async (state) => {
     const { sound, context } = await preloaded();
     context.state = state;
 
     sound.playEffect("cardFlip");
 
-    expect(context.resume).toHaveBeenCalled();
     expect(FakeAudioContext.started).toHaveLength(0);
     expect(effectElements()).toHaveLength(1);
     expect(effectElements()[0].play).toHaveBeenCalled();
+
+    document.dispatchEvent(new Event("touchend"));
+    expect(context.resume).toHaveBeenCalled();
 
     sound.playEffect("cardFlip");
 
@@ -116,7 +118,17 @@ describe("sound", () => {
     expect(effectElements()).toHaveLength(1);
   });
 
-  it("효과음을 아직 받지 못했으면 새 오디오 요소로 대신 낸다", async () => {
+  it("context가 멈춘 채로 말소리가 이어져도 오디오 요소가 쌓이지 않는다", async () => {
+    const { sound, context } = await preloaded();
+    context.state = "interrupted";
+
+    for (let index = 0; index < 50; index += 1) sound.playTalk();
+
+    expect(effectElements()).toHaveLength(1);
+    expect(effectElements()[0].play).toHaveBeenCalledTimes(50);
+  });
+
+  it("효과음을 아직 받지 못했으면 오디오 요소로 대신 낸다", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise(() => {})),
@@ -127,9 +139,8 @@ describe("sound", () => {
     playEffect("cardFlip");
 
     const elements = effectElements();
-    expect(elements).toHaveLength(2);
-    expect(elements[0]).not.toBe(elements[1]);
-    for (const audio of elements) expect(audio.play).toHaveBeenCalledTimes(1);
+    expect(elements).toHaveLength(1);
+    expect(elements[0].play).toHaveBeenCalledTimes(2);
   });
 
   it("Web Audio가 없는 환경에서도 효과음을 오디오 요소로 낸다", async () => {
