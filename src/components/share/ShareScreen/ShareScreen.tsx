@@ -155,7 +155,7 @@ export const ShareScreen = ({ initialScene = "final" }: ShareScreenProps) => {
           <QrCode
             value={url}
             label="케이크 저장 페이지로 가는 QR 코드"
-            className="absolute"
+            className="absolute text-candy"
             style={{
               left: QR_CODE.left,
               top: QR_CODE.top,
@@ -180,7 +180,7 @@ export const ShareScreen = ({ initialScene = "final" }: ShareScreenProps) => {
           </div>
         </div>
         {/* 캐릭터가 다 나온 뒤에 말풍선이 꼬리 쪽에서부터 튀어나온다. */}
-        <div className="absolute inset-0 origin-[258px_1480px] animate-pop-in [animation-delay:3.8s] motion-reduce:animate-none">
+        <div className="absolute inset-0 origin-[262px_1529px] animate-pop-in [animation-delay:3.8s] motion-reduce:animate-none">
           <img
             alt=""
             className="absolute block max-w-none"
@@ -188,7 +188,7 @@ export const ShareScreen = ({ initialScene = "final" }: ShareScreenProps) => {
             style={TIP_BUBBLE}
           />
           <p
-            className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-stardust text-[24px] font-bold leading-[31.122px] tracking-[-0.6px] text-cocoa"
+            className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-pre text-center font-stardust text-[30.08px] font-bold leading-[39px] tracking-[-0.75px] text-cocoa"
             style={{ left: TIP_TEXT_CENTER.x, top: TIP_TEXT_CENTER.y }}
           >
             {QR_TIP}

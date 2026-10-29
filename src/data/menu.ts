@@ -5,7 +5,7 @@ import { GLOW_IMAGES, type Glow } from "./result";
 export const MENU_TEXT =
   "예시로 제작된 HWIPP! BAKERY의 케이크 디자인이에요.\n여기서 빠르게 선택도 가능해요!";
 export const MENU_PACK_CHOICE = "이 디자인으로 포장할래";
-export const MENU_BACK_LABEL = "결과 화면으로 돌아가기";
+export const MENU_BACK_LABEL = "이전 화면으로 돌아가기";
 export const MENU_CLOSE_LABEL = "크게 보기 닫기";
 
 const menuImage = (name: string) => `/assets/menu/${name}`;

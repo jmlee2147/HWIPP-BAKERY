@@ -33,7 +33,7 @@ export const QrCode = ({ value, label, ...props }: QrCodeProps) => {
       {...props}
     >
       <rect width={size} height={size} fill="white" />
-      <path d={path} fill="black" />
+      <path d={path} fill="currentColor" />
     </svg>
   );
 };

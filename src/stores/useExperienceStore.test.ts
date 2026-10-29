@@ -34,6 +34,18 @@ describe("useExperienceStore", () => {
     expect(useExperienceStore.getState().step).toBe("editor");
   });
 
+  it("메뉴판에 들어온 단계를 기억해 두고, 처음으로 돌아가면 결과 화면으로 되돌린다", () => {
+    const { goTo, reset } = useExperienceStore.getState();
+    expect(useExperienceStore.getState().menuReturn).toBe("result");
+    goTo("editor");
+    goTo("menu");
+    expect(useExperienceStore.getState().menuReturn).toBe("editor");
+    goTo("menu");
+    expect(useExperienceStore.getState().menuReturn).toBe("editor");
+    reset();
+    expect(useExperienceStore.getState().menuReturn).toBe("result");
+  });
+
   it("고른 관계, 스타일, 파티 테마를 저장하고, 처음으로 돌아가면 지운다", () => {
     const { setRelation, setStyle, setParty, reset } =
       useExperienceStore.getState();
