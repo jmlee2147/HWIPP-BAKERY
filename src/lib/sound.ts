@@ -11,6 +11,8 @@ const EFFECTS = {
 type EffectName = keyof typeof EFFECTS;
 
 const BGM = { src: "/assets/sounds/bgm.m4a", volume: 0.35 };
+// 말소리는 아주 짧은 간격으로 이어서 나므로, 오디오 요소로 낼 때는 몇 개를 돌려 가며 쓴다.
+const TALK_POOL_SIZE = 4;
 
 // 배경음악은 페이지에 하나만 있어야 한다. 이 파일이 다시 불려도(개발 중 코드 갱신 등)
 // 이미 재생 중인 것을 잃어버려 두 개가 겹치지 않도록 window에 보관한다.
@@ -20,19 +22,50 @@ declare global {
   }
 }
 
-// 효과음은 Web Audio로 낸다. 키오스크(StanbyME 2)는 오디오 요소를 되감아 다시 틀면
-// 소리가 났다 안 났다 하고, 요소가 많으면 배경음악까지 나오지 않는다.
-// 음원을 한 번 풀어 두고 누를 때마다 새로 재생하면 되감기도, 요소 사이의 다툼도 없다.
+// 효과음은 기기에 따라 두 방식으로 낸다.
+// - 키오스크(webOS): Web Audio. 오디오 요소를 되감아 다시 틀면 소리가 났다 안 났다 하고,
+//   요소가 많으면 배경음악까지 나오지 않는다.
+// - 그 밖의 기기: 오디오 요소. iPhone은 Web Audio로 효과음을 내면 체험 중에 페이지가 종료된다.
+const canUseWebAudio = () =>
+  typeof AudioContext !== "undefined" &&
+  /web0s|webos/i.test(navigator.userAgent);
+
 let context: AudioContext | null = null;
 const buffers: Partial<Record<EffectName, AudioBuffer>> = {};
 const loading: Partial<Record<EffectName, boolean>> = {};
 let listening = false;
 
+const elements: Partial<Record<EffectName, HTMLAudioElement[]>> = {};
+const elementIndex: Partial<Record<EffectName, number>> = {};
+
 const canPlay = () => typeof Audio !== "undefined";
+
+const create = (src: string, volume: number) => {
+  const audio = new Audio(src);
+  audio.preload = "auto";
+  audio.volume = volume;
+  return audio;
+};
+
+// 브라우저는 첫 터치 이후에만 소리를 낼 수 있다. 재생이 거부되어도 진행에는 영향을 주지 않는다.
+const play = (audio: HTMLAudioElement) => {
+  try {
+    void audio.play()?.catch(() => {});
+  } catch {
+    // 소리를 지원하지 않는 환경.
+  }
+};
+
+const rewind = (audio: HTMLAudioElement) => {
+  try {
+    audio.currentTime = 0;
+  } catch {
+    // 아직 불러오지 못한 상태.
+  }
+};
 
 const getContext = () => {
   if (context) return context;
-  if (typeof AudioContext === "undefined") return null;
   try {
     context = new AudioContext();
   } catch {
@@ -57,8 +90,7 @@ const loadBuffer = (name: EffectName) => {
     });
 };
 
-// context는 첫 터치 전에도, 휴대폰 화면이 잠기거나 다른 소리가 끼어들 때도 멈춘다(iOS는 "interrupted").
-// iOS는 터치 안에서 부른 resume만 받아 주므로, 터치가 있을 때마다 멈춰 있으면 깨운다.
+// context는 첫 터치 전에 멈춰 있고, 터치 안에서만 깨울 수 있다.
 const wakeContext = () => {
   if (context && context.state !== "running") {
     void context.resume().catch(() => {});
@@ -83,30 +115,29 @@ const playBuffer = (buffer: AudioBuffer, volume: number) => {
   }
 };
 
-// 대신 낼 때는 효과음마다 요소를 하나만 두고 되감아 쓴다. 재생마다 새로 만들면
-// 0.1초마다 나는 말소리 때문에 요소가 수십 개 쌓여 iPhone에서 페이지가 종료된다.
-const fallbacks: Partial<Record<EffectName, HTMLAudioElement>> = {};
+// 오디오 요소는 효과음마다 정해진 수만 만들어 되감아 쓴다. 재생마다 새로 만들면 쌓인다.
+const getElements = (name: EffectName) => {
+  const cached = elements[name];
+  if (cached) return cached;
+  const size = name === "talk" ? TALK_POOL_SIZE : 1;
+  const created = Array.from({ length: size }, () =>
+    create(EFFECTS[name].src, EFFECTS[name].volume),
+  );
+  elements[name] = created;
+  return created;
+};
 
-// 브라우저는 첫 터치 이후에만 소리를 낼 수 있다. 재생이 거부되어도 진행에는 영향을 주지 않는다.
 const playElement = (name: EffectName) => {
-  try {
-    let audio = fallbacks[name];
-    if (!audio) {
-      audio = new Audio(EFFECTS[name].src);
-      audio.volume = EFFECTS[name].volume;
-      fallbacks[name] = audio;
-    }
-    audio.currentTime = 0;
-    void audio.play()?.catch(() => {});
-  } catch {
-    // 소리를 지원하지 않는 환경.
-  }
+  const pool = getElements(name);
+  const index = elementIndex[name] ?? 0;
+  elementIndex[name] = index + 1;
+  const audio = pool[index % pool.length];
+  rewind(audio);
+  play(audio);
 };
 
 const createBgm = () => {
-  const audio = new Audio(BGM.src);
-  audio.preload = "auto";
-  audio.volume = BGM.volume;
+  const audio = create(BGM.src, BGM.volume);
   audio.loop = true;
   window.__hwippBgm = audio;
   return audio;
@@ -116,7 +147,12 @@ const createBgm = () => {
 export function preloadSounds() {
   if (!canPlay()) return;
   if (!window.__hwippBgm) createBgm();
-  for (const name of Object.keys(EFFECTS) as EffectName[]) loadBuffer(name);
+  const names = Object.keys(EFFECTS) as EffectName[];
+  if (!canUseWebAudio()) {
+    for (const name of names) getElements(name);
+    return;
+  }
+  for (const name of names) loadBuffer(name);
   if (!listening) {
     listening = true;
     for (const type of ["touchend", "click"]) {
@@ -127,13 +163,14 @@ export function preloadSounds() {
 
 export function playEffect(name: EffectName) {
   if (!canPlay()) return;
-  const buffer = buffers[name];
-  if (buffer && playBuffer(buffer, EFFECTS[name].volume)) return;
-  loadBuffer(name);
+  if (canUseWebAudio()) {
+    const buffer = buffers[name];
+    if (buffer && playBuffer(buffer, EFFECTS[name].volume)) return;
+    loadBuffer(name);
+  }
   playElement(name);
 }
 
-// 말소리는 아주 짧은 간격으로 이어서 나지만, 재생마다 새로 내므로 겹쳐도 끊기지 않는다.
 export function playTalk() {
   playEffect("talk");
 }
@@ -142,12 +179,7 @@ export function playTalk() {
 export function startBgm() {
   if (!canPlay()) return;
   const audio = window.__hwippBgm ?? createBgm();
-  if (!audio.paused) return;
-  try {
-    void audio.play()?.catch(() => {});
-  } catch {
-    // 소리를 지원하지 않는 환경.
-  }
+  if (audio.paused) play(audio);
 }
 
 // 멈춘 요소를 되감아 다시 틀지 않는다. 키오스크에서는 그렇게 다시 튼 소리가 나지 않을 때가 있어,
