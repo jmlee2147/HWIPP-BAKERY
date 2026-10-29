@@ -220,6 +220,62 @@
     xhr.send();
   }
 
+  // 같은 효과음을 여러 번 누를 때, 요소 하나를 되감아 다시 트는 방식과 Web Audio로 새로 트는 방식을 비교한다.
+  var FLIP = "/assets/sounds/card-flip.m4a";
+  var flipElement = null;
+  var flipCount = 0;
+  function replayElement() {
+    if (!flipElement) {
+      flipElement = new Audio(FLIP);
+      flipElement.preload = "auto";
+    }
+    flipCount += 1;
+    var name = "되감기 " + flipCount + "회";
+    var audio = flipElement;
+    try { audio.currentTime = 0; } catch (error) { log(name + " 되감기 예외 " + error, "bad"); }
+    try {
+      var result = audio.play();
+      if (result && result.then) {
+        result.then(function () {}, function (error) {
+          log(name + " play() 거부 " + error.name, "bad");
+        });
+      }
+    } catch (error) {
+      log(name + " play() 예외 " + error, "bad");
+    }
+    setTimeout(function () {
+      log(name + " 0.3초 뒤 위치 " + audio.currentTime.toFixed(2) + "s", audio.currentTime > 0 ? "good" : "bad");
+    }, 300);
+  }
+  var flipBuffer = null;
+  var flipBufferCount = 0;
+  function replayWebAudio() {
+    if (!AudioContextClass) return log("AudioContext 없음", "bad");
+    if (!context) context = new AudioContextClass();
+    if (context.resume) context.resume();
+    if (!flipBuffer) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", FLIP, true);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = function () {
+        context.decodeAudioData(xhr.response, function (buffer) {
+          flipBuffer = buffer;
+          log("card-flip 디코딩 성공, 다시 누르세요", "good");
+        }, function (error) {
+          log("card-flip 디코딩 실패 " + error, "bad");
+        });
+      };
+      xhr.send();
+      return;
+    }
+    flipBufferCount += 1;
+    var source = context.createBufferSource();
+    source.buffer = flipBuffer;
+    source.connect(context.destination);
+    source.start(0);
+    log("Web Audio " + flipBufferCount + "회 재생, context=" + context.state, context.state === "running" ? "good" : "bad");
+  }
+
   var BGM = "/assets/sounds/bgm.m4a";
   var tests = [
     ["배경음악 (Audio)", function () { playElement(BGM, "bgm", true); }],
@@ -242,6 +298,8 @@
       playElement(BGM, "bgm(동시)", true);
     }],
     ["배경음악 (Web Audio)", function () { playWebAudio(BGM, "bgm(WebAudio)"); }],
+    ["같은 효과음 되감아 다시 재생", replayElement],
+    ["Web Audio로 같은 효과음 재생", replayWebAudio],
     ["모두 정지", stopAll]
   ];
   var buttons = document.getElementById("sound-buttons");
