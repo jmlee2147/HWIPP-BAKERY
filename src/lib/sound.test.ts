@@ -52,14 +52,25 @@ class FakeAudioContext {
 
 const loadSound = () => import("./sound");
 
+const WEBOS_UA =
+  "Mozilla/5.0 (Web0S; Linux/SmartTV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36";
+const IPHONE_UA =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+
+const setUserAgent = (value: string) => {
+  vi.spyOn(navigator, "userAgent", "get").mockReturnValue(value);
+};
+
 describe("sound", () => {
   beforeEach(() => {
     vi.resetModules();
     FakeAudio.created = [];
     FakeAudioContext.started = [];
+    FakeAudioContext.last = null;
     window.__hwippBgm = undefined;
     vi.stubGlobal("Audio", FakeAudio);
     vi.stubGlobal("AudioContext", FakeAudioContext);
+    setUserAgent(WEBOS_UA);
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
@@ -72,6 +83,7 @@ describe("sound", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   const effectElements = () =>
@@ -124,8 +136,27 @@ describe("sound", () => {
 
     for (let index = 0; index < 50; index += 1) sound.playTalk();
 
-    expect(effectElements()).toHaveLength(1);
-    expect(effectElements()[0].play).toHaveBeenCalledTimes(50);
+    expect(effectElements()).toHaveLength(4);
+  });
+
+  it("webOS가 아닌 기기는 Web Audio 없이 미리 만든 오디오 요소로만 효과음을 낸다", async () => {
+    setUserAgent(IPHONE_UA);
+    const sound = await loadSound();
+    sound.preloadSounds();
+    const preloadedCount = effectElements().length;
+
+    sound.playEffect("cardFlip");
+    sound.playEffect("cardFlip");
+    for (let index = 0; index < 50; index += 1) sound.playTalk();
+
+    expect(FakeAudioContext.last).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(effectElements()).toHaveLength(preloadedCount);
+    const flip = effectElements().filter((audio) =>
+      audio.src.includes("card-flip"),
+    );
+    expect(flip).toHaveLength(1);
+    expect(flip[0].play).toHaveBeenCalledTimes(2);
   });
 
   it("효과음을 아직 받지 못했으면 오디오 요소로 대신 낸다", async () => {
