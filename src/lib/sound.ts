@@ -56,17 +56,22 @@ const loadBuffer = (name: EffectName) => {
     });
 };
 
+// context는 첫 터치 전에도, 휴대폰 화면이 잠기거나 다른 소리가 끼어들 때도 멈춘다(iOS는 "interrupted").
+// 멈춰 있으면 깨우기만 하고, 깨어나기 전의 소리는 오디오 요소로 대신 낸다.
 const playBuffer = (buffer: AudioBuffer, volume: number) => {
   if (!context) return false;
   try {
-    // 첫 터치 전에 만든 context는 멈춰 있다. 터치 안에서 깨운다.
-    if (context.state === "suspended") void context.resume();
+    if (context.state !== "running") {
+      void context.resume().catch(() => {});
+      return false;
+    }
     const source = context.createBufferSource();
     const gain = context.createGain();
     source.buffer = buffer;
     gain.gain.value = volume;
     source.connect(gain);
     gain.connect(context.destination);
+    source.onended = () => gain.disconnect();
     source.start(0);
     return true;
   } catch {
