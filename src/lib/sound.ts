@@ -26,6 +26,7 @@ declare global {
 let context: AudioContext | null = null;
 const buffers: Partial<Record<EffectName, AudioBuffer>> = {};
 const loading: Partial<Record<EffectName, boolean>> = {};
+let listening = false;
 
 const canPlay = () => typeof Audio !== "undefined";
 
@@ -57,14 +58,17 @@ const loadBuffer = (name: EffectName) => {
 };
 
 // context는 첫 터치 전에도, 휴대폰 화면이 잠기거나 다른 소리가 끼어들 때도 멈춘다(iOS는 "interrupted").
-// 멈춰 있으면 깨우기만 하고, 깨어나기 전의 소리는 오디오 요소로 대신 낸다.
+// iOS는 터치 안에서 부른 resume만 받아 주므로, 터치가 있을 때마다 멈춰 있으면 깨운다.
+const wakeContext = () => {
+  if (context && context.state !== "running") {
+    void context.resume().catch(() => {});
+  }
+};
+
+// 깨어나기 전의 소리는 오디오 요소로 대신 낸다.
 const playBuffer = (buffer: AudioBuffer, volume: number) => {
-  if (!context) return false;
+  if (!context || context.state !== "running") return false;
   try {
-    if (context.state !== "running") {
-      void context.resume().catch(() => {});
-      return false;
-    }
     const source = context.createBufferSource();
     const gain = context.createGain();
     source.buffer = buffer;
@@ -79,11 +83,20 @@ const playBuffer = (buffer: AudioBuffer, volume: number) => {
   }
 };
 
+// 대신 낼 때는 효과음마다 요소를 하나만 두고 되감아 쓴다. 재생마다 새로 만들면
+// 0.1초마다 나는 말소리 때문에 요소가 수십 개 쌓여 iPhone에서 페이지가 종료된다.
+const fallbacks: Partial<Record<EffectName, HTMLAudioElement>> = {};
+
 // 브라우저는 첫 터치 이후에만 소리를 낼 수 있다. 재생이 거부되어도 진행에는 영향을 주지 않는다.
-const playElement = (src: string, volume: number) => {
+const playElement = (name: EffectName) => {
   try {
-    const audio = new Audio(src);
-    audio.volume = volume;
+    let audio = fallbacks[name];
+    if (!audio) {
+      audio = new Audio(EFFECTS[name].src);
+      audio.volume = EFFECTS[name].volume;
+      fallbacks[name] = audio;
+    }
+    audio.currentTime = 0;
     void audio.play()?.catch(() => {});
   } catch {
     // 소리를 지원하지 않는 환경.
@@ -104,15 +117,20 @@ export function preloadSounds() {
   if (!canPlay()) return;
   if (!window.__hwippBgm) createBgm();
   for (const name of Object.keys(EFFECTS) as EffectName[]) loadBuffer(name);
+  if (!listening) {
+    listening = true;
+    for (const type of ["touchend", "click"]) {
+      document.addEventListener(type, wakeContext, true);
+    }
+  }
 }
 
 export function playEffect(name: EffectName) {
   if (!canPlay()) return;
-  const { src, volume } = EFFECTS[name];
   const buffer = buffers[name];
-  if (buffer && playBuffer(buffer, volume)) return;
+  if (buffer && playBuffer(buffer, EFFECTS[name].volume)) return;
   loadBuffer(name);
-  playElement(src, volume);
+  playElement(name);
 }
 
 // 말소리는 아주 짧은 간격으로 이어서 나지만, 재생마다 새로 내므로 겹쳐도 끊기지 않는다.
