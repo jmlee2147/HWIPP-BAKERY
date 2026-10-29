@@ -23,6 +23,7 @@ class FakeAudio {
 
 class FakeAudioContext {
   static started: AudioBuffer[] = [];
+  static last: FakeAudioContext | null = null;
   state = "suspended";
   destination = {};
   resume = vi.fn(() => {
@@ -30,12 +31,16 @@ class FakeAudioContext {
     return Promise.resolve();
   });
   decodeAudioData = vi.fn(() => Promise.resolve({} as AudioBuffer));
+  constructor() {
+    FakeAudioContext.last = this;
+  }
   createGain() {
-    return { gain: { value: 1 }, connect: vi.fn() };
+    return { gain: { value: 1 }, connect: vi.fn(), disconnect: vi.fn() };
   }
   createBufferSource() {
     const source = {
       buffer: null as AudioBuffer | null,
+      onended: null as (() => void) | null,
       connect: vi.fn(),
       start: vi.fn(() => {
         if (source.buffer) FakeAudioContext.started.push(source.buffer);
@@ -72,17 +77,43 @@ describe("sound", () => {
   const effectElements = () =>
     FakeAudio.created.filter((audio) => !audio.src.includes("bgm"));
 
-  it("미리 받아 둔 효과음은 오디오 요소 없이 매번 새로 재생한다", async () => {
-    const { preloadSounds, playEffect } = await loadSound();
-    preloadSounds();
+  const preloaded = async () => {
+    const sound = await loadSound();
+    sound.preloadSounds();
     await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(7));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    return { sound, context: FakeAudioContext.last as FakeAudioContext };
+  };
 
-    playEffect("cardFlip");
-    playEffect("cardFlip");
+  it("미리 받아 둔 효과음은 오디오 요소 없이 매번 새로 재생한다", async () => {
+    const { sound, context } = await preloaded();
+    context.state = "running";
+
+    sound.playEffect("cardFlip");
+    sound.playEffect("cardFlip");
 
     expect(FakeAudioContext.started).toHaveLength(2);
     expect(effectElements()).toHaveLength(0);
+  });
+
+  it.each([
+    "suspended",
+    "interrupted",
+  ])("context가 %s 상태면 깨우고, 깨어나기 전의 효과음은 오디오 요소로 낸다", async (state) => {
+    const { sound, context } = await preloaded();
+    context.state = state;
+
+    sound.playEffect("cardFlip");
+
+    expect(context.resume).toHaveBeenCalled();
+    expect(FakeAudioContext.started).toHaveLength(0);
+    expect(effectElements()).toHaveLength(1);
+    expect(effectElements()[0].play).toHaveBeenCalled();
+
+    sound.playEffect("cardFlip");
+
+    expect(FakeAudioContext.started).toHaveLength(1);
+    expect(effectElements()).toHaveLength(1);
   });
 
   it("효과음을 아직 받지 못했으면 새 오디오 요소로 대신 낸다", async () => {
