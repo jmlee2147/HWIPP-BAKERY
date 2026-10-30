@@ -62,7 +62,8 @@ export const SpeechBubble = ({
             />
           </div>
         ))}
-        <div className="absolute inset-x-[80px] bottom-[70px] top-[91px] flex flex-col items-center justify-center whitespace-pre-line text-center font-stardust text-body leading-[49.2px] text-cocoa [text-shadow:2.097px_2.097px_2.621px_#d5abc2]">
+        {/* 글자는 0.05초마다 한 자씩 늘어난다. 따로 떼어 그리지 않으면 글자가 바뀔 때마다 화면 전체와 말풍선 그림자를 다시 그려 키오스크에서 버벅인다. */}
+        <div className="absolute inset-x-[80px] bottom-[70px] top-[91px] flex flex-col items-center justify-center whitespace-pre-line text-center font-stardust text-body leading-[49.2px] text-cocoa [text-shadow:2.097px_2.097px_2.621px_#d5abc2] [will-change:transform]">
           {children}
         </div>
         {STARS.map((star) => (
