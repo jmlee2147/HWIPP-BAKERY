@@ -62,11 +62,18 @@ export interface CakeDecorationItem {
   only?: CakeShapeId[];
   // 케이크를 다른 모양으로 바꿨을 때 놓을 자리. 계산으로 옮긴 자리가 어색한 장식에만 직접 적는다.
   // under가 true면 그 모양에서는 다른 윗면 장식들보다 아래에 깔아 그리고, over가 true면 위에 얹어 그린다.
-  // scale을 적으면 그 모양에서는 그 배율로 그린다.
+  // scale을 적으면 그 모양에서는 그 배율로, rotate를 적으면 그 각도로 그린다.
   at?: Partial<
     Record<
       CakeShapeId,
-      { x: number; y: number; under?: boolean; over?: boolean; scale?: number }
+      {
+        x: number;
+        y: number;
+        under?: boolean;
+        over?: boolean;
+        scale?: number;
+        rotate?: number;
+      }
     >
   >;
   // 관람객이 수정 화면에서 직접 놓은 장식. 예시의 배치와 한 묶음으로 옮기지 않고, 다른 장식들 위에 따로 그린다.
@@ -245,17 +252,18 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("coating-pink", "cream", "frosting", {
     round: ["coating-pink-round", 29, 142, 586, 500.2],
     heart: ["coating-pink-heart", 60, 160.6, 551.9, 487.1],
-    square: ["coating-pink-square", -17.1, 73.1, 704.3, 607.9],
+    // 사각형 코팅은 받은 크기 그대로면 오른쪽 윗모서리로 케이크가 비친다. 3% 키우고 오른쪽으로 옮겼다.
+    square: ["coating-pink-square", -21.7, 64, 725.4, 626.1],
   }),
   fixed("coating-choco", "cream", "frosting", {
     round: ["coating-choco-round", 30, 151, 586, 500.2],
     heart: ["coating-choco-heart", 63, 172.5, 525, 463],
-    square: ["coating-choco-square", -19.2, 98.9, 695.2, 600.2],
+    square: ["coating-choco-square", -23.6, 89.9, 716.1, 618.2],
   }),
   fixed("coating-sky", "cream", "frosting", {
     round: ["coating-sky-round", 31, 144, 586, 499.2],
     heart: ["coating-sky-heart", 64.6, 145.6, 550.4, 504.9],
-    square: ["coating-sky-square", -19.2, 97.5, 708.7, 611.8],
+    square: ["coating-sky-square", -23.9, 88.3, 730, 630.2],
   }),
   fixed("cream-top", "cream", "cream-top", {
     round: ["cream-top-round", 48, 143, 564, 403.7],
@@ -363,7 +371,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("lettering-happy-birthday", "lettering", "lettering", {
     round: ["lettering-happy-birthday-round", 191.9, 276.9, 289.6, 137.7],
-    square: ["lettering-happy-birthday-round", 250.6, 306, 273, 159.8],
+    square: ["lettering-happy-birthday-round", 250.6, 321.5, 273, 128.7],
   }),
   fixed("lettering-hbd-dot-black", "lettering", "lettering", {
     heart: ["lettering-hbd-dot-black", 203.3, 271.9, 327.6, 181],
@@ -388,7 +396,12 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("lettering-job-congrats", "lettering", "lettering", {
     square: ["lettering-job-congrats", 223.1, 328, 204.8, 58.9],
-    round: ["lettering-job-congrats", 87.5, 237.6, 484.3, 212.6],
+    round: ["lettering-job-congrats", 87.5, 273.5, 484.3, 140.8],
+  }),
+  // 같은 글자를 남색으로 바꾼 것. Figma에서 색 필터를 걸어 만든 예시(cake-77)에 쓴다.
+  fixed("lettering-job-congrats-navy", "lettering", "lettering", {
+    square: ["lettering-job-congrats-navy", 223.1, 328, 204.8, 58.9],
+    round: ["lettering-job-congrats-navy", 87.5, 273.5, 484.3, 140.8],
   }),
   fixed("lettering-like-you", "lettering", "lettering", {
     square: ["lettering-like-you", 189.5, 231.9, 271.6, 224.1],
@@ -398,8 +411,8 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("lettering-i-love-u", "lettering", "lettering", {
     round: ["lettering-i-love-u", 161.4, 285.2, 339.7, 103.5],
-    heart: ["lettering-i-love-u", 267.1, 362.5, 259.4, 114],
-    square: ["lettering-i-love-u", 167.4, 262.4, 319.7, 140.2],
+    heart: ["lettering-i-love-u", 267.1, 380, 259.4, 78.9],
+    square: ["lettering-i-love-u", 167.4, 283.9, 319.7, 97.2],
   }),
   fixed("lettering-i-heart", "lettering", "lettering", {
     round: ["lettering-i-heart", 135.8, 242.1, 376.9, 239.4],
