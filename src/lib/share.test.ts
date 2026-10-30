@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { CAKE_SHAPES } from "@/data/cake";
 import { CAKE_PRESETS } from "@/data/cakePresets";
+import { cakeLayers } from "@/lib/cake";
 import {
   decodeSharedCake,
   encodeSharedCake,
+  forCurrentShape,
   type SharedCake,
   shareUrl,
 } from "./share";
@@ -37,12 +40,23 @@ const shared: SharedCake = {
 };
 
 describe("공유 주소", () => {
-  it("케이크와 답변을 담았다가 되돌린다. 좌표와 기울기는 정수로 반올림된다", async () => {
-    const hash = await encodeSharedCake(shared);
+  it("장식을 고친 케이크와 답변을 담았다가 되돌린다. 좌표와 기울기는 정수로 반올림된다", async () => {
+    // 관람객이 장식을 하나 더 놓아 예시와 달라진 케이크다.
+    const edited: SharedCake = {
+      ...shared,
+      cake: {
+        ...shared.cake,
+        decorations: [
+          ...shared.cake.decorations,
+          { id: "pearl", x: 100.4, y: 200.6, scale: 0.3, rotate: 12.7 },
+        ],
+      },
+    };
+    const hash = await encodeSharedCake(edited);
 
     expect(await decodeSharedCake(`#${hash}`)).toEqual({
-      ...shared,
-      cake: rounded(shared.cake),
+      ...edited,
+      cake: rounded(edited.cake),
     });
   });
 
@@ -62,6 +76,35 @@ describe("공유 주소", () => {
     );
 
     expect(Math.max(...lengths)).toBeLessThan(1500);
+  });
+
+  it("장식을 손대지 않은 예시는 모양을 바꿔도 예시 id만 담고, 되돌리면 같은 케이크다", async () => {
+    for (const preset of CAKE_PRESETS) {
+      for (const shape of CAKE_SHAPES.map((one) => one.id)) {
+        const cake = {
+          ...preset.cake,
+          shape,
+          layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
+        };
+        const hash = await encodeSharedCake({ ...shared, cake });
+        expect(hash.length).toBeLessThan(300);
+        const back = await decodeSharedCake(`#${hash}`);
+        expect(cakeLayers(back?.cake ?? cake)).toEqual(cakeLayers(cake));
+      }
+    }
+  });
+
+  it("장식을 고친 케이크는 지금 모양에 쓰는 값만 남겨 담아도 모습이 같다", () => {
+    for (const preset of CAKE_PRESETS) {
+      for (const shape of CAKE_SHAPES.map((one) => one.id)) {
+        const cake = {
+          ...preset.cake,
+          shape,
+          layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
+        };
+        expect(cakeLayers(forCurrentShape(cake))).toEqual(cakeLayers(cake));
+      }
+    }
   });
 
   it("잘리거나 손댄 주소는 null을 돌려준다", async () => {
