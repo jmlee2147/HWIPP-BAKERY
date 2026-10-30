@@ -916,6 +916,20 @@ export function cakeLayers(
   const chains = new Map(
     [...nearFloor].filter(([, points]) => points.length >= FLOOR_CHAIN),
   );
+  // 바닥 줄에 드는지는 장식마다 따진다. 같은 크림으로 윗면 테두리와 바닥을 함께 두른 케이크에서,
+  // 윗면의 크림까지 바닥 줄로 묶어 지우지 않기 위해서다.
+  const inChain = (
+    chosen: CakeConfig["decorations"][number],
+    item: CakeDecoration,
+  ) =>
+    item.placement === "top" &&
+    chains.has(item.id) &&
+    chosen.x !== undefined &&
+    chosen.y !== undefined &&
+    alongFloor(
+      anchorOf(chosen, item.height, item.anchor === "bottom"),
+      CAKE_TOPS[layoutShape],
+    );
   const lined = new Set<string>();
   // 바닥을 두른 장식은 케이크의 맨 앞에 있으므로 다른 장식보다 나중에 그린다.
   const floorLine: CakeLayer[] = [];
@@ -929,7 +943,7 @@ export function cakeLayers(
     const earlier: Placed[] = [];
     cake.decorations.forEach((chosen, index) => {
       const item = decorations.find((one) => one.id === chosen.id);
-      if (item?.placement !== "top" || chains.has(item.id)) return;
+      if (item?.placement !== "top" || inChain(chosen, item)) return;
       if (chosen.x === undefined || chosen.y === undefined) return;
       const anchor = anchorOf(chosen, item.height, item.anchor === "bottom");
       // 다른 장식 위에 얹힌 것(크림 위의 체리)은 고리로 세지 않는다. 받침을 따라가야 한다.
@@ -1102,7 +1116,7 @@ export function cakeLayers(
     >();
     cake.decorations.forEach((chosen, index) => {
       const item = decorations.find((one) => one.id === chosen.id);
-      if (item?.placement !== "top" || chains.has(item.id)) return;
+      if (item?.placement !== "top" || inChain(chosen, item)) return;
       if (chosen.x === undefined || chosen.y === undefined) return;
       const anchor = anchorOf(chosen, item.height, item.anchor === "bottom");
       if (onTop(source, anchor) || anchor.y < frontEdge(source, anchor.x)) {
@@ -1167,7 +1181,7 @@ export function cakeLayers(
       const item = decorations.find((one) => one.id === chosen.id);
       if (item?.placement !== "top") return [];
       if (chosen.x === undefined || chosen.y === undefined) return [];
-      if (chains.has(item.id)) return [];
+      if (inChain(chosen, item)) return [];
       const width = item.width * (chosen.scale ?? 1);
       const height = item.height * (chosen.scale ?? 1);
       return [
@@ -1358,7 +1372,8 @@ export function cakeLayers(
     }
     const key = `${item.id}-${index}`;
     const turn = {
-      rotate: wallTurn(index, chosen.rotate) || undefined,
+      // 그 모양의 각도를 예시에 직접 적어 둔 장식은 그 각도로 그린다.
+      rotate: (pinned?.rotate ?? wallTurn(index, chosen.rotate)) || undefined,
       flip: chosen.flip || undefined,
     };
     // 그림의 가운데가 (x, y)에 오게 놓는다.
@@ -1542,6 +1557,16 @@ export function cakeLayers(
       if (fixed.has(item.layer) || underlaid.has(item.layer)) return;
       const drawn = ((): CakeLayer[] | undefined => {
         const part = item.shapes[shape.id];
+        // 그 모양의 자리를 예시에 직접 적어 둔 장식(글자, 윗면 크림)은 그 크기에 적어 둔 배율을 곱해 그 자리에 놓는다.
+        // 같은 장식이라도 케이크마다 놓을 자리와 크기가 달라서다.
+        // 모양마다 그림이 다른 글자는 그 모양의 그림 크기를 기준으로 삼는다.
+        const original = item.shapes[layoutShape];
+        const own =
+          part && part.src !== original?.src ? part : (original ?? part);
+        if (pinned && own) {
+          const box = around(own.width, own.height);
+          return [{ key, index, src: own.src, ...turn, ...box }];
+        }
         if (part) {
           // 직접 준 위치는 원래 모양의 그림에 맞춘 것이다. 모양이 바뀌면 새 그림의 정해진 자리를 쓴다.
           const box =
@@ -1577,14 +1602,20 @@ export function cakeLayers(
       return;
     }
 
-    const chain = hasPosition ? chains.get(item.id) : undefined;
+    const chain = inChain(chosen, item) ? chains.get(item.id) : undefined;
     if (chain) {
       // 바닥을 따라 두른 장식은 처음 나온 자리에서 한 줄을 통째로 다시 두른다. 뒤쪽 것부터 그린다.
       if (lined.has(item.id)) return;
       lined.add(item.id);
       const shrink = shrinkForWall(layoutShape, shape.id);
-      const width = item.width * (chosen.scale ?? 1) * shrink;
-      const height = item.height * (chosen.scale ?? 1) * shrink;
+      // 크기는 줄에 든 장식들의 가운데값으로 정한다. 처음 나온 하나가 모서리에 작게 놓인 것이면 줄 전체가 작아진다.
+      const scales = cake.decorations
+        .filter((one) => one.id === item.id && inChain(one, item))
+        .map((one) => one.scale ?? 1)
+        .sort((a, b) => a - b);
+      const lineScale = scales[Math.floor(scales.length / 2)] ?? 1;
+      const width = item.width * lineScale * shrink;
+      const height = item.height * lineScale * shrink;
       const line = lineFloor(chain, layoutShape, shape.id, shrink)
         .sort((a, b) => a.y - b.y)
         .map((spot, order) => ({
