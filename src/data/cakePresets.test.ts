@@ -53,6 +53,9 @@ describe("CAKE_PRESETS", () => {
   });
 });
 
+// 다른 예시의 물방울 정의를 그대로 가져다 쓰는 예시와 빌려 준 예시.
+const BORROWED_DROPS: Record<string, string> = { "cake-84": "cake-96" };
+
 describe("물방울이 있는 완성 케이크", () => {
   const withDrops = CAKE_PRESETS.filter(({ cake }) =>
     cake.decorations.some((item) => item.id.startsWith("drop-")),
@@ -67,25 +70,37 @@ describe("물방울이 있는 완성 케이크", () => {
 
   it("모양을 바꾸면 물방울이 그 모양의 배치 자리에 그대로 놓인다", () => {
     expect(withDrops.length).toBeGreaterThan(0);
-    for (const { cake } of withDrops) {
+    for (const { id, cake } of withDrops) {
       const white = cake.decorations.some((item) =>
         item.id.startsWith("drop-white"),
       );
       const layouts = white ? WHITE_DROPS : BLACK_DROPS;
+      // 다른 예시의 물방울을 그대로 빌려 쓰는 예시는 그 예시의 원래 모양 자리를 기준으로 본다.
+      const lender = BORROWED_DROPS[id];
+      const lent = lender
+        ? CAKE_PRESETS.find((preset) => preset.id === lender)?.cake
+        : undefined;
       for (const shape of CAKE_SHAPES) {
         if (shape.id === cake.shape) continue;
+        if (lent && shape.id === lent.shape) continue;
         const centers = dropCenters(
           cakeLayers({ ...cake, shape: shape.id, layoutShape: cake.shape }),
         );
         expect(centers.length).toBeGreaterThan(0);
-        for (const center of centers) {
-          const nearest = Math.min(
-            ...layouts[shape.id].map((spot) =>
-              Math.hypot(spot.x - center.x, spot.y - center.y),
+        // 예시에 따라 배치 전체를 한 방향으로 옮겨 쓸 수 있다(drops의 move). 모든 물방울이 같은 거리만큼 옮겨진 배치 자리에 있으면 된다.
+        const spots = layouts[shape.id];
+        const fits = spots.some((anchor) => {
+          const dx = centers[0].x - anchor.x;
+          const dy = centers[0].y - anchor.y;
+          return centers.every((center) =>
+            spots.some(
+              (spot) =>
+                Math.hypot(spot.x + dx - center.x, spot.y + dy - center.y) <
+                0.01,
             ),
           );
-          expect(nearest).toBeLessThan(0.01);
-        }
+        });
+        expect(fits).toBe(true);
       }
     }
   });

@@ -56,4 +56,8 @@
 - 케이크 바탕 그림이 바뀌면 `src/data/cake.ts`의 `CAKE_TOPS`를 다시 잰다.
 - store에서 케이크를 고칠 때는 `updateCake`를 써서 `layoutShape`가 유지되게 한다.
 - 물방울이 있는 예시를 추가하면 좌표를 직접 적지 않고 `drops`로 넣는다. 원래 모양의 자리가 배치와 다르면 `own`으로 준다.
+- 모양별 자리(`at`)에는 배율(`scale`)과 각도(`rotate`)를 함께 적을 수 있다. 자리가 정해진 장식(글자, 윗면 크림, 코팅)에도 적용된다. `at`은 예시의 원래 모양에서는 쓰이지 않으므로, 원래 모양의 자리는 `x`, `y`로 고친다.
+- 같은 장식이 윗면 고리와 바닥 줄에 함께 쓰이면, 바닥 줄은 바닥을 따라 놓인 것만 묶는다(`inChain`). 줄의 크기는 줄에 든 장식들의 가운데값 배율로 정한다.
+- 테두리를 고르게 두른 크림은 예시에서 `rim`으로 모양마다 새로 두른다. 비즈 글자처럼 한 덩어리인 장식은 모양마다 통째로 평행 이동해 적는다.
+- 완성 케이크 예시는 검수에서 오케이를 받으면 `src/data/cakePresetsApproved.json`에 저장되어 `src/data/cakePresets.approved.test.ts`가 지킨다. 공통 규칙을 고쳐 잠긴 예시가 바뀌면 테스트가 실패한다. 기록은 `.claude/reviews/cake-presets.md`에 있다.
 - 관련 파일: `src/lib/cake.ts`(`moveToShape`, `cakeLayers`), `src/data/cake.ts`(`CAKE_TOPS`), `.claude/known-issues/records/editor-screen-missing-parts.md`
