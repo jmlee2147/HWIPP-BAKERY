@@ -10,22 +10,13 @@ import {
   shareUrl,
 } from "./share";
 
-// 주소에는 좌표와 기울기를 정수로 줄여 담는다.
-const rounded = (cake: SharedCake["cake"]): SharedCake["cake"] => ({
-  ...cake,
-  decorations: cake.decorations.map((item) =>
-    item.x === undefined || item.only || item.at
-      ? item
-      : {
-          ...item,
-          x: Math.round(item.x),
-          y: Math.round(item.y ?? 0),
-          ...(item.rotate === undefined
-            ? {}
-            : { rotate: Math.round(item.rotate) }),
-        },
-  ),
-});
+// 되살리지 못했을 때 비교할 빈 케이크.
+const EMPTY: SharedCake["cake"] = {
+  size: "large",
+  shape: "round",
+  color: "white",
+  decorations: [],
+};
 
 const shared: SharedCake = {
   cake: CAKE_PRESETS[0].cake,
@@ -54,9 +45,16 @@ describe("공유 주소", () => {
     };
     const hash = await encodeSharedCake(edited);
 
+    // 예시에서 그대로 가져온 장식은 예시의 값 그대로, 새로 놓은 장식만 정수로 줄어든다.
     expect(await decodeSharedCake(`#${hash}`)).toEqual({
       ...edited,
-      cake: rounded(edited.cake),
+      cake: {
+        ...edited.cake,
+        decorations: [
+          ...shared.cake.decorations,
+          { id: "pearl", x: 100, y: 201, scale: 0.3, rotate: 13 },
+        ],
+      },
     });
   });
 
@@ -94,6 +92,44 @@ describe("공유 주소", () => {
     }
   });
 
+  it("예시에서 장식을 지우고 옮기고 새로 놓은 케이크도 짧게 담고, 되살리면 같은 모습이다", async () => {
+    for (const preset of CAKE_PRESETS) {
+      const base = preset.cake.decorations;
+      for (const shape of CAKE_SHAPES.map((one) => one.id)) {
+        // 관람객이 수정 화면에서 한 일: 장식 하나 지우기, 하나 옮기기(정수 좌표), 하나 새로 놓기.
+        const movable = base.findIndex(
+          (item) => item.x !== undefined && !item.only && !item.at,
+        );
+        const decorations = base
+          .filter((_, index) => index !== 0)
+          .map((item, index) =>
+            index + 1 === movable
+              ? { ...item, x: Math.round((item.x ?? 0) + 10), manual: true }
+              : item,
+          );
+        decorations.push({
+          id: "pearl",
+          x: 300,
+          y: 300,
+          scale: 0.4,
+          manual: true,
+        });
+        const cake = {
+          ...preset.cake,
+          shape,
+          layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
+          decorations,
+        };
+
+        const hash = await encodeSharedCake({ ...shared, cake });
+        const back = await decodeSharedCake(`#${hash}`);
+
+        expect(hash.length).toBeLessThan(500);
+        expect(cakeLayers(back?.cake ?? EMPTY)).toEqual(cakeLayers(cake));
+      }
+    }
+  });
+
   it("장식을 고친 케이크는 지금 모양에 쓰는 값만 남겨 담아도 모습이 같다", () => {
     for (const preset of CAKE_PRESETS) {
       for (const shape of CAKE_SHAPES.map((one) => one.id)) {
@@ -126,6 +162,6 @@ describe("공유 주소", () => {
 
     const decoded = await decodeSharedCake(hash);
 
-    expect(decoded?.cake.decorations).toEqual(rounded(shared.cake).decorations);
+    expect(decoded?.cake.decorations).toEqual(shared.cake.decorations);
   });
 });

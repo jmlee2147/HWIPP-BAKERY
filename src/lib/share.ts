@@ -158,23 +158,34 @@ const cakeSchema = z
     shape: shapeId,
     color: z.enum(ids(CAKE_COLORS)),
     decorations: z.array(packedSchema).max(400).optional(),
-    // 장식을 손대지 않은 완성 케이크 예시는 장식 대신 예시 id만 담는다.
+    // 완성 케이크 예시에서 시작한 케이크는 예시 id(p)와, 그 예시에서 바뀐 것(k)만 담는다. k가 없으면 예시 그대로다.
     p: z.string().optional(),
+    k: z.array(packedSchema).max(400).optional(),
     layoutShape: shapeId.optional(),
     shift: z.partialRecord(shapeId, point).optional(),
   })
   // 짧게 담은 장식은 케이크 모양을 알아야 되돌릴 수 있다. 없는 장식이 섞여 와도 케이크는 그리고, 모르는 장식만 버린다.
-  .transform(({ p, ...cake }) => ({
-    ...cake,
-    decorations: p
-      ? (CAKE_PRESETS.find((preset) => preset.id === p)?.cake.decorations ?? [])
-      : (cake.decorations ?? [])
-          .map((item) => unpackDecoration(item, cake.shape))
-          .filter(
-            (item): item is Decoration =>
-              item !== null && decorationIds.has(item.id),
-          ),
-  }));
+  .transform(({ p, k, ...cake }) => {
+    const unpack = (list: PackedDecoration[]) =>
+      list
+        .map((item) => unpackDecoration(item, cake.shape))
+        .filter(
+          (item): item is Decoration =>
+            item !== null && decorationIds.has(item.id),
+        );
+    if (!p) return { ...cake, decorations: unpack(cake.decorations ?? []) };
+    const base =
+      CAKE_PRESETS.find((preset) => preset.id === p)?.cake.decorations ?? [];
+    if (!k) return { ...cake, decorations: base };
+    return {
+      ...cake,
+      decorations: k.flatMap((item) => {
+        const kept = typeof item === "string" ? KEPT.exec(item) : null;
+        if (kept) return base.slice(Number(kept[1]), Number(kept[2]) + 1);
+        return unpack([item]);
+      }),
+    };
+  });
 
 const answer = <T extends { id: string }>(list: readonly T[]) =>
   z.enum(ids(list)).nullable();
@@ -238,22 +249,110 @@ export function forCurrentShape(cake: CakeConfig): CakeConfig {
   };
 }
 
+// 예시의 장식을 차례대로 이어 쓴 구간. "시작:끝"으로 담는다. 장식 id에는 ":"이 없어 장식과 헷갈리지 않는다.
+const KEPT = /^(\d+):(\d+)$/;
+
+// 케이크의 장식을 예시의 장식과 견줘, 예시에서 이어 쓴 구간과 새로 놓거나 바꾼 장식의 목록으로 만든다.
+// 장식의 차례는 겹쳐 그리는 순서라 그대로 지킨다.
+function diffFromPreset(
+  base: Decoration[],
+  decorations: Decoration[],
+  shape: string,
+): PackedDecoration[] {
+  const left = base.map((item) => JSON.stringify(item));
+  const right = decorations.map((item) => JSON.stringify(item));
+  // 가장 긴 공통 부분 수열. 표는 뒤에서부터 채운다.
+  const table = Array.from({ length: left.length + 1 }, () =>
+    new Array<number>(right.length + 1).fill(0),
+  );
+  for (let i = left.length - 1; i >= 0; i -= 1) {
+    for (let j = right.length - 1; j >= 0; j -= 1) {
+      table[i][j] =
+        left[i] === right[j]
+          ? table[i + 1][j + 1] + 1
+          : Math.max(table[i + 1][j], table[i][j + 1]);
+    }
+  }
+  const packed: PackedDecoration[] = [];
+  let run: [number, number] | null = null;
+  const flush = () => {
+    if (run) packed.push(`${run[0]}:${run[1]}`);
+    run = null;
+  };
+  let i = 0;
+  let j = 0;
+  while (j < right.length) {
+    if (i < left.length && left[i] === right[j]) {
+      if (run && run[1] === i - 1) {
+        run = [run[0], i];
+      } else {
+        flush();
+        run = [i, i];
+      }
+      i += 1;
+      j += 1;
+    } else if (i < left.length && table[i + 1][j] >= table[i][j + 1]) {
+      i += 1;
+    } else {
+      flush();
+      const [own] = forCurrentShape({
+        ...EMPTY_CAKE,
+        shape: shape as CakeConfig["shape"],
+        decorations: [decorations[j]],
+      }).decorations;
+      if (own) packed.push(packDecoration(own, shape));
+      j += 1;
+    }
+  }
+  flush();
+  return packed;
+}
+
+const EMPTY_CAKE: CakeConfig = {
+  size: "large",
+  shape: "round",
+  color: "white",
+  decorations: [],
+};
+
+// 케이크를 가장 많이 닮은 완성 케이크 예시와 그 예시에서 바뀐 것으로 담는다. 예시로 담는 쪽이 길면 장식을 모두 담는다.
+function packCake(shared: CakeConfig) {
+  const cake = forCurrentShape(shared);
+  const full = {
+    ...cake,
+    decorations: cake.decorations.map((item) =>
+      packDecoration(item, cake.shape),
+    ),
+  };
+  let best: Record<string, unknown> = full;
+  let bestLength = JSON.stringify(full).length;
+  for (const preset of CAKE_PRESETS) {
+    const k = diffFromPreset(
+      preset.cake.decorations,
+      shared.decorations,
+      cake.shape,
+    );
+    const whole =
+      k.length === 1 && k[0] === `0:${preset.cake.decorations.length - 1}`;
+    const candidate = {
+      ...cake,
+      decorations: undefined,
+      p: preset.id,
+      k: whole && preset.cake.decorations.length > 0 ? undefined : k,
+    };
+    const length = JSON.stringify(candidate).length;
+    if (length < bestLength) {
+      best = candidate;
+      bestLength = length;
+    }
+  }
+  return best;
+}
+
 export async function encodeSharedCake(shared: SharedCake): Promise<string> {
   const { party, style, relation, flavor } = shared.answers;
-  const cake = forCurrentShape(shared.cake);
-  const decorations = JSON.stringify(shared.cake.decorations);
-  const preset = CAKE_PRESETS.find(
-    (one) => JSON.stringify(one.cake.decorations) === decorations,
-  );
   const json = JSON.stringify({
-    c: preset
-      ? { ...cake, decorations: undefined, p: preset.id }
-      : {
-          ...cake,
-          decorations: cake.decorations.map((item) =>
-            packDecoration(item, cake.shape),
-          ),
-        },
+    c: packCake(shared.cake),
     a: [party, style, relation, flavor],
     d: shared.date,
     n: shared.orderNumber,
