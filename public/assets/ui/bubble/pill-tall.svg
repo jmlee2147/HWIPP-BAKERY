@@ -1,0 +1,12 @@
+<svg width="630.71" height="168.72" viewBox="0 0 630.71 168.72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(0 168.72) rotate(-90) scale(0.26399)">
+<path d="M481.417 3.03042C566.831 3.03042 636.073 72.2725 636.073 157.687V2231.44C636.073 2316.85 566.831 2386.09 481.417 2386.09H312.604C227.19 2386.09 157.948 2316.85 157.948 2231.44V330.838L3.94687 142.606L7.10312 138.898L157.948 226.382V157.687C157.948 72.2725 227.19 3.03042 312.604 3.03042H481.417Z" fill="url(#pill-tall-fill)" stroke-width="6.06083" stroke="#5B4A43"/>
+</g>
+<defs>
+<linearGradient id="pill-tall-fill" x1="673.551" y1="1194.56" x2="185.952" y2="1194.56" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FFF2F9"/>
+<stop offset="0.697115" stop-color="#FFB4DB"/>
+<stop offset="1" stop-color="#FFF2F9"/>
+</linearGradient>
+</defs>
+</svg>

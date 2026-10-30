@@ -153,3 +153,14 @@ D+하트 비즈(71개)를 쓰는 cake-70, 93, 94, 99는 어느 모양에서나 �
 | `frosting-pinktop-square.webp` | 왼쪽 아래 | cake-13 사각형 (조각만 사라짐) |
 | `coating-sky-heart.webp` | 왼쪽 위 작은 얼룩 | 없음 |
 | `lettering-job-congrats-navy.webp` (새 그림) | `lettering-job-congrats`를 Figma 색(#16256a)에 맞춰 남색으로 | 없음. cake-77만 씀. 분석 규칙에도 같은 테마로 넣음 |
+
+## 토핑 겉면 교체 (2차 수정, #75)
+
+디자이너가 결과 수정 화면에서 지적한 대로, 아래 겉면은 케이크 바탕이 가장자리로 비치지 않게 디자이너가 준 그림으로 바꾸거나 자리를 다시 맞췄습니다. 공통 자리라 이 그림을 쓰는 예시 28개(위 표의 "수정함")의 겉면만 조금씩 바뀌고, 장식 배치는 그대로입니다. 잠금은 새 모습으로 다시 저장했고, 28개 모두 재검수에서 오케이를 받았습니다.
+
+| 겉면 | 바꾼 것 |
+| --- | --- |
+| `frosting-green-square`, `frosting-pinktop-square`, `frosting-cream-heart`, `coating-sky-heart` | 디자이너가 준 그림으로 교체하고 바탕을 다 덮는 자리로 |
+| `frosting-green-heart`, `frosting-pinktop-heart`, `frosting-cream-square`, `frosting-cream-round` | 그림은 그대로, 바탕을 다 덮는 크기와 자리로 |
+
+cake-33, cake-72의 하트 코팅 1.07배(`at`)는 작던 옛 그림을 키운 것이라 지웠습니다. 새 그림의 기본 자리가 바탕을 덮습니다.

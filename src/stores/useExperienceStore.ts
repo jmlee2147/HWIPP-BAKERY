@@ -27,6 +27,8 @@ interface ExperienceState {
   cake: CakeConfig | null;
   // 이 기기에서 몇 번째로 만든 케이크인지. 케이크가 만들어질 때 함께 정해진다.
   orderNumber: number | null;
+  // 메뉴판에서 돌아갈 단계. 메뉴판은 결과 화면과 수정 화면 두 곳에서 들어온다.
+  menuReturn: Step;
   goNext: () => void;
   goPrev: () => void;
   goTo: (step: Step) => void;
@@ -58,9 +60,15 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   flavor: null,
   cake: null,
   orderNumber: null,
+  menuReturn: "result",
   goNext: () => set((state) => ({ step: nextStep(state.step) })),
   goPrev: () => set((state) => ({ step: prevStep(state.step) })),
-  goTo: (step) => set({ step }),
+  goTo: (step) =>
+    set((state) =>
+      step === "menu" && state.step !== "menu"
+        ? { step, menuReturn: state.step }
+        : { step },
+    ),
   setRelation: (relation) => set({ relation }),
   setStyle: (style) => set({ style }),
   setParty: (party) => set({ party }),
@@ -117,5 +125,6 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
       flavor: null,
       cake: null,
       orderNumber: null,
+      menuReturn: "result",
     }),
 }));

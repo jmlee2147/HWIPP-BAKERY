@@ -80,6 +80,7 @@ const PlacedCake = ({
 
 export const MenuScreen = () => {
   const goTo = useExperienceStore((state) => state.goTo);
+  const menuReturn = useExperienceStore((state) => state.menuReturn);
   const setCake = useExperienceStore((state) => state.setCake);
   const [shape, setShape] = useState<CakeShapeId>("round");
   const [picked, setPicked] = useState<CakePreset | null>(null);
@@ -291,7 +292,7 @@ export const MenuScreen = () => {
         className="absolute left-[60.5px] top-[39px] size-[91.47px] rounded-full border-[1.97px] border-[#867b76] bg-mint/80 transition-transform duration-100 active:scale-95"
         onClick={() => {
           playEffect("choice");
-          goTo("result");
+          goTo(menuReturn);
         }}
       >
         <img
