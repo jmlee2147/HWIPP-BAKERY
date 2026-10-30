@@ -236,18 +236,18 @@ function fixed(
 export const CAKE_DECORATIONS: CakeDecoration[] = [
   fixed("frosting-green", "cream", "frosting", {
     round: ["frosting-green-round", 13.1, 143, 618.9, 625],
-    heart: ["frosting-green-heart", 52.1, 163.5, 541, 584.1],
-    square: ["frosting-green-square", -26.9, 107.4, 699, 696.1],
+    heart: ["frosting-green-heart", 55.4, 174.6, 546.4, 589.9],
+    square: ["frosting-green-square", -22.7, 113.6, 726.6, 723.9],
   }),
   fixed("frosting-cream", "cream", "frosting", {
-    round: ["frosting-cream-round", 32, 130, 599, 625],
-    heart: ["frosting-cream-heart", 52.1, 171, 541, 569.1],
-    square: ["frosting-cream-square", -26.9, 107.4, 699, 696.1],
+    round: ["frosting-cream-round", 31.5, 145.6, 596, 621.9],
+    heart: ["frosting-cream-heart", 62.6, 158.3, 557, 589.5],
+    square: ["frosting-cream-square", -13.2, 115.1, 695.5, 692.6],
   }),
   fixed("frosting-pinktop", "cream", "frosting", {
     round: ["frosting-pinktop-round", 13.1, 143, 618.9, 625],
-    heart: ["frosting-pinktop-heart", 52.1, 163.5, 541, 584.1],
-    square: ["frosting-pinktop-square", -26.9, 100.2, 699, 710.6],
+    heart: ["frosting-pinktop-heart", 57.3, 154.5, 546.4, 589.9],
+    square: ["frosting-pinktop-square", 7.8, 88.9, 659.4, 692.9],
   }),
   fixed("coating-pink", "cream", "frosting", {
     round: ["coating-pink-round", 29, 142, 586, 500.2],
@@ -262,7 +262,7 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   }),
   fixed("coating-sky", "cream", "frosting", {
     round: ["coating-sky-round", 31, 144, 586, 499.2],
-    heart: ["coating-sky-heart", 64.6, 145.6, 550.4, 504.9],
+    heart: ["coating-sky-heart", 35.6, 118.7, 583.7, 555.8],
     square: ["coating-sky-square", -23.9, 88.3, 730, 630.2],
   }),
   fixed("cream-top", "cream", "cream-top", {
