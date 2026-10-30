@@ -42,6 +42,7 @@ public/assets/
 - 부품 목록과 겹침 순서, 위치는 `src/data`의 데이터로 관리합니다. JSX 분기로 하드코딩하지 않습니다.
 - 부품 PNG는 여백이 일정하지 않습니다. 시안의 기준 사각형 규격으로 맞추되, 중앙이 어긋나면 데이터의 offset으로 보정합니다.
 - 케이크 원본 그림은 Display P3 색 공간입니다. 부품은 원본 시트의 색 값을 그대로 두고 Display P3 프로파일을 붙여 저장합니다. 프로파일 없이 저장하거나 Figma에서 내보낸 이미지를 그대로 쓰면 색이 바래 보입니다.
+- 예외로, 디자이너가 톤을 맞춰 따로 준 PNG와 Figma REST API로 받은 렌더(프로파일 없는 sRGB)는 값과 프로파일을 바꾸지 않고 그대로 저장합니다. P3 원본을 sRGB로 옮긴 값이라 프로파일을 붙이면 오히려 진해집니다 (`flower-lily-white`, `lettering-pearl-love`, `lettering-pearl-d-heart-gray`).
 
 ## 용량
 
