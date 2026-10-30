@@ -90,7 +90,8 @@ describe("공유 주소", () => {
         expect(cakeLayers(back?.cake ?? cake)).toEqual(cakeLayers(cake));
       }
     }
-  });
+    // 예시 97개를 세 모양으로 모두 압축하고 풀어 본다. 다른 테스트와 함께 돌면 5초를 넘기기도 한다.
+  }, 30_000);
 
   it("예시에서 장식을 지우고 옮기고 새로 놓은 케이크도 짧게 담고, 되살리면 같은 모습이다", async () => {
     for (const preset of CAKE_PRESETS) {
