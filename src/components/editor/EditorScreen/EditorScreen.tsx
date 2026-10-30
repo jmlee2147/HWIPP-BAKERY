@@ -23,6 +23,7 @@ import {
   decorationChoices,
   EDITOR_CATEGORIES,
   EDITOR_ERASE,
+  EDITOR_MENU_CHOICE,
   EDITOR_PACK_CHOICE,
   EDITOR_QUIT,
   EDITOR_TABS,
@@ -277,8 +278,17 @@ export const EditorScreen = () => {
       )}
 
       <ChoiceButton
-        tone="cocoa"
+        tone="lime"
+        size="small"
         className="absolute left-[62px] top-[1724px]"
+        onClick={() => goTo("menu")}
+      >
+        {EDITOR_MENU_CHOICE}
+      </ChoiceButton>
+      <ChoiceButton
+        tone="cocoa"
+        size="wide"
+        className="absolute left-[213px] top-[1724px]"
         onClick={() => goTo("share")}
       >
         {EDITOR_PACK_CHOICE}

@@ -1461,7 +1461,7 @@ export const CAKE_PRESETS: CakePreset[] = [
         { id: "cream-ball-yellow", x: 190.4, y: 717, scale: 1.8 },
         { id: "cream-ball-yellow", x: 253, y: 734, scale: 1.8 },
         { id: "cream-ball-yellow", x: 595.2, y: 617.6, scale: 1.6 },
-        { id: "coating-sky", at: { heart: { x: 338, y: 395, scale: 1.07 } } },
+        { id: "coating-sky" },
         { id: "cream-rosette", x: 145.7, y: 307, scale: 1 },
         { id: "cream-rosette", x: 529.6, y: 256.1, scale: 1 },
         { id: "fruit-strawberry", x: 525.5, y: 228, scale: 1.1 },
@@ -3407,7 +3407,7 @@ export const CAKE_PRESETS: CakePreset[] = [
       shape: "square",
       color: "white",
       decorations: [
-        { id: "coating-sky", at: { heart: { x: 338, y: 395, scale: 1.07 } } },
+        { id: "coating-sky" },
         {
           id: "candle-mint",
           x: 517,

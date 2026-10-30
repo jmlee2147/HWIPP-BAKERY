@@ -16,6 +16,7 @@ export const EDITOR_TEXT =
   "어떤 걸 수정하면 좋을까요?\n각 항목을 선택하여 자유롭게 커스텀 해주세요!";
 
 export const EDITOR_PACK_CHOICE = "이대로 포장할래!";
+export const EDITOR_MENU_CHOICE = "menu";
 
 // 창의 X와 지우개를 누르면 뜨는 확인 팝업. confirm은 실행하는 쪽, cancel은 돌아가는 쪽 선택지다.
 export const EDITOR_QUIT = {
@@ -130,6 +131,8 @@ export const LETTERING_CATEGORIES: EditorCategory[] = [
       "lettering-i-love-u",
       "lettering-i-love-u-black",
       "plate-yellow-love",
+      "lettering-pearl-love",
+      "lettering-pearl-d-heart-gray",
       "lettering-promise",
       "lettering-like-you",
     ],

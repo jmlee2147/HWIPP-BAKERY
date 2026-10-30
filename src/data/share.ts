@@ -25,23 +25,23 @@ export const QR_TEXT =
   "스마트폰 카메라로 큐알코드를 촬영하면\n내가 만든 케이크를 저장할 수 있어요!";
 export const QR_HINT = "40초 후 자동으로 사라져요!";
 export const QR_TIP =
-  "케이크를 저장하고 소중한 상대에게도 전달해보면 어떨까요?";
+  "케이크를 저장하고\n소중한 상대에게도 전달해보면 어떨까요?";
 export const QR_HOME = "처음으로";
 // QR 화면은 누르든 말든 이 시간이 지나면 처음 화면으로 돌아간다.
 export const QR_TIMEOUT_MS = 40_000;
 
-export const QR_FRAME = { left: 173, top: 604, size: 720 };
-export const QR_CODE = { left: 237, top: 667, size: 593 };
+export const QR_FRAME = { left: 219.9, top: 643.35, size: 648.89 };
+export const QR_CODE = { left: 243.66, top: 667.1, size: 592.92 };
 
-export const TIP_BUBBLE_IMAGE = "/assets/ui/bubble/pill.svg";
+export const TIP_BUBBLE_IMAGE = "/assets/ui/bubble/pill-tall.svg";
 export const TIP_BUBBLE: SceneBox = {
   left: 224.63,
-  top: 1361.35,
-  width: 630.705,
-  height: 120.672,
+  top: 1361.36,
+  width: 630.71,
+  height: 168.72,
 };
 // 말풍선 꼬리를 뺀 몸통의 가운데에 글자를 둔다.
-export const TIP_TEXT_CENTER = { x: 540, y: 1400.2 };
+export const TIP_TEXT_CENTER = { x: 540.3, y: 1423 };
 
 // 화면 왼쪽 밖에서 고개를 내미는 캐릭터. 기울인 채로 화면 끝에 반쯤 걸친다.
 export const PEEK_BAKER = {
