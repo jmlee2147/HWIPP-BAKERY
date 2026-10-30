@@ -131,6 +131,8 @@ export const LETTERING_CATEGORIES: EditorCategory[] = [
       "lettering-i-love-u",
       "lettering-i-love-u-black",
       "plate-yellow-love",
+      "lettering-pearl-love",
+      "lettering-pearl-d-heart-gray",
       "lettering-promise",
       "lettering-like-you",
     ],

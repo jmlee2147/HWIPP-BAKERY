@@ -470,6 +470,9 @@ export const CAKE_DECORATIONS: CakeDecoration[] = [
   top("flower-stem", "flower", 534.8, 547.5, "center"),
   top("lettering-promise", "lettering", 284.8, 224, "center"),
   top("lettering-i-love-u-black", "lettering", 339.7, 103.9, "center"),
+  // 진주 알로 쓴 비즈 글자. 수정 화면에서 고르는 한 장짜리 그림이다.
+  top("lettering-pearl-love", "lettering", 300, 262.5, "center"),
+  top("lettering-pearl-d-heart-gray", "lettering", 232.9, 116.5, "center"),
   // 노란 판에 얼굴과 글자를 얹은 이름표. 판은 cream-oval-yellow와 같은 크기다.
   top("plate-yellow-love", "lettering", 362.8, 186.2, "center"),
   top("plate-yellow-good-luck", "lettering", 362.8, 186.2, "center"),
