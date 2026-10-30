@@ -315,6 +315,9 @@ const EMPTY_CAKE: CakeConfig = {
   decorations: [],
 };
 
+// 차례까지 견줘 볼 예시의 수.
+const CANDIDATES = 3;
+
 // 케이크를 가장 많이 닮은 완성 케이크 예시와 그 예시에서 바뀐 것으로 담는다. 예시로 담는 쪽이 길면 장식을 모두 담는다.
 function packCake(shared: CakeConfig) {
   const cake = forCurrentShape(shared);
@@ -326,7 +329,19 @@ function packCake(shared: CakeConfig) {
   };
   let best: Record<string, unknown> = full;
   let bestLength = JSON.stringify(full).length;
-  for (const preset of CAKE_PRESETS) {
+  // 모든 예시와 차례까지 견주면 느리다. 같은 장식을 많이 가진 예시 몇 개만 골라 견준다.
+  const mine = new Set(shared.decorations.map((item) => JSON.stringify(item)));
+  const candidates = CAKE_PRESETS.map((preset) => ({
+    preset,
+    shared: preset.cake.decorations.filter((item) =>
+      mine.has(JSON.stringify(item)),
+    ).length,
+  }))
+    .filter((one) => one.shared > 0)
+    .sort((a, b) => b.shared - a.shared)
+    .slice(0, CANDIDATES)
+    .map((one) => one.preset);
+  for (const preset of candidates) {
     const k = diffFromPreset(
       preset.cake.decorations,
       shared.decorations,

@@ -10,6 +10,9 @@ import {
   shareUrl,
 } from "./share";
 
+// 예시 97개를 세 모양으로 모두 그려 보는 테스트는 오래 걸린다.
+const HEAVY_MS = 30_000;
+
 // 되살리지 못했을 때 비교할 빈 케이크.
 const EMPTY: SharedCake["cake"] = {
   size: "large",
@@ -76,59 +79,67 @@ describe("공유 주소", () => {
     expect(Math.max(...lengths)).toBeLessThan(1500);
   });
 
-  it("장식을 손대지 않은 예시는 모양을 바꿔도 예시 id만 담고, 되돌리면 같은 케이크다", async () => {
-    for (const preset of CAKE_PRESETS) {
-      for (const shape of CAKE_SHAPES.map((one) => one.id)) {
-        const cake = {
-          ...preset.cake,
-          shape,
-          layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
-        };
-        const hash = await encodeSharedCake({ ...shared, cake });
-        expect(hash.length).toBeLessThan(300);
-        const back = await decodeSharedCake(`#${hash}`);
-        expect(cakeLayers(back?.cake ?? cake)).toEqual(cakeLayers(cake));
+  it(
+    "장식을 손대지 않은 예시는 모양을 바꿔도 예시 id만 담고, 되돌리면 같은 케이크다",
+    async () => {
+      for (const preset of CAKE_PRESETS) {
+        for (const shape of CAKE_SHAPES.map((one) => one.id)) {
+          const cake = {
+            ...preset.cake,
+            shape,
+            layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
+          };
+          const hash = await encodeSharedCake({ ...shared, cake });
+          expect(hash.length).toBeLessThan(300);
+          const back = await decodeSharedCake(`#${hash}`);
+          expect(cakeLayers(back?.cake ?? cake)).toEqual(cakeLayers(cake));
+        }
       }
-    }
-  });
+    },
+    HEAVY_MS,
+  );
 
-  it("예시에서 장식을 지우고 옮기고 새로 놓은 케이크도 짧게 담고, 되살리면 같은 모습이다", async () => {
-    for (const preset of CAKE_PRESETS) {
-      const base = preset.cake.decorations;
-      for (const shape of CAKE_SHAPES.map((one) => one.id)) {
-        // 관람객이 수정 화면에서 한 일: 장식 하나 지우기, 하나 옮기기(정수 좌표), 하나 새로 놓기.
-        const movable = base.findIndex(
-          (item) => item.x !== undefined && !item.only && !item.at,
-        );
-        const decorations = base
-          .filter((_, index) => index !== 0)
-          .map((item, index) =>
-            index + 1 === movable
-              ? { ...item, x: Math.round((item.x ?? 0) + 10), manual: true }
-              : item,
+  it(
+    "예시에서 장식을 지우고 옮기고 새로 놓은 케이크도 짧게 담고, 되살리면 같은 모습이다",
+    async () => {
+      for (const preset of CAKE_PRESETS) {
+        const base = preset.cake.decorations;
+        for (const shape of CAKE_SHAPES.map((one) => one.id)) {
+          // 관람객이 수정 화면에서 한 일: 장식 하나 지우기, 하나 옮기기(정수 좌표), 하나 새로 놓기.
+          const movable = base.findIndex(
+            (item) => item.x !== undefined && !item.only && !item.at,
           );
-        decorations.push({
-          id: "pearl",
-          x: 300,
-          y: 300,
-          scale: 0.4,
-          manual: true,
-        });
-        const cake = {
-          ...preset.cake,
-          shape,
-          layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
-          decorations,
-        };
+          const decorations = base
+            .filter((_, index) => index !== 0)
+            .map((item, index) =>
+              index + 1 === movable
+                ? { ...item, x: Math.round((item.x ?? 0) + 10), manual: true }
+                : item,
+            );
+          decorations.push({
+            id: "pearl",
+            x: 300,
+            y: 300,
+            scale: 0.4,
+            manual: true,
+          });
+          const cake = {
+            ...preset.cake,
+            shape,
+            layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
+            decorations,
+          };
 
-        const hash = await encodeSharedCake({ ...shared, cake });
-        const back = await decodeSharedCake(`#${hash}`);
+          const hash = await encodeSharedCake({ ...shared, cake });
+          const back = await decodeSharedCake(`#${hash}`);
 
-        expect(hash.length).toBeLessThan(500);
-        expect(cakeLayers(back?.cake ?? EMPTY)).toEqual(cakeLayers(cake));
+          expect(hash.length).toBeLessThan(500);
+          expect(cakeLayers(back?.cake ?? EMPTY)).toEqual(cakeLayers(cake));
+        }
       }
-    }
-  });
+    },
+    HEAVY_MS,
+  );
 
   it("장식을 고친 케이크는 지금 모양에 쓰는 값만 남겨 담아도 모습이 같다", () => {
     for (const preset of CAKE_PRESETS) {
