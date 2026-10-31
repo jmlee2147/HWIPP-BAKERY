@@ -32,6 +32,7 @@ import {
   type EditorCategory,
   type EditorTabId,
   ERASER_IMAGE,
+  editorBaseImages,
   SHAPE_ICONS,
   SHAPE_MARKS,
   SIZE_ICON_SCALES,
@@ -83,6 +84,12 @@ export const EditorScreen = () => {
   // 띄운 확인 팝업.
   const [asking, setAsking] = useState<keyof typeof POPUP_ORIGIN | null>(null);
   const history = useCakeHistory();
+
+  // 지금 모양의 바탕 그림을 색상별로 받아 둔다. 색상을 바꾸면 바로 보여야 한다.
+  // 모양을 바꾸면 그 모양의 것을 다시 받는다. 세 모양을 한꺼번에 받으면 열여덟 장이라 너무 많다.
+  useEffect(() => {
+    preloadImages(editorBaseImages(cake.shape));
+  }, [cake.shape]);
 
   // 장식과 글자 그림은 모두 합치면 수가 많아 결과 화면에서 미리 받지 않는다.
   // 고른 탭의 것만, 목록을 열기 전에 받아 둔다. 탭 하나는 31~55장이라 한 번에 붙잡는 수를 넘지 않는다.

@@ -1,3 +1,4 @@
+import { requestedCount } from "./preload";
 import type { Step } from "./steps";
 
 // 체험 도중 휴대폰 브라우저가 페이지를 닫아 버리는 일이 있다. 어디서 닫히는지 알아내려고
@@ -24,6 +25,8 @@ export interface StepMark {
   decodedMb?: number;
   nodes?: number;
   animations?: number;
+  // 체험을 시작한 뒤 지금까지 받기 시작한 그림의 수. 화면에 붙지 않은 것까지 센다.
+  fetched?: number;
 }
 
 export interface Run {
@@ -64,6 +67,7 @@ function measure() {
   for (const image of images)
     pixels += image.naturalWidth * image.naturalHeight;
   return {
+    fetched: requestedCount(),
     images: images.length,
     // 한 픽셀에 4바이트로 어림잡는다.
     decodedMb: Math.round((pixels * 4) / 1048576),
