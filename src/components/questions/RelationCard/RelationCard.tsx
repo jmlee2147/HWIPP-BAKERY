@@ -8,11 +8,15 @@ interface RelationCardProps
   extends Omit<ComponentPropsWithRef<"button">, "children"> {
   relation: Relation;
   face: "front" | "back";
+  // 뒤집을 수 있는 카드만 뒷면을 그린다. 뒷면 그림이 커서, 옆에 쌓인 카드까지 그리면
+  // 휴대폰 브라우저가 이 화면에서 페이지를 닫는다.
+  withBack?: boolean;
 }
 
 export const RelationCard = ({
   relation,
   face,
+  withBack = false,
   type = "button",
   className = "",
   ...props
@@ -28,11 +32,13 @@ export const RelationCard = ({
         className={`relative block size-full transition-transform duration-500 [transform-style:preserve-3d] motion-reduce:transition-none ${face === "back" ? "[transform:rotateY(180deg)]" : ""}`}
       >
         <img alt="" className={FACE} src={relation.front} />
-        <img
-          alt=""
-          className={`${FACE} [transform:rotateY(180deg)]`}
-          src={relation.back}
-        />
+        {withBack && (
+          <img
+            alt=""
+            className={`${FACE} [transform:rotateY(180deg)]`}
+            src={relation.back}
+          />
+        )}
       </span>
     </button>
   );

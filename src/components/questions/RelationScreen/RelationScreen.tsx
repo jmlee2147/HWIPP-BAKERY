@@ -48,14 +48,14 @@ export const RelationScreen = () => {
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#fffaf9]">
-      {RELATIONS.map((relation, index) => (
-        <img
-          key={relation.id}
-          alt=""
-          className={`absolute inset-0 size-full max-w-none transition-opacity duration-500 motion-reduce:transition-none ${flipped && index === active ? "opacity-100" : "opacity-0"}`}
-          src={relation.background}
-        />
-      ))}
+      {/* 뒤집었을 때 깔리는 사진. 고른 카드의 것만 그린다. 다섯 장을 겹쳐 두면 보이지 않는 넉 장까지
+          그림을 풀어 두게 되어, 휴대폰 브라우저가 이 화면에서 페이지를 닫는다. */}
+      <img
+        key={RELATIONS[active].id}
+        alt=""
+        className={`absolute inset-0 size-full max-w-none transition-opacity duration-500 motion-reduce:transition-none ${flipped ? "opacity-100" : "opacity-0"}`}
+        src={RELATIONS[active].background}
+      />
       {/* 뒷면 설명은 그림 안에 있다. 카드를 뒤집는 순간 화면을 읽어 주는 도구가 읽도록 글로도 알린다. */}
       <output className="sr-only">
         {flipped ? RELATIONS[active].description : ""}
@@ -83,6 +83,7 @@ export const RelationScreen = () => {
             <RelationCard
               relation={relation}
               face={isActive && flipped ? "back" : "front"}
+              withBack={isActive}
               aria-pressed={isActive ? flipped : undefined}
               onClick={() => {
                 if (isActive) {
