@@ -24,6 +24,7 @@ import {
   EDITOR_CATEGORIES,
   EDITOR_ERASE,
   EDITOR_HINT,
+  EDITOR_IMAGES,
   EDITOR_MENU_CHOICE,
   EDITOR_PACK_CHOICE,
   EDITOR_QUIT,
@@ -84,6 +85,11 @@ export const EditorScreen = () => {
   // 띄운 확인 팝업.
   const [asking, setAsking] = useState<keyof typeof POPUP_ORIGIN | null>(null);
   const history = useCakeHistory();
+
+  // 수정 화면에서 쓰는 창틀과 타일 그림. 결과 화면에서 미리 받지 않고 여기서 받는다.
+  useEffect(() => {
+    preloadImages(EDITOR_IMAGES);
+  }, []);
 
   // 지금 모양의 바탕 그림을 색상별로 받아 둔다. 색상을 바꾸면 바로 보여야 한다.
   // 모양을 바꾸면 그 모양의 것을 다시 받는다. 세 모양을 한꺼번에 받으면 열여덟 장이라 너무 많다.

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
 import { GlowBackground } from "@/components/common/GlowBackground/GlowBackground";
 import { ProgressBar } from "@/components/common/ProgressBar/ProgressBar";
@@ -10,8 +10,6 @@ import { TypedText } from "@/components/common/TypedText/TypedText";
 import { CakeBox } from "@/components/result/CakeBox/CakeBox";
 import { KeywordTags } from "@/components/result/KeywordTags/KeywordTags";
 import { DEFAULT_CAKE } from "@/data/cake";
-import { EDITOR_IMAGES } from "@/data/editor";
-import { MENU_PRELOAD } from "@/data/menu";
 import {
   RESULT_BOX_POSITION,
   RESULT_CHOICES,
@@ -20,9 +18,7 @@ import {
   RESULT_KEYWORD_TAGS,
   RESULT_TEXT,
 } from "@/data/result";
-import { SHARE_IMAGES } from "@/data/share";
 import { formatOrderDate, formatOrderNumber } from "@/lib/order";
-import { preloadImages } from "@/lib/preload";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
 // 화면이 나타난 뒤 말을 시작하기까지의 뜸.
@@ -42,10 +38,6 @@ export const ResultScreen = () => {
   const flavor = useExperienceStore((state) => state.flavor);
   const goTo = useExperienceStore((state) => state.goTo);
   const [date] = useState(() => formatOrderDate(new Date()));
-
-  useEffect(() => {
-    preloadImages([...EDITOR_IMAGES, ...SHARE_IMAGES, ...MENU_PRELOAD]);
-  }, []);
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#ffeff3]">
