@@ -15,13 +15,13 @@ import {
   MENU_IMAGES,
   MENU_PACK_CHOICE,
   MENU_POPUP_CAKE,
+  MENU_PRELOAD,
   MENU_TABS,
   MENU_TEXT,
   menuCakes,
 } from "@/data/menu";
-import { cakeLayers } from "@/lib/cake";
 import { type CakeCanvasPlacement, releaseCakeImages } from "@/lib/cakeCanvas";
-import { loadImages } from "@/lib/preload";
+import { preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -38,12 +38,8 @@ const LIST_HEIGHT = WINDOW.top + WINDOW.height - 3 - LIST_TOP;
 // 스크롤 위치를 알려 주는 막대. 목록의 맨 위에서는 top에, 맨 아래에서는 bottom에 닿는다.
 const SCROLL_BAR = { left: 952.5, top: 567, bottom: 1600, height: 126 };
 
-// 그림을 받는 동안 기다리는 가장 긴 시간. 이보다 오래 걸리면 다 받지 못했어도 목록을 보여 준다.
-const LOAD_TIMEOUT_MS = 6000;
 // 목록에서 한 번에 그리는 범위. 보이는 줄의 위아래로 이만큼 더 그려 두어, 밀 때 빈 칸이 보이지 않게 한다.
 const ROW_MARGIN = 1;
-// 그림을 모두 받아 둔 탭. 페이지가 열려 있는 동안은 다시 기다리지 않는다.
-const loadedShapes = new Set<CakeShapeId>();
 
 // 맨 위에서 보이는 줄의 범위.
 const firstRows = () => ({
@@ -62,15 +58,6 @@ const visibleRows = (list: HTMLElement) => {
     last: first + shown - 1 + ROW_MARGIN,
   };
 };
-
-// 탭에 보일 케이크들의 그림. 같은 부품은 한 번만 센다.
-const cakeImages = (shape: CakeShapeId) => [
-  ...new Set(
-    menuCakes(shape).flatMap((preset) =>
-      cakeLayers(preset.cake).map((layer) => layer.src),
-    ),
-  ),
-];
 
 // 칸 안에서 케이크를 어디에 얼마나 크게 그릴지. 바탕이 주어진 너비가 되도록 줄인다.
 const placement = (
@@ -130,26 +117,12 @@ export const MenuScreen = () => {
   // 그림이 700장을 넘어 휴대폰이 이 화면을 그리다 페이지를 닫는다.
   const [rows, setRows] = useState(firstRows);
   const listRef = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(() => loadedShapes.has(shape));
   const cakes = menuCakes(shape);
 
-  // 케이크는 부품 그림을 겹쳐 그려서, 받는 대로 보여 주면 장식이 먼저 떠다니다가 바탕이 늦게 뜬다.
-  // 탭의 그림을 모두 받을 때까지 목록을 가리고 기다리는 표시를 보여 준다.
+  // 메뉴판에서 쓰는 창틀과 탭 그림만 받아 둔다. 케이크는 칸마다 캔버스가 스스로 받아 그린다.
   useEffect(() => {
-    if (loadedShapes.has(shape)) {
-      setReady(true);
-      return;
-    }
-    setReady(false);
-    let alive = true;
-    void loadImages(cakeImages(shape), LOAD_TIMEOUT_MS).then((complete) => {
-      if (complete) loadedShapes.add(shape);
-      if (alive) setReady(true);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [shape]);
+    preloadImages(MENU_PRELOAD);
+  }, []);
 
   // 자리만 차지하는 빈 칸으로 둘지, 케이크를 그릴지 가린다.
   const drawn = (index: number) => {
@@ -229,7 +202,7 @@ export const MenuScreen = () => {
         }}
       >
         <ul
-          className={`flex flex-wrap transition-opacity duration-200 ${ready ? "opacity-100" : "opacity-0"}`}
+          className="flex flex-wrap"
           style={{
             paddingLeft: MENU_GRID.paddingLeft - 3,
             paddingTop: MENU_GRID.paddingTop,
@@ -275,12 +248,6 @@ export const MenuScreen = () => {
           ))}
         </ul>
       </div>
-      {!ready && (
-        <output
-          aria-label="케이크를 불러오는 중"
-          className="absolute left-[502.5px] top-[1042px] block size-[76px] animate-spin rounded-full border-[8px] border-blush border-t-cocoa"
-        />
-      )}
       <div
         aria-hidden
         className="absolute w-[12px] rounded-[20px] bg-cocoa"

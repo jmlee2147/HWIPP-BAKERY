@@ -31,11 +31,13 @@ import {
   QR_TEXT,
   QR_TIMEOUT_MS,
   QR_TIP,
+  SHARE_IMAGES,
   TIP_BUBBLE,
   TIP_BUBBLE_IMAGE,
   TIP_TEXT_CENTER,
 } from "@/data/share";
 import { formatOrderDate, formatOrderNumber } from "@/lib/order";
+import { preloadImages } from "@/lib/preload";
 import { type SharedCake, shareUrl } from "@/lib/share";
 import { playEffect } from "@/lib/sound";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
@@ -69,6 +71,11 @@ export const ShareScreen = ({ initialScene = "final" }: ShareScreenProps) => {
     date,
     orderNumber,
   };
+
+  // 이 화면에서 쓰는 그림. 결과 화면에서 미리 받지 않고 여기서 받는다.
+  useEffect(() => {
+    preloadImages(SHARE_IMAGES);
+  }, []);
 
   // QR 화면은 누르든 말든 정해진 시간이 지나면 다음 관람객을 위해 처음으로 돌아간다.
   useEffect(() => {
