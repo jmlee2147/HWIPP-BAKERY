@@ -45,6 +45,11 @@ export const CAKE_BOX = { width: 934, height: 1193 };
 // 하트 케이크의 바탕이 상자 바닥의 점무늬가 비어 있는 자리에 오도록 맞췄다.
 export const BOX_CAKE = { centerX: 435.5, bottom: 983.7, scale: 0.85 };
 
+// 케이크 그림이 넘어가면 안 되는 상자 안쪽 범위. 상자 그림의 왼쪽 위가 기준이다.
+// 예시 케이크 28종이 모두 줄지 않고 그대로 들어가는 선에서 잡았다.
+// 관람객이 장식을 옮기거나 키워 이 범위를 넘으면 케이크 전체를 그만큼 줄여 담는다.
+export const BOX_CAKE_AREA = { left: 75, right: 870, top: 170, bottom: 1060 };
+
 // 상자에서는 작은 케이크도 바닥을 넉넉히 채우도록 크기 차이를 줄여 보여 준다.
 export const BOX_CAKE_SIZES: Record<CakeSizeId, number> = {
   large: 1,

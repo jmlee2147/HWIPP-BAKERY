@@ -3,16 +3,41 @@ import { Cake } from "@/components/cake/Cake/Cake";
 import { CAKE_BOARD, type CakeConfig } from "@/data/cake";
 import {
   BOX_CAKE,
+  BOX_CAKE_AREA,
   BOX_CAKE_SIZES,
   BOX_STAMP_FRAME,
   BOX_STAMPS,
   CAKE_BOX,
   CAKE_BOX_IMAGE,
 } from "@/data/result";
-import { cakeScale } from "@/lib/cake";
+import { cakeExtent, cakeScale } from "@/lib/cake";
 
 // 뒷판의 기울기. 눕힌 좌표계 안에서 돌리고, 세로로 살짝 누르고, 비튼다.
 const STAMP_SLANT = "rotate(75deg) scaleY(0.97) skewX(-15deg)";
+
+// 상자에 담을 때의 배율. 판의 아래쪽 가운데를 기준으로 줄이므로,
+// 그 기준점에서 그림의 끝까지의 거리가 상자 안쪽까지의 거리를 넘지 않게 한다.
+export function boxCakeScale(cake: CakeConfig): number {
+  const extent = cakeExtent(cake);
+  const centerX = CAKE_BOARD.width / 2;
+  const room = [
+    [BOX_CAKE.centerX - BOX_CAKE_AREA.left, centerX - extent.left],
+    [
+      BOX_CAKE_AREA.right - BOX_CAKE.centerX,
+      extent.left + extent.width - centerX,
+    ],
+    [BOX_CAKE.bottom - BOX_CAKE_AREA.top, CAKE_BOARD.height - extent.top],
+    [
+      BOX_CAKE_AREA.bottom - BOX_CAKE.bottom,
+      extent.top + extent.height - CAKE_BOARD.height,
+    ],
+  ];
+  // 기준점에서 그림이 그 방향으로 뻗지 않으면 그 쪽은 넘칠 일이 없다.
+  const limits = room
+    .filter(([, reach]) => reach > 0)
+    .map(([space, reach]) => space / reach);
+  return Math.min(BOX_CAKE.scale * BOX_CAKE_SIZES[cake.size], ...limits);
+}
 
 interface CakeBoxProps extends ComponentPropsWithRef<"div"> {
   cake: CakeConfig;
@@ -84,7 +109,7 @@ export const CakeBox = ({
           style={{
             left: BOX_CAKE.centerX - CAKE_BOARD.width / 2,
             top: BOX_CAKE.bottom - CAKE_BOARD.height,
-            transform: `scale(${(BOX_CAKE.scale * BOX_CAKE_SIZES[cake.size]) / cakeScale(cake.size)})`,
+            transform: `scale(${boxCakeScale(cake) / cakeScale(cake.size)})`,
           }}
         >
           <Cake cake={cake} />

@@ -2,11 +2,18 @@
 
 ## 상태
 
-- Accepted (2026-10-21 실기기 확인)
+- Accepted (2026-10-21 1세대 확인, 2026-11-01 2세대 확인)
 
 ## 맥락
 
-전시 키오스크는 LG StanbyME 2(webOS 24, Chromium 108로 알려짐)지만, 지금 시험에 쓰는 기기는 1세대 StanbyME다. 1세대 기본 브라우저에서 `/check.html`로 확인한 값은 Chromium 87(`SmartTV/10.0`, webOS 22), viewport 720x1273, devicePixelRatio 1.5다.
+전시 키오스크는 LG StanbyME 2지만, 지금 시험에 쓰는 기기는 1세대 StanbyME다. 두 기기를 `/check.html`로 확인한 값은 아래와 같다.
+
+| | 1세대 | 2세대(전시 기기) |
+| --- | --- | --- |
+| 엔진 | Chromium 87 | Chromium 108 |
+| userAgent | `Mozilla/5.0 (Web0S; Linux/SmartTV) ... Chrome/87...` | `Mozilla/5.0 (Linux; NetCast; U) ... Chrome/108... SmartTV/10.0 Colt/2.0` |
+| viewport | 720x1273 | 960x1698 |
+| devicePixelRatio | 1.5 | 1.5 |
 
 처음에는 기준선을 108로 잡았다. 그 결과 1세대에서는 Next.js 런타임의 클래스 static 블록(94+)을 읽지 못해 JS가 통째로 멈추고 흰 화면만 보였다. Tailwind 기본 스타일의 `:where()`(88+) 규칙도 버려져 버튼에 기본 회색 바탕이 생긴다.
 
@@ -31,3 +38,4 @@
 - Tailwind 기본 스타일 가운데 `:where()`로 묶인 규칙이 필요하면 `src/app/globals.css`에 `:where()` 없이 다시 적는다.
 - 라이브러리를 올리거나 들이면 빌드 결과(`.next/static/chunks`)에 87이 못 읽는 문법이 있는지 확인한다.
 - 실기기 엔진은 배포 주소의 `/check.html`로 확인한다. React 없이 동작해 사이트 JS가 멈춰도 보인다.
+- 기기를 userAgent로 가릴 때는 두 세대를 모두 받아야 한다. 1세대에는 `Web0S`가, 2세대에는 `NetCast`가 들어가고 겹치는 낱말이 없다. 한쪽만 보면 전시 기기에서 그 경로가 통째로 꺼진다 (`src/lib/sound.ts`).

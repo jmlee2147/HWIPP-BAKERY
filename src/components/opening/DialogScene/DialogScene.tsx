@@ -8,6 +8,7 @@ import {
 } from "@/components/common/ProgressBar/ProgressBar";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
 import { StickerGroup } from "@/components/common/StickerGroup/StickerGroup";
+import { TouchGuide } from "@/components/common/TouchGuide/TouchGuide";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import type { DialogSceneData } from "@/data/opening";
 
@@ -78,12 +79,17 @@ export const DialogScene = ({
       ))}
       <Baker frames={scene.baker} />
       {onAdvance && (
-        <button
-          type="button"
-          aria-label="다음"
-          className="absolute inset-0 size-full"
-          onClick={handleTap}
-        />
+        <>
+          <TouchGuide className="absolute left-0 top-[1718px]">
+            화면을 터치해 주세요
+          </TouchGuide>
+          <button
+            type="button"
+            aria-label="다음"
+            className="absolute inset-0 size-full"
+            onClick={handleTap}
+          />
+        </>
       )}
       {children}
     </section>

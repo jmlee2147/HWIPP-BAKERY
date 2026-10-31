@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef } from "react";
+import { type ComponentPropsWithRef, memo } from "react";
 import { CAKE_BOARD, type CakeConfig } from "@/data/cake";
 import { type CakeLayer, cakeLayers, cakeScale } from "@/lib/cake";
 
@@ -16,7 +16,9 @@ interface CakeProps extends ComponentPropsWithRef<"div"> {
 }
 
 // 케이크 구성 데이터만 받아 부품을 겹쳐 그린다. 크기가 달라져도 차지하는 자리는 같고, 판의 아래쪽 가운데를 기준으로 줄어든다.
-export const Cake = ({ cake, className = "", ...props }: CakeProps) => {
+// 부품을 겹칠 순서를 셈하는 일이 가벼운 편이 아니라서, 받은 구성이 그대로면 다시 그리지 않는다.
+// 메뉴판은 예시를 수십 개 늘어놓고, 목록을 밀 때마다 화면이 다시 그려진다.
+export const Cake = memo(({ cake, className = "", ...props }: CakeProps) => {
   return (
     <div
       aria-hidden
@@ -46,4 +48,5 @@ export const Cake = ({ cake, className = "", ...props }: CakeProps) => {
       </div>
     </div>
   );
-};
+});
+Cake.displayName = "Cake";

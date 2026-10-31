@@ -294,6 +294,20 @@ describe("cakeLayers", () => {
     ]);
   });
 
+  it("지금 모양에서 빠지는 장식이 앞에 있어도 차례는 원래 목록을 가리킨다", () => {
+    const layers = cakeLayers({
+      shape: "round",
+      color: "white",
+      decorations: [
+        { id: "flower-rose", x: 300, y: 350, only: ["heart"] },
+        { id: "flower-rose", x: 300, y: 350 },
+      ],
+    });
+
+    // 하트에서만 그리는 첫 장식은 원형에서 빠지지만, 남은 장식의 차례는 1 그대로다.
+    expect(layers.map((layer) => layer.index)).toEqual([undefined, 1]);
+  });
+
   it("돌리기와 뒤집기는 그림에 그대로 전해지고, 주지 않으면 붙지 않는다", () => {
     const layers = cakeLayers(
       {

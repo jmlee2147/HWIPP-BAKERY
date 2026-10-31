@@ -31,7 +31,14 @@ export const QR_HOME = "처음으로";
 export const QR_TIMEOUT_MS = 40_000;
 
 export const QR_FRAME = { left: 219.9, top: 643.35, size: 648.89 };
-export const QR_CODE = { left: 243.66, top: 667.1, size: 592.92 };
+const QR_CODE_SIZE = 592.92;
+// 흰 틀 안에서 상하좌우 여백이 같도록 자리를 계산한다.
+const QR_CODE_MARGIN = (QR_FRAME.size - QR_CODE_SIZE) / 2;
+export const QR_CODE = {
+  left: QR_FRAME.left + QR_CODE_MARGIN,
+  top: QR_FRAME.top + QR_CODE_MARGIN,
+  size: QR_CODE_SIZE,
+};
 
 export const TIP_BUBBLE_IMAGE = "/assets/ui/bubble/pill-tall.svg";
 export const TIP_BUBBLE: SceneBox = {
