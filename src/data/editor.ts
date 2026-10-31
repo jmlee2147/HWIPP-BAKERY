@@ -544,7 +544,7 @@ export const BROWSER_IMAGES = {
   face: browser("face.svg"),
 };
 
-// 모양과 색상을 바꾸면 바로 보여야 하므로 케이크 바탕 그림을 모두 받아 둔다.
+// 수정 화면의 틀. 모양과 색상을 바꾸면 바로 보여야 하므로 케이크 바탕 그림을 모두 넣는다.
 export const EDITOR_IMAGES = [
   ...Object.values(BROWSER_IMAGES),
   ...Object.values(SHAPE_ICONS).map((icon) => icon.src),
@@ -556,15 +556,5 @@ export const EDITOR_IMAGES = [
   ...Object.values(CONTROL_IMAGES),
   ...Object.values(EDITOR_CATEGORIES).flatMap((categories) =>
     categories.map((category) => category.icon.src),
-  ),
-  // 목록을 열거나 모양을 바꿨을 때 빈 칸이 보이지 않도록 장식과 글자 그림도 받아 둔다.
-  ...new Set(
-    Object.values(EDITOR_CATEGORIES).flatMap((categories) =>
-      categories.flatMap((category) =>
-        CAKE_SHAPES.flatMap((shape) =>
-          decorationChoices(category, shape.id).map((choice) => choice.src),
-        ),
-      ),
-    ),
   ),
 ];
