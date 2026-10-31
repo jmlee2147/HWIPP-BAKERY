@@ -38,6 +38,7 @@ import {
 } from "@/data/editor";
 import { useCakeHistory } from "@/hooks/editor/useCakeHistory";
 import { heldLayers, looseHandleKey, lostInShape } from "@/lib/cake";
+import { preloadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
@@ -82,6 +83,18 @@ export const EditorScreen = () => {
   // 띄운 확인 팝업.
   const [asking, setAsking] = useState<keyof typeof POPUP_ORIGIN | null>(null);
   const history = useCakeHistory();
+
+  // 장식과 글자 그림은 모두 합치면 수가 많아 결과 화면에서 미리 받지 않는다.
+  // 고른 탭의 것만, 목록을 열기 전에 받아 둔다. 탭 하나는 31~55장이라 한 번에 붙잡는 수를 넘지 않는다.
+  useEffect(() => {
+    const list = EDITOR_CATEGORIES[tab];
+    if (!list) return;
+    preloadImages(
+      list.flatMap((item) =>
+        decorationChoices(item, cake.shape).map((choice) => choice.src),
+      ),
+    );
+  }, [tab, cake.shape]);
 
   useEffect(() => {
     if (!category || listOpen) return;
