@@ -54,6 +54,9 @@ const loadSound = () => import("./sound");
 
 const WEBOS_UA =
   "Mozilla/5.0 (Web0S; Linux/SmartTV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36";
+// 전시에 쓰는 StanbyME 2. 1세대와 달리 Web0S 대신 NetCast가 들어간다.
+const STANBYME2_UA =
+  "Mozilla/5.0 (Linux; NetCast; U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 SmartTV/10.0 Colt/2.0";
 const IPHONE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 
@@ -137,6 +140,18 @@ describe("sound", () => {
     for (let index = 0; index < 50; index += 1) sound.playTalk();
 
     expect(effectElements()).toHaveLength(4);
+  });
+
+  it("StanbyME 2도 Web Audio로 효과음을 내, 배경음악을 멈추지 않는다", async () => {
+    setUserAgent(STANBYME2_UA);
+    const { sound, context } = await preloaded();
+    context.state = "running";
+
+    sound.playEffect("cardFlip");
+    sound.playEffect("cardFlip");
+
+    expect(FakeAudioContext.started).toHaveLength(2);
+    expect(effectElements()).toHaveLength(0);
   });
 
   it("webOS가 아닌 기기는 Web Audio 없이 미리 만든 오디오 요소로만 효과음을 낸다", async () => {
