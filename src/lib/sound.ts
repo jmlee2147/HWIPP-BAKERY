@@ -23,12 +23,13 @@ declare global {
 }
 
 // 효과음은 기기에 따라 두 방식으로 낸다.
-// - 키오스크(webOS): Web Audio. 오디오 요소를 되감아 다시 틀면 소리가 났다 안 났다 하고,
-//   요소가 많으면 배경음악까지 나오지 않는다.
+// - 키오스크(LG TV 브라우저): Web Audio. 오디오 요소를 되감아 다시 틀면 소리가 났다 안 났다 하고,
+//   효과음을 요소로 내면 재생되던 배경음악이 멈춘다.
 // - 그 밖의 기기: 오디오 요소. iPhone은 Web Audio로 효과음을 내면 체험 중에 페이지가 종료된다.
+// 1세대 StanbyME는 userAgent에 Web0S가, 2세대는 NetCast가 들어간다. 둘 다 같은 TV 브라우저다.
 const canUseWebAudio = () =>
   typeof AudioContext !== "undefined" &&
-  /web0s|webos/i.test(navigator.userAgent);
+  /web0s|webos|netcast/i.test(navigator.userAgent);
 
 let context: AudioContext | null = null;
 const buffers: Partial<Record<EffectName, AudioBuffer>> = {};
