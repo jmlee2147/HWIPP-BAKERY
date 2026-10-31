@@ -20,11 +20,15 @@ reviews:
   path_instructions:
     - path: "src/**/*.{ts,tsx,css}"
       instructions: |
-        이 앱은 전시장 세로 터치 키오스크(LG StanbyME 2, webOS 24)에서 무인으로 구동되고 관람객 휴대폰에서도 열립니다.
-        브라우저 기준선은 Chromium 108입니다. 아래를 위반하면 지적합니다.
+        이 앱은 전시장 세로 터치 키오스크에서 무인으로 구동되고 관람객 휴대폰에서도 열립니다.
+        전시 기기는 LG StanbyME 2(Chromium 108)지만 시험에 쓰는 1세대 StanbyME가 Chromium 87이라,
+        브라우저 기준선은 Chromium 87입니다. 아래를 위반하면 지적합니다.
 
-        - Chromium 108에서 동작하지 않는 기능 사용: oklch(), color-mix(), CSS nesting, @starting-style,
-          문서 간 View Transitions, scroll-driven animations, linear() easing 등.
+        - Chromium 87에서 동작하지 않는 기능 사용: :where(), :is()(88), aspect-ratio(88),
+          Array.prototype.at(92), Object.hasOwn(93), structuredClone(98), CSS rotate/scale 속성(104),
+          oklch(), color-mix(), CSS nesting, @starting-style, View Transitions,
+          scroll-driven animations, linear() easing 등.
+        - 키보드 내비게이션은 지적 대상이 아닙니다. 터치 전용 기기라 키보드가 붙지 않습니다.
         - Tailwind CSS는 v3.4입니다. v4 문법(@theme, @import "tailwindcss", @tailwindcss/postcss)을 쓰면 안 됩니다.
         - 화면은 1080x1920 고정 좌표계이고 Stage 컴포넌트가 배율을 정합니다.
           화면 안에서 vw, vh, 미디어 쿼리, 반응형 분기로 크기를 잡으면 안 됩니다. 시안의 px 값을 그대로 씁니다.
