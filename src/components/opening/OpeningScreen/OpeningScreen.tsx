@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ChoiceButton } from "@/components/common/ChoiceButton/ChoiceButton";
 import { HomeButton } from "@/components/common/HomeButton/HomeButton";
 import { SpeechBubble } from "@/components/common/SpeechBubble/SpeechBubble";
+import { TouchGuide } from "@/components/common/TouchGuide/TouchGuide";
 import { TypedText } from "@/components/common/TypedText/TypedText";
 import { DialogScene } from "@/components/opening/DialogScene/DialogScene";
 import { StoreSign } from "@/components/opening/StoreSign/StoreSign";
@@ -111,9 +112,9 @@ export const OpeningScreen = ({
             <TypedText text={STORE_TEXT} startDelayMs={500} />
           </SpeechBubble>
           <StoreSign className="absolute left-[356px] top-[462px]" />
-          <p className="absolute left-0 top-[1718px] w-full text-center font-stardust text-[40px] font-bold leading-[93px] tracking-[-0.025em] text-white [text-shadow:1px_1px_7.7px_#c12f7d]">
+          <TouchGuide className="absolute left-0 top-[1718px]">
             화면을 터치해 들어가기
-          </p>
+          </TouchGuide>
           <button
             type="button"
             aria-label="가게에 들어가기"

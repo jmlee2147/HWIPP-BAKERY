@@ -15,6 +15,8 @@ import { BLACK_DROPS, type DropSpot, WHITE_DROPS } from "./drops";
 export const EDITOR_TEXT =
   "어떤 걸 수정하면 좋을까요?\n각 항목을 선택하여 자유롭게 커스텀 해주세요!";
 
+export const EDITOR_HINT = "기존 장식을 클릭하면 개별적으로 편집할 수 있어요";
+
 export const EDITOR_PACK_CHOICE = "이대로 포장할래!";
 export const EDITOR_MENU_CHOICE = "menu";
 

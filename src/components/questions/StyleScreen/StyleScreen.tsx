@@ -16,10 +16,8 @@ const QUESTION =
   "그분의 평소 스타일이나 성격은 어떤 느낌인가요?\n디자인의 힌트가 될 거예요!";
 // 화면이 나타난 뒤 말을 시작하기까지의 뜸.
 const TYPING_DELAY_MS = 500;
-// 한 줄 요약 창은 스타일 창이 뜰 때 한 번 보였다가 사라진다.
+// 한 줄 요약 창은 한 번 보였다가 사라진다.
 const SUMMARY_SHOW_MS = 2500;
-// 스타일 창이 다 뜬 다음에 요약 창이 나오도록 조금 기다린다.
-const SUMMARY_DELAY_MS = 600;
 // 선택하기를 누르면 요약 창을 한 번 더 보여 준 뒤 다음 단계로 넘어간다.
 const CONFIRM_SHOW_MS = 1400;
 
@@ -46,8 +44,6 @@ export const StyleScreen = () => {
     );
   });
   const [summaryOpen, setSummaryOpen] = useState(false);
-  // 말풍선의 말이 끝나기 전에는 요약 창을 띄우지 않는다.
-  const [typed, setTyped] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const style = STYLES[active];
 
@@ -55,18 +51,10 @@ export const StyleScreen = () => {
     preloadImages(PARTY_IMAGES);
   }, []);
 
-  // 말이 끝난 뒤, 그리고 스타일을 바꿀 때마다(active가 바뀐다) 잠시 뒤 요약 창이 한 번 뜬다.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: active는 타이머를 다시 시작시키는 용도다
-  useEffect(() => {
-    if (!typed) return;
-    const timer = window.setTimeout(
-      () => setSummaryOpen(true),
-      SUMMARY_DELAY_MS,
-    );
-    return () => window.clearTimeout(timer);
-  }, [active, typed]);
+  // 요약 창은 저절로 뜨지 않는다. 폴더를 넘길 때마다 뜨면 읽을 거리가 많아 정신없어진다.
+  // 선택하기를 눌렀을 때와 이름을 눌렀을 때만 뜬다.
 
-  // 요약 창이 뜰 때마다 소리를 낸다. 자동으로 뜰 때와 눌러서 띄울 때 모두 해당한다.
+  // 요약 창이 뜰 때마다 소리를 낸다.
   useEffect(() => {
     if (summaryOpen) playEffect("popUp");
   }, [summaryOpen]);
@@ -118,12 +106,7 @@ export const StyleScreen = () => {
         hint="폴더를 클릭해 확인해보세요"
         className="absolute left-[55px] top-[149px]"
       >
-        <TypedText
-          text={QUESTION}
-          startDelayMs={TYPING_DELAY_MS}
-          sound
-          onDone={() => setTyped(true)}
-        />
+        <TypedText text={QUESTION} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
       <QuestionProgress step={2} className="absolute left-[75px] top-[58px]" />
       {STYLES.map((item, index) => (
@@ -150,7 +133,7 @@ export const StyleScreen = () => {
       ))}
       <div
         key={style.id}
-        className="absolute left-[52px] top-[677px] animate-window-pop touch-none motion-reduce:animate-none"
+        className="absolute left-[52px] top-[677px] animate-window-pop [touch-action:pan-x] motion-reduce:animate-none"
         style={{
           transformOrigin: `${folderCenter - WINDOW_LEFT}px ${FOLDER_CENTER_Y - WINDOW_TOP}px`,
         }}
