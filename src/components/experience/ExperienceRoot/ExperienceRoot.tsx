@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import type { ComponentType } from "react";
+import { type ComponentType, useEffect } from "react";
 import { AnalysisScreen } from "@/components/analysis/AnalysisScreen/AnalysisScreen";
 import { HomeButton } from "@/components/common/HomeButton/HomeButton";
 import { EditorScreen } from "@/components/editor/EditorScreen/EditorScreen";
@@ -15,6 +15,7 @@ import { MenuScreen } from "@/components/result/MenuScreen/MenuScreen";
 import { ResultScreen } from "@/components/result/ResultScreen/ResultScreen";
 import { ShareScreen } from "@/components/share/ShareScreen/ShareScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
+import { closeRun, markStep, startRun } from "@/lib/diagnostics";
 import { FIRST_STEP, type Step } from "@/lib/steps";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
@@ -45,6 +46,19 @@ export const ExperienceRoot = () => {
   const Screen = SCREENS[step];
 
   useIdleReset(IDLE_RESET_MS, reset, step !== FIRST_STEP);
+
+  // 휴대폰 브라우저가 체험 도중 페이지를 닫는 일이 있어, 어디까지 갔는지 남긴다. /device에서 본다.
+  useEffect(() => {
+    startRun();
+    const close = () => closeRun();
+    window.addEventListener("pagehide", close);
+    return () => window.removeEventListener("pagehide", close);
+  }, []);
+
+  // 단계에 들어설 때 그 시점의 상태를 잰다. 재는 일은 단계가 바뀔 때만 한다.
+  useEffect(() => {
+    markStep(step);
+  }, [step]);
 
   return (
     <>
