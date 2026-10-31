@@ -37,7 +37,6 @@ const loading: Partial<Record<EffectName, boolean>> = {};
 let listening = false;
 
 const elements: Partial<Record<EffectName, HTMLAudioElement[]>> = {};
-const elementIndex: Partial<Record<EffectName, number>> = {};
 
 const canPlay = () => typeof Audio !== "undefined";
 
@@ -128,13 +127,35 @@ const getElements = (name: EffectName) => {
   return created;
 };
 
+// 소리가 끝날 때까지 그 요소를 다시 쓰지 않는다. 재생이 밀리는 기기에서는
+// paused가 아직 true인 채로 시작을 기다리고 있을 수 있어, 길이로도 함께 막는다.
+const busyUntil = new WeakMap<HTMLAudioElement, number>();
+// 길이를 아직 모를 때 잡아 두는 시간.
+const UNKNOWN_SOUND_MS = 200;
+
 const playElement = (name: EffectName) => {
   const pool = getElements(name);
-  const index = elementIndex[name] ?? 0;
-  elementIndex[name] = index + 1;
-  const audio = pool[index % pool.length];
-  rewind(audio);
-  play(audio);
+  // 조작할 때마다 한 번 나는 소리는 잇따라 날 일이 드물다. 그대로 되감아 다시 튼다.
+  if (pool.length === 1) {
+    rewind(pool[0]);
+    play(pool[0]);
+    return;
+  }
+  const now = Date.now();
+  // 말소리처럼 잇따라 나는 소리는 재생 중인 요소를 되감지 않는다. 되감으면 재생이 밀려 쌓이고,
+  // 나중에 한꺼번에 터진다. 쓸 수 있는 요소가 없으면 이번 소리는 거른다.
+  // 하나 빠지는 편이 몰아서 나는 것보다 낫다.
+  const free = pool.find(
+    (audio) => audio.paused && (busyUntil.get(audio) ?? 0) <= now,
+  );
+  if (!free) return;
+  const length =
+    Number.isFinite(free.duration) && free.duration > 0
+      ? free.duration * 1000
+      : UNKNOWN_SOUND_MS;
+  busyUntil.set(free, now + length);
+  rewind(free);
+  play(free);
 };
 
 const createBgm = () => {

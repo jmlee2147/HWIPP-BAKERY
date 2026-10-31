@@ -154,6 +154,25 @@ describe("sound", () => {
     expect(effectElements()).toHaveLength(0);
   });
 
+  it("말소리는 재생 중인 요소를 되감지 않고 건너뛴다", async () => {
+    // 되감아 다시 틀면 재생이 밀려 쌓이고, 타이핑이 끝난 뒤 한꺼번에 터진다.
+    setUserAgent(IPHONE_UA);
+    const sound = await loadSound();
+    sound.preloadSounds();
+
+    // 풀에 있는 수보다 많이 불러도, 재생 중인 것은 다시 쓰지 않는다.
+    for (let index = 0; index < 20; index += 1) sound.playTalk();
+
+    const talks = effectElements().filter((audio) =>
+      audio.src.includes("talk"),
+    );
+    const played = talks.filter((audio) => audio.play.mock.calls.length > 0);
+
+    expect(talks).toHaveLength(4);
+    expect(played).toHaveLength(4);
+    for (const audio of talks) expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
   it("webOS가 아닌 기기는 Web Audio 없이 미리 만든 오디오 요소로만 효과음을 낸다", async () => {
     setUserAgent(IPHONE_UA);
     const sound = await loadSound();

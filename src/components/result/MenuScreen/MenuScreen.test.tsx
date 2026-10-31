@@ -30,6 +30,8 @@ vi.mock("@/lib/cake", async (importOriginal) => {
 });
 
 const cakeButtons = () => screen.getAllByRole("button", { name: /크게 보기$/ });
+// 목록의 칸. 보이지 않는 줄은 케이크를 그리지 않고 자리만 차지한다.
+const cells = () => document.querySelectorAll("li");
 
 describe("MenuScreen", () => {
   beforeEach(() => {
@@ -43,16 +45,24 @@ describe("MenuScreen", () => {
 
   it("처음에는 원형 예시를, 탭을 누르면 그 모양의 예시를 보여 준다", () => {
     render(<MenuScreen />);
-    expect(cakeButtons()).toHaveLength(menuCakes("round").length);
+    expect(cells()).toHaveLength(menuCakes("round").length);
 
     fireEvent.click(screen.getByRole("tab", { name: "하트 케이크" }));
 
-    expect(cakeButtons()).toHaveLength(menuCakes("heart").length);
+    expect(cells()).toHaveLength(menuCakes("heart").length);
     expect(
       screen
         .getByRole("tab", { name: "하트 케이크" })
         .getAttribute("aria-selected"),
     ).toBe("true");
+  });
+
+  it("보이지 않는 줄의 케이크는 그리지 않는다", () => {
+    // 예시 하나가 부품을 수십 장 겹쳐 그려서, 모두 그리면 휴대폰이 이 화면을 그리다 페이지를 닫는다.
+    render(<MenuScreen />);
+
+    expect(cakeButtons().length).toBeLessThan(cells().length);
+    expect(cakeButtons().length).toBeGreaterThan(0);
   });
 
   it("탭마다 나누어 보여 주면 예시가 모두 한 번씩 나온다", () => {

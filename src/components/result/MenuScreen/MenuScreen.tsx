@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Cake } from "@/components/cake/Cake/Cake";
 import { GlowBackground } from "@/components/common/GlowBackground/GlowBackground";
+import { CakeThumb } from "@/components/result/CakeThumb/CakeThumb";
 import { CAKE_BOARD, CAKE_SHAPES, type CakeShapeId } from "@/data/cake";
 import type { CakePreset } from "@/data/cakePresets";
 import {
@@ -19,6 +20,7 @@ import {
   menuCakes,
 } from "@/data/menu";
 import { cakeLayers } from "@/lib/cake";
+import { type CakeCanvasPlacement, releaseCakeImages } from "@/lib/cakeCanvas";
 import { loadImages } from "@/lib/preload";
 import { playEffect } from "@/lib/sound";
 import { useExperienceStore } from "@/stores/useExperienceStore";
@@ -32,13 +34,34 @@ const BASE_CENTER = {
 // 목록 창. 케이크 목록은 이 창 안에서 안내 문구 아래부터 위아래로 밀어 본다.
 const WINDOW = { left: 101.5, top: 320, width: 874, height: 1317 };
 const LIST_TOP = 519;
+const LIST_HEIGHT = WINDOW.top + WINDOW.height - 3 - LIST_TOP;
 // 스크롤 위치를 알려 주는 막대. 목록의 맨 위에서는 top에, 맨 아래에서는 bottom에 닿는다.
 const SCROLL_BAR = { left: 952.5, top: 567, bottom: 1600, height: 126 };
 
 // 그림을 받는 동안 기다리는 가장 긴 시간. 이보다 오래 걸리면 다 받지 못했어도 목록을 보여 준다.
 const LOAD_TIMEOUT_MS = 6000;
+// 목록에서 한 번에 그리는 범위. 보이는 줄의 위아래로 이만큼 더 그려 두어, 밀 때 빈 칸이 보이지 않게 한다.
+const ROW_MARGIN = 1;
 // 그림을 모두 받아 둔 탭. 페이지가 열려 있는 동안은 다시 기다리지 않는다.
 const loadedShapes = new Set<CakeShapeId>();
+
+// 맨 위에서 보이는 줄의 범위.
+const firstRows = () => ({
+  first: 0,
+  last: Math.ceil(LIST_HEIGHT / MENU_GRID.cellHeight) - 1 + ROW_MARGIN,
+});
+
+// 지금 보이는 줄의 범위. 위아래로 ROW_MARGIN만큼 더 잡는다.
+const visibleRows = (list: HTMLElement) => {
+  const first = Math.floor(list.scrollTop / MENU_GRID.cellHeight);
+  // 아직 자리를 잡기 전에는 높이가 0으로 나온다. 그때는 창 높이로 센다.
+  const height = list.clientHeight || LIST_HEIGHT;
+  const shown = Math.ceil(height / MENU_GRID.cellHeight);
+  return {
+    first: Math.max(0, first - ROW_MARGIN),
+    last: first + shown - 1 + ROW_MARGIN,
+  };
+};
 
 // 탭에 보일 케이크들의 그림. 같은 부품은 한 번만 센다.
 const cakeImages = (shape: CakeShapeId) => [
@@ -48,6 +71,24 @@ const cakeImages = (shape: CakeShapeId) => [
     ),
   ),
 ];
+
+// 칸 안에서 케이크를 어디에 얼마나 크게 그릴지. 바탕이 주어진 너비가 되도록 줄인다.
+const placement = (
+  preset: CakePreset,
+  centerX: number,
+  centerY: number,
+  baseWidth: number,
+): CakeCanvasPlacement => {
+  const shape =
+    CAKE_SHAPES.find((item) => item.id === preset.cake.shape) ?? CAKE_SHAPES[0];
+  return {
+    centerX,
+    centerY,
+    scale: baseWidth / shape.width,
+    baseCenterX: BASE_CENTER.x,
+    baseCenterY: BASE_CENTER.y,
+  };
+};
 
 // 바탕의 가운데를 주어진 자리에 맞추고, 바탕이 주어진 너비가 되도록 케이크를 줄여 그린다.
 const PlacedCake = ({
@@ -85,6 +126,9 @@ export const MenuScreen = () => {
   const [shape, setShape] = useState<CakeShapeId>("round");
   const [picked, setPicked] = useState<CakePreset | null>(null);
   const [scrolled, setScrolled] = useState(0);
+  // 지금 그려 둘 줄의 범위. 예시 하나가 부품을 수십 장 겹쳐 그려서, 서른 개를 모두 그리면
+  // 그림이 700장을 넘어 휴대폰이 이 화면을 그리다 페이지를 닫는다.
+  const [rows, setRows] = useState(firstRows);
   const listRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(() => loadedShapes.has(shape));
   const cakes = menuCakes(shape);
@@ -107,11 +151,21 @@ export const MenuScreen = () => {
     };
   }, [shape]);
 
+  // 자리만 차지하는 빈 칸으로 둘지, 케이크를 그릴지 가린다.
+  const drawn = (index: number) => {
+    const row = Math.floor(index / MENU_GRID.columns);
+    return row >= rows.first && row <= rows.last;
+  };
+
+  // 메뉴판을 떠나면 캔버스에 그리려고 붙잡아 둔 부품 그림을 놓는다.
+  useEffect(() => releaseCakeImages, []);
+
   const changeShape = (next: CakeShapeId) => {
     if (next === shape) return;
     playEffect("choice");
     setShape(next);
     setScrolled(0);
+    setRows(firstRows());
     if (listRef.current) listRef.current.scrollTop = 0;
   };
 
@@ -171,6 +225,7 @@ export const MenuScreen = () => {
           const list = event.currentTarget;
           const room = list.scrollHeight - list.clientHeight;
           setScrolled(room > 0 ? list.scrollTop / room : 0);
+          setRows(visibleRows(list));
         }}
       >
         <ul
@@ -192,22 +247,30 @@ export const MenuScreen = () => {
                 height: MENU_GRID.cellHeight,
               }}
             >
-              <button
-                type="button"
-                aria-label={`${index + 1}번 케이크 크게 보기`}
-                className="absolute inset-0 size-full transition-transform duration-100 active:scale-[0.96]"
-                onClick={() => {
-                  playEffect("popUp");
-                  setPicked(preset);
-                }}
-              >
-                <PlacedCake
-                  preset={preset}
-                  centerX={MENU_GRID.cellWidth / 2}
-                  centerY={MENU_GRID.cellHeight / 2}
-                  baseWidth={MENU_GRID.baseWidth}
-                />
-              </button>
+              {drawn(index) && (
+                <button
+                  type="button"
+                  aria-label={`${index + 1}번 케이크 크게 보기`}
+                  className="absolute inset-0 size-full transition-transform duration-100 active:scale-[0.96]"
+                  onClick={() => {
+                    playEffect("popUp");
+                    setPicked(preset);
+                  }}
+                >
+                  <CakeThumb
+                    className="pointer-events-none absolute left-0 top-0"
+                    cake={preset.cake}
+                    width={MENU_GRID.cellWidth}
+                    height={MENU_GRID.cellHeight}
+                    place={placement(
+                      preset,
+                      MENU_GRID.cellWidth / 2,
+                      MENU_GRID.cellHeight / 2,
+                      MENU_GRID.baseWidth,
+                    )}
+                  />
+                </button>
+              )}
             </li>
           ))}
         </ul>
