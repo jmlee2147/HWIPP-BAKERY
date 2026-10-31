@@ -63,21 +63,21 @@ export default function DevicePage() {
         </button>
       </div>
       <p className="mt-2 text-sm text-black/60">
-        브라우저가 체험 도중 페이지를 닫으면 "종료됨"으로 남습니다. 단계 옆의
-        값은 그 단계에 들어선 시점의 그림 수, 그림을 푼 크기, 요소 수, 움직이는
-        것의 수입니다.
+        마지막 줄이 체험이 닿은 곳입니다. "열림"만 있고 "그려짐"이 없으면 그
+        화면을 그리는 도중에 브라우저가 페이지를 닫은 것입니다. 값은 그림 수,
+        그림을 푼 크기, 요소 수, 움직이는 것의 수입니다.
       </p>
       {runs.length === 0 && <p className="mt-4">기록이 없습니다.</p>}
       {runs.map((run) => (
         <section key={run.startedAt} className="mt-6">
           <h3 className="font-bold">
-            {run.startedAt.replace("T", " ").slice(0, 19)}{" "}
-            {run.closed ? "정상 종료" : "종료됨"}
+            {run.startedAt.replace("T", " ").slice(0, 19)}
           </h3>
           <table className="mt-1 w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-black/20 text-left">
                 <th className="py-1 pr-3">단계</th>
+                <th className="py-1 pr-3">때</th>
                 <th className="py-1 pr-3">초</th>
                 <th className="py-1 pr-3">그림</th>
                 <th className="py-1 pr-3">푼 크기</th>
@@ -88,22 +88,26 @@ export default function DevicePage() {
             <tbody>
               {run.marks.map((mark, index) => (
                 <tr
-                  key={`${mark.step}-${index}-${mark.atSec}`}
+                  key={`${mark.step}-${mark.phase}-${index}`}
                   className="border-b border-black/10"
                 >
                   <td className="py-1 pr-3">{STEP_LABELS[mark.step]}</td>
+                  <td className="py-1 pr-3">{mark.phase}</td>
                   <td className="py-1 pr-3">{mark.atSec}</td>
-                  <td className="py-1 pr-3">{mark.images}</td>
-                  <td className="py-1 pr-3">{mark.decodedMb}MB</td>
-                  <td className="py-1 pr-3">{mark.nodes}</td>
-                  <td className="py-1">{mark.animations}</td>
+                  <td className="py-1 pr-3">{mark.images ?? "-"}</td>
+                  <td className="py-1 pr-3">
+                    {mark.decodedMb === undefined ? "-" : `${mark.decodedMb}MB`}
+                  </td>
+                  <td className="py-1 pr-3">{mark.nodes ?? "-"}</td>
+                  <td className="py-1">{mark.animations ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {!run.closed && run.marks.length > 0 && (
+          {run.marks.length > 0 && (
             <p className="mt-1 text-sm">
-              마지막 단계: {STEP_LABELS[run.marks[run.marks.length - 1].step]} (
+              마지막: {STEP_LABELS[run.marks[run.marks.length - 1].step]}{" "}
+              {run.marks[run.marks.length - 1].phase} (
               {run.marks[run.marks.length - 1].atSec}초)
             </p>
           )}

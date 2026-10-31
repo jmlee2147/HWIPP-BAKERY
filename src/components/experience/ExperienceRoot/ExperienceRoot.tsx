@@ -15,12 +15,14 @@ import { MenuScreen } from "@/components/result/MenuScreen/MenuScreen";
 import { ResultScreen } from "@/components/result/ResultScreen/ResultScreen";
 import { ShareScreen } from "@/components/share/ShareScreen/ShareScreen";
 import { useIdleReset } from "@/hooks/common/useIdleReset";
-import { closeRun, markStep, startRun } from "@/lib/diagnostics";
+import { markStep, remeasureStep, startRun } from "@/lib/diagnostics";
 import { FIRST_STEP, type Step } from "@/lib/steps";
 import { coverEnter, holdUntilCovered } from "@/lib/transitions";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 
 const IDLE_RESET_MS = 40_000;
+// 화면을 그린 뒤 그림이 모두 받아지기를 기다렸다가 다시 재는 시간.
+const SETTLE_MS = 3000;
 
 // 구현이 끝난 단계의 화면. 여기에 없는 단계는 임시 화면으로 이어 준다.
 const SCREENS: Partial<Record<Step, ComponentType>> = {
@@ -50,14 +52,22 @@ export const ExperienceRoot = () => {
   // 휴대폰 브라우저가 체험 도중 페이지를 닫는 일이 있어, 어디까지 갔는지 남긴다. /device에서 본다.
   useEffect(() => {
     startRun();
-    const close = () => closeRun();
-    window.addEventListener("pagehide", close);
-    return () => window.removeEventListener("pagehide", close);
   }, []);
 
-  // 단계에 들어설 때 그 시점의 상태를 잰다. 재는 일은 단계가 바뀔 때만 한다.
+  // 들어설 때 먼저 남기고, 화면을 다 그린 뒤에 재서 남긴다. 그리는 도중에 닫히면 "열림"만 남아
+  // 그 화면을 그리다 닫혔음을 알 수 있다. 그림이 받아질 시간을 준 뒤 한 번 더 재서 값을 올린다.
   useEffect(() => {
-    markStep(step);
+    markStep(step, "열림");
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => markStep(step, "그려짐"));
+    });
+    const settle = window.setTimeout(() => remeasureStep(step), SETTLE_MS);
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+      window.clearTimeout(settle);
+    };
   }, [step]);
 
   return (
