@@ -854,12 +854,17 @@ export function cakeLayers(
       decorations.find((one) => one.id === chosen.id),
       shape.id,
     ) !== undefined;
+  // 걸러낸 뒤의 차례를 원래 목록의 차례로 되돌리는 표.
+  // 그림에 붙는 index는 바깥에서 장식을 고르고 지우는 데 쓰이므로 원래 목록을 가리켜야 한다.
+  const kept: number[] = [];
   const cake = {
     ...config,
-    decorations: config.decorations.filter(
-      (chosen) =>
-        !byHand(chosen) && (!chosen.only || chosen.only.includes(shape.id)),
-    ),
+    decorations: config.decorations.filter((chosen, index) => {
+      const keep =
+        !byHand(chosen) && (!chosen.only || chosen.only.includes(shape.id));
+      if (keep) kept.push(index);
+      return keep;
+    }),
   };
   const layoutShape = pick(
     CAKE_SHAPES,
@@ -1729,19 +1734,53 @@ export function cakeLayers(
     );
   });
 
+  // 직접 놓은 장식은 이미 원래 차례를 달고 있다. 나머지만 되돌린다.
+  const restore = (layers: CakeLayer[]) =>
+    layers.map((layer) =>
+      layer.index === undefined
+        ? layer
+        : { ...layer, index: kept[layer.index] ?? layer.index },
+    );
+
   return [
     base,
-    ...ordered.slice(0, aboveSurface),
-    ...(underlaid.get(UNDERLAY_LAYERS.belowParts) ?? []),
-    ...underlay,
+    ...restore(ordered.slice(0, aboveSurface)),
+    ...restore(underlaid.get(UNDERLAY_LAYERS.belowParts) ?? []),
+    ...restore(underlay),
     ...underlayByHand,
-    ...(underlaid.get(UNDERLAY_LAYERS.aboveParts) ?? []),
-    ...ordered.slice(aboveSurface),
-    ...onTopOfAll,
-    ...floorLine,
-    ...inSpots.map(({ spotY: _spotY, ...layer }) => layer),
+    ...restore(underlaid.get(UNDERLAY_LAYERS.aboveParts) ?? []),
+    ...restore(ordered.slice(aboveSurface)),
+    ...restore(onTopOfAll),
+    ...restore(floorLine),
+    ...restore(inSpots.map(({ spotY: _spotY, ...layer }) => layer)),
     ...placedByHand,
   ];
+}
+
+// 케이크 그림 전체가 차지하는 네모. 판 좌표 기준이고, 판 밖으로 나간 장식도 넣는다.
+// 돌아간 그림은 돌린 뒤에 차지하는 자리로 잰다.
+export function cakeExtent(
+  cake: Parameters<typeof cakeLayers>[0],
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): CakeBox {
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+  for (const layer of cakeLayers(cake, decorations)) {
+    const angle = ((layer.rotate ?? 0) * Math.PI) / 180;
+    const cos = Math.abs(Math.cos(angle));
+    const sin = Math.abs(Math.sin(angle));
+    const width = layer.width * cos + layer.height * sin;
+    const height = layer.width * sin + layer.height * cos;
+    const centerX = layer.left + layer.width / 2;
+    const centerY = layer.top + layer.height / 2;
+    left = Math.min(left, centerX - width / 2);
+    top = Math.min(top, centerY - height / 2);
+    right = Math.max(right, centerX + width / 2);
+    bottom = Math.max(bottom, centerY + height / 2);
+  }
+  return { left, top, width: right - left, height: bottom - top };
 }
 
 // 자리를 옮기고 크기와 기울기를 고칠 수 있는 낱개 장식이면 그 장식의 정보를, 아니면 undefined를 돌려준다.

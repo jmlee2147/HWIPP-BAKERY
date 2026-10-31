@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CAKE_SHAPES } from "@/data/cake";
+import { CAKE_SHAPES, type CakeConfig } from "@/data/cake";
 import { CAKE_PRESETS } from "@/data/cakePresets";
 import { cakeLayers } from "@/lib/cake";
 import {
@@ -149,7 +149,11 @@ describe("공유 주소", () => {
           shape,
           layoutShape: preset.cake.layoutShape ?? preset.cake.shape,
         };
-        expect(cakeLayers(forCurrentShape(cake))).toEqual(cakeLayers(cake));
+        // 그림에 붙는 차례는 장식 목록에서의 자리라, 쓰지 않는 장식을 덜어 내면 달라진다. 모습만 견준다.
+        const looks = (one: CakeConfig) =>
+          cakeLayers(one).map(({ index: _index, ...layer }) => layer);
+
+        expect(looks(forCurrentShape(cake))).toEqual(looks(cake));
       }
     }
   });
