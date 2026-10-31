@@ -82,7 +82,9 @@ export const PartyBoard = ({ active }: PartyBoardProps) => {
   return (
     <motion.div
       aria-hidden
-      className="absolute left-0 top-0 will-change-transform"
+      // 보드는 5220x7151이라 상시 레이어로 올리면 백킹 스토어만 140MB를 넘긴다.
+      // 휴대폰이 이 화면에서 페이지를 닫는다. 움직이는 동안 필요한 최적화는 motion이 맡는다.
+      className="absolute left-0 top-0"
       style={{ x, y, scale, rotate: BOARD_TILT_DEG, originX: 0, originY: 0 }}
     >
       {COLUMN_LINES.map((column) => (
