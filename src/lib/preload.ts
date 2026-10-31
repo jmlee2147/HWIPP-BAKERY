@@ -18,6 +18,12 @@ export function keptCount() {
   return kept.length;
 }
 
+// 지금까지 받기 시작한 그림의 수. 화면에 붙지 않은 것까지 센다.
+// 계측에서 체험이 이어지는 동안 얼마나 쌓였는지 보는 데 쓴다.
+export function requestedCount() {
+  return requested.size;
+}
+
 // 다음 화면에서 쓸 글꼴을 미리 받아 둔다. 글자가 다른 글꼴로 먼저 보였다가 바뀌는 것을 막는다.
 export function preloadFonts(fonts: string[]) {
   if (typeof document === "undefined" || !document.fonts) return;

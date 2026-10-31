@@ -29,6 +29,10 @@ export const EDITOR_QUIT = {
   cancel: "계속하기",
 };
 
+// 한 모양의 색상별 바탕 그림. 색상을 바꾸면 바로 보여야 하므로 그 모양의 것만 미리 받는다.
+export const editorBaseImages = (shape: CakeShapeId) =>
+  CAKE_COLORS.map((color) => cakeBaseImage(shape, color.id));
+
 export const EDITOR_HISTORY_LABELS = { undo: "실행 취소", redo: "다시 실행" };
 
 export const EDITOR_ERASE = {
@@ -544,13 +548,12 @@ export const BROWSER_IMAGES = {
   face: browser("face.svg"),
 };
 
-// 수정 화면의 틀. 모양과 색상을 바꾸면 바로 보여야 하므로 케이크 바탕 그림을 모두 넣는다.
+// 수정 화면의 틀. 케이크 바탕 그림은 여기에 넣지 않는다. 세 모양에 여섯 색이면 열여덟 장이고
+// 장당 2MB라, 결과 화면에서 모두 받아 두면 수정 화면으로 넘어가는 순간 휴대폰이 버티지 못한다.
+// 지금 모양의 색상만 EDITOR_BASE_IMAGES로 따로 받는다.
 export const EDITOR_IMAGES = [
   ...Object.values(BROWSER_IMAGES),
   ...Object.values(SHAPE_ICONS).map((icon) => icon.src),
-  ...CAKE_SHAPES.flatMap((shape) =>
-    CAKE_COLORS.map((color) => cakeBaseImage(shape.id, color.id)),
-  ),
   LIST_CLOSE_IMAGE,
   ERASER_IMAGE,
   ...Object.values(CONTROL_IMAGES),
