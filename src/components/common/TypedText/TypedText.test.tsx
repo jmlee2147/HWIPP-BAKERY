@@ -1,12 +1,16 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { playTalk } from "@/lib/sound";
 import { TypedText } from "./TypedText";
+
+vi.mock("@/lib/sound", () => ({ playTalk: vi.fn() }));
 
 const typed = () => screen.getByTestId("typed-text").textContent;
 
 describe("TypedText", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.mocked(playTalk).mockClear();
   });
 
   afterEach(() => {
@@ -50,5 +54,28 @@ describe("TypedText", () => {
     act(() => vi.advanceTimersByTime(1));
     act(() => vi.advanceTimersByTime(100));
     expect(typed()).toBe("케");
+  });
+
+  it("말소리는 글자마다 내지 않고 사이를 띄운다", () => {
+    // 휴대폰과 키오스크는 소리를 자주 내면 재생이 밀려 말소리가 버벅인다.
+    render(<TypedText text="가나다라마바사아자차" intervalMs={50} sound />);
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(typed()).toBe("가나다라마바사아자차");
+    expect(vi.mocked(playTalk).mock.calls.length).toBeLessThanOrEqual(4);
+    expect(vi.mocked(playTalk)).toHaveBeenCalled();
+  });
+
+  it("한 번에 다 보여 줄 때는 말소리를 내지 않는다", () => {
+    render(<TypedText text="가나다라마" intervalMs={50} sound instant />);
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(vi.mocked(playTalk)).not.toHaveBeenCalled();
   });
 });
