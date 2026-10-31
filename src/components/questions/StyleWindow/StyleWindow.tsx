@@ -10,6 +10,9 @@ import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import { type RecipientStyle, STYLES, type StyleId } from "@/data/styles";
 
 const WINDOW_DOT = "absolute rounded-full";
+// 창 폭을 넘는 줄은 손가락으로 옆으로 밀어 끝까지 읽는다. 스크롤 막대는 감춘다.
+const SCROLL_ROW =
+  "overflow-x-auto overflow-y-hidden [touch-action:pan-x] [&::-webkit-scrollbar]:hidden";
 const MENU_LINE = "absolute rounded-full bg-black";
 // 삼각형은 작아서 88px 버튼 안에 둔다. 두 버튼은 가운데 세로줄에서 맞닿고,
 // 이전 버튼은 즐겨찾기 머리글 쪽으로, 다음 버튼은 제목 글자 쪽으로 넓힌다.
@@ -219,28 +222,31 @@ export const StyleWindow = ({
         <p className="absolute left-[24px] top-[668px] whitespace-nowrap text-[21px] font-medium leading-[30px] tracking-[-0.53px] text-[#909090]">
           자주 하는 말
         </p>
-        {recipient.quotes.map((row, rowIndex) => (
-          <div
-            key={row[0]}
-            className="absolute left-[25px] flex gap-[11px]"
-            style={{ top: rowIndex === 0 ? 708.6 : 788.47 }}
-          >
-            {row.map((quote, index) => (
-              <p
-                key={quote}
-                className={`flex h-[65px] shrink-0 items-center whitespace-nowrap rounded-[10px] bg-[#f2f2f2] px-[33.5px] text-[23.53px] font-medium leading-[32.21px] tracking-[-0.59px] ${rowIndex * recipient.quotes[0].length + index === activeQuote ? "text-candy" : "text-black/70"}`}
-              >
-                {`"${quote}"`}
-              </p>
+        {/* 말이 창 폭보다 길어 다 보이지 않으므로 두 줄을 함께 옆으로 밀어 본다. */}
+        <div
+          className={`absolute left-[25px] top-[708.6px] w-[937px] ${SCROLL_ROW}`}
+        >
+          <div className="flex w-max flex-col gap-[14.87px]">
+            {recipient.quotes.map((row, rowIndex) => (
+              <div key={row[0]} className="flex gap-[11px]">
+                {row.map((quote, index) => (
+                  <p
+                    key={quote}
+                    className={`flex h-[65px] shrink-0 items-center whitespace-nowrap rounded-[10px] bg-[#f2f2f2] px-[33.5px] text-[23.53px] font-medium leading-[32.21px] tracking-[-0.59px] ${rowIndex * recipient.quotes[0].length + index === activeQuote ? "text-candy" : "text-black/70"}`}
+                  >
+                    {`"${quote}"`}
+                  </p>
+                ))}
+              </div>
             ))}
           </div>
-        ))}
+        </div>
 
         <div className="absolute left-[23px] top-[870px] flex h-[105.33px] w-[917px] items-center rounded-[10.78px] bg-blush pl-[33.26px]">
           <p className="w-[68.52px] shrink-0 text-[22.45px] font-bold leading-[29.74px] tracking-[-0.56px] text-candy">
             특징
           </p>
-          <ul className="flex gap-[24px]">
+          <ul className={`flex min-w-0 gap-[24px] pr-[33.26px] ${SCROLL_ROW}`}>
             {recipient.traits.map((trait) => (
               <li
                 key={trait}

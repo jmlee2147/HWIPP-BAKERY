@@ -21,7 +21,7 @@ const advance = (ms: number) =>
   act(() => {
     vi.advanceTimersByTime(ms);
   });
-// 말풍선의 뜸, 타이핑, 요약 창이 뜨기까지의 뜸을 차례로 지나간다.
+// 말풍선의 뜸과 타이핑, 그리고 요약 창이 뜨기까지의 뜸을 차례로 지나간다.
 const finishDialog = () => {
   advance(600);
   advance(4000);
@@ -102,30 +102,22 @@ describe("StyleScreen", () => {
     expect(pressed("Aesthetic Curator 폴더")).toBe("true");
   });
 
-  it("한 줄 요약 창은 말풍선의 말이 끝난 뒤에 한 번 보였다가 사라진다", () => {
+  it("한 줄 요약 창은 화면에 들어온 것만으로는 뜨지 않는다", () => {
     render(<StyleScreen />);
-    advance(600);
-    expect(summaryOpen("Trendsetter")).toBe("false");
-
     finishDialog();
-    expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
-    expect(summaryOpen("Trendsetter")).toBe("true");
+
+    expect(summaryOpen("Trendsetter")).toBe("false");
 
     advance(3000);
     expect(summaryOpen("Trendsetter")).toBe("false");
   });
 
-  it("폴더를 누르면 잠시 뒤 그 스타일의 요약 창이 한 번 보였다가 사라진다", () => {
+  it("폴더를 눌러 스타일을 바꾸는 것만으로는 요약 창이 뜨지 않는다", () => {
     render(<StyleScreen />);
     finishDialog();
-    advance(3000);
 
     click("Minimalist 폴더");
     expect(summaryOpen("Minimalist")).toBe("false");
-
-    advance(700);
-    expect(screen.getByText(STYLES[3].summary)).toBeTruthy();
-    expect(summaryOpen("Minimalist")).toBe("true");
 
     advance(3000);
     expect(summaryOpen("Minimalist")).toBe("false");
@@ -138,6 +130,7 @@ describe("StyleScreen", () => {
     expect(summaryOpen("Trendsetter")).toBe("false");
 
     click("Trendsetter");
+    expect(screen.getByText(STYLES[0].summary)).toBeTruthy();
     expect(summaryOpen("Trendsetter")).toBe("true");
 
     click(STYLES[0].summary);
@@ -148,7 +141,6 @@ describe("StyleScreen", () => {
     render(<StyleScreen />);
     finishDialog();
     click("Aesthetic Curator 폴더");
-    advance(700);
     advance(3000);
     expect(useExperienceStore.getState().style).toBeNull();
 
