@@ -5,7 +5,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CAKE_PRESETS } from "@/data/cakePresets";
 import {
   MENU_BACK_LABEL,
@@ -15,6 +15,19 @@ import {
 } from "@/data/menu";
 import { useExperienceStore } from "@/stores/useExperienceStore";
 import { MenuScreen } from "./MenuScreen";
+
+// 부품을 겹칠 순서를 몇 번이나 셈하는지 센다. 목록을 다시 그릴 때마다 셈하면 키오스크에서 밀린다.
+const layerCalls = { count: 0 };
+vi.mock("@/lib/cake", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/cake")>();
+  return {
+    ...actual,
+    cakeLayers: (...args: Parameters<typeof actual.cakeLayers>) => {
+      layerCalls.count += 1;
+      return actual.cakeLayers(...args);
+    },
+  };
+});
 
 const cakeButtons = () => screen.getAllByRole("button", { name: /크게 보기$/ });
 
@@ -76,6 +89,18 @@ describe("MenuScreen", () => {
     expect(cake).toEqual(preset.cake);
     expect(cake).not.toBe(preset.cake);
     expect(cake?.decorations[0]).not.toBe(preset.cake.decorations[0]);
+  });
+
+  it("화면을 다시 그려도 목록의 케이크를 다시 셈하지 않는다", () => {
+    render(<MenuScreen />);
+    layerCalls.count = 0;
+
+    // 크게 보기를 열고 닫으면 목록은 그대로인 채 화면만 다시 그려진다. 목록을 미는 것과 같은 모양의 부하다.
+    fireEvent.click(cakeButtons()[0]);
+    fireEvent.click(screen.getByRole("button", { name: MENU_CLOSE_LABEL }));
+
+    // 크게 보여 줄 케이크 한 개 말고는 다시 셈하지 않는다.
+    expect(layerCalls.count).toBeLessThanOrEqual(1);
   });
 
   it("뒤로 가기를 누르면 결과 화면으로 돌아간다", () => {
