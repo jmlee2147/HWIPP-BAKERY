@@ -65,7 +65,8 @@ export default function DevicePage() {
       <p className="mt-2 text-sm text-black/60">
         마지막 줄이 체험이 닿은 곳입니다. "열림"만 있고 "그려짐"이 없으면 그
         화면을 그리는 도중에 브라우저가 페이지를 닫은 것입니다. 값은 그림 수,
-        그림을 푼 크기, 요소 수, 움직이는 것의 수입니다.
+        그림을 푼 크기, 요소 수, 움직이는 것의 수입니다. "받은"은 체험을 시작한
+        뒤 지금까지 받기 시작한 그림의 수로, 화면에 붙지 않은 것까지 셉니다.
       </p>
       {runs.length === 0 && <p className="mt-4">기록이 없습니다.</p>}
       {runs.map((run) => (
@@ -79,6 +80,7 @@ export default function DevicePage() {
                 <th className="py-1 pr-3">단계</th>
                 <th className="py-1 pr-3">때</th>
                 <th className="py-1 pr-3">초</th>
+                <th className="py-1 pr-3">받은</th>
                 <th className="py-1 pr-3">그림</th>
                 <th className="py-1 pr-3">푼 크기</th>
                 <th className="py-1 pr-3">요소</th>
@@ -94,6 +96,7 @@ export default function DevicePage() {
                   <td className="py-1 pr-3">{STEP_LABELS[mark.step]}</td>
                   <td className="py-1 pr-3">{mark.phase}</td>
                   <td className="py-1 pr-3">{mark.atSec}</td>
+                  <td className="py-1 pr-3">{mark.fetched ?? "-"}</td>
                   <td className="py-1 pr-3">{mark.images ?? "-"}</td>
                   <td className="py-1 pr-3">
                     {mark.decodedMb === undefined ? "-" : `${mark.decodedMb}MB`}
