@@ -23,6 +23,7 @@ import {
   decorationChoices,
   EDITOR_CATEGORIES,
   EDITOR_ERASE,
+  EDITOR_HINT,
   EDITOR_MENU_CHOICE,
   EDITOR_PACK_CHOICE,
   EDITOR_QUIT,
@@ -136,7 +137,10 @@ export const EditorScreen = () => {
 
   return (
     <section className="absolute inset-0 overflow-hidden bg-[#f5efef]">
-      <SpeechBubble className="absolute left-[51.55px] top-[149px]">
+      <SpeechBubble
+        hint={EDITOR_HINT}
+        className="absolute left-[51.55px] top-[149px]"
+      >
         <TypedText text={EDITOR_TEXT} startDelayMs={TYPING_DELAY_MS} sound />
       </SpeechBubble>
       <ProgressBar step={5} className="absolute left-[75px] top-[58px]" />
@@ -183,20 +187,19 @@ export const EditorScreen = () => {
           setSelected(null);
         }}
       >
-        {categories && (
-          <DecorationControls
-            cake={cake}
-            selected={selected}
-            onSelect={setSelected}
-            onAdjust={adjustDecoration}
-            onAdjustStart={history.startDrag}
-            onAdjustEnd={history.endDrag}
-            onMove={moveDecorations}
-            onRemove={(indices) =>
-              history.track(() => removeDecorations(indices))
-            }
-          />
-        )}
+        {/* 장식을 고르는 상자는 어느 탭에서나 보인다. 탭마다 달라지면 고를 수 있다는 것을 알아채기 어렵다. */}
+        <DecorationControls
+          cake={cake}
+          selected={selected}
+          onSelect={setSelected}
+          onAdjust={adjustDecoration}
+          onAdjustStart={history.startDrag}
+          onAdjustEnd={history.endDrag}
+          onMove={moveDecorations}
+          onRemove={(indices) =>
+            history.track(() => removeDecorations(indices))
+          }
+        />
         {/* 장식 조절 상자보다 위에 둔다. 보이는 지름은 78px이고, 터치 영역만 88px로 넓혔다. */}
         <button
           type="button"
