@@ -5,34 +5,35 @@ import {
   BOX_CAKE,
   BOX_CAKE_AREA,
   BOX_CAKE_SIZES,
+  BOX_FLOOR,
   BOX_STAMP_FRAME,
   BOX_STAMPS,
   CAKE_BOX,
   CAKE_BOX_IMAGE,
 } from "@/data/result";
-import { cakeExtent, cakeScale } from "@/lib/cake";
+import { cakeBaseBox, cakeExtent, cakeScale } from "@/lib/cake";
 
 // 뒷판의 기울기. 눕힌 좌표계 안에서 돌리고, 세로로 살짝 누르고, 비튼다.
 const STAMP_SLANT = "rotate(75deg) scaleY(0.97) skewX(-15deg)";
 
 // 상자에 담을 때의 배율. 판의 아래쪽 가운데를 기준으로 줄이므로,
-// 그 기준점에서 그림의 끝까지의 거리가 상자 안쪽까지의 거리를 넘지 않게 한다.
+// 그 기준점에서 끝까지의 거리가 상자 안쪽까지의 거리를 넘지 않게 한다.
+// 좌우는 바탕이 바닥면 안에 놓이는지로, 위아래는 그림 전체가 상자를 넘는지로 본다.
+// 장식은 바닥면 밖으로 뻗어도 괜찮다. 바닥면 위의 빈 자리이기 때문이다.
 export function boxCakeScale(cake: CakeConfig): number {
   const extent = cakeExtent(cake);
+  const base = cakeBaseBox(cake);
   const centerX = CAKE_BOARD.width / 2;
   const room = [
-    [BOX_CAKE.centerX - BOX_CAKE_AREA.left, centerX - extent.left],
-    [
-      BOX_CAKE_AREA.right - BOX_CAKE.centerX,
-      extent.left + extent.width - centerX,
-    ],
+    [BOX_CAKE.centerX - BOX_FLOOR.left, centerX - base.left],
+    [BOX_FLOOR.right - BOX_CAKE.centerX, base.left + base.width - centerX],
     [BOX_CAKE.bottom - BOX_CAKE_AREA.top, CAKE_BOARD.height - extent.top],
     [
       BOX_CAKE_AREA.bottom - BOX_CAKE.bottom,
       extent.top + extent.height - CAKE_BOARD.height,
     ],
   ];
-  // 기준점에서 그림이 그 방향으로 뻗지 않으면 그 쪽은 넘칠 일이 없다.
+  // 기준점에서 그 방향으로 뻗지 않으면 그 쪽은 넘칠 일이 없다.
   const limits = room
     .filter(([, reach]) => reach > 0)
     .map(([space, reach]) => space / reach);

@@ -1757,6 +1757,21 @@ export function cakeLayers(
   ];
 }
 
+// 케이크 바탕 그림이 차지하는 네모. 판 좌표 기준이다.
+// 상자에 담을 때 바닥이 상자 바닥면 안에 들어가는지 보는 데 쓴다.
+export function cakeBaseBox(
+  cake: Parameters<typeof cakeLayers>[0],
+  decorations: CakeDecoration[] = CAKE_DECORATIONS,
+): CakeBox {
+  const [base] = cakeLayers(cake, decorations);
+  return {
+    left: base.left,
+    top: base.top,
+    width: base.width,
+    height: base.height,
+  };
+}
+
 // 케이크 그림 전체가 차지하는 네모. 판 좌표 기준이고, 판 밖으로 나간 장식도 넣는다.
 // 돌아간 그림은 돌린 뒤에 차지하는 자리로 잰다.
 export function cakeExtent(
